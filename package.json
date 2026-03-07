@@ -7,16 +7,15 @@
     "prepare": "husky",
     "lint": "eslint . --ext .js,.ts",
     "lint:fix": "eslint . --ext .js,.ts --fix",
-    "lint:style": "stylelint \"src/**/*.{css,scss}\"",
-    "lint:style:fix": "stylelint \"src/**/*.{css,scss}\" --fix",
+    "lint:style": "stylelint \"miniprogram/**/*.{css,scss,wxss}\"",
+    "lint:style:fix": "stylelint \"miniprogram/**/*.{css,scss,wxss}\" --fix",
     "format": "prettier --write \"**/*.{js,ts,json,scss,css,wxml,wxs,md}\""
   },
   "keywords": [],
   "author": "",
   "license": "",
   "dependencies": {
-    "@vant/weapp": "^1.11.7",
-    "stylelint-config-prettier": "^9.0.5"
+    "@vant/weapp": "^1.11.7"
   },
   "devDependencies": {
     "@commitlint/cli": "^20.4.2",
@@ -31,8 +30,13 @@
     "husky": "^9.1.7",
     "lint-staged": "^15.5.2",
     "miniprogram-api-typings": "^2.8.3-1",
+    "postcss-less": "^6.0.0",
+    "postcss-scss": "^4.0.9",
     "prettier": "^3.8.1",
-    "prettier-plugin-rational-order": "^1.0.3"
+    "prettier-plugin-rational-order": "^1.0.3",
+    "stylelint": "^17.4.0",
+    "stylelint-config-standard-scss": "^17.0.0",
+    "stylelint-order": "^7.0.1"
   },
   "config": {
     "commitizen": {

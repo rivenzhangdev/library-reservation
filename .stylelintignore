@@ -3,4 +3,3 @@ miniprogram_npm
 .husky
 dist
 typings
-**/*.wxss
