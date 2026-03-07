@@ -2,5 +2,6 @@
   "*.{js,jsx,ts,tsx}": ["prettier --write", "eslint --fix"],
   "*.{json,md,yml}": ["prettier --write"],
   "*.{css,scss}": ["stylelint --fix", "prettier --write"],
-  "*.wxss": ["stylelint --fix"]
+  "*.wxss": ["stylelint --fix"],
+  "*.wxml": ["prettier --write"]
 }

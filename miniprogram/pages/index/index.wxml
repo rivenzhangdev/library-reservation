@@ -13,11 +13,26 @@
     />
     <!-- 搜索标签 -->
     <scroll-view class="search-tag" scroll-x enable-flex>
-      <text>有插座</text>
-      <text>靠窗</text>
-      <text>单人桌</text>
-      <text>双人桌</text>
-      <text>小组讨论桌</text>
+      <view class="search-tag-item">
+        <view class="iconfont icon-home search-tag-icon"></view>
+        <text>有插座</text>
+      </view>
+      <view class="search-tag-item">
+        <view class="iconfont icon-home search-tag-icon"></view>
+        <text>靠窗</text>
+      </view>
+      <view class="search-tag-item">
+        <view class="iconfont icon-home search-tag-icon"></view>
+        <text>单人桌</text>
+      </view>
+      <view class="search-tag-item">
+        <view class="iconfont icon-home search-tag-icon"></view>
+        <text>双人桌</text>
+      </view>
+      <view class="search-tag-item">
+        <view class="iconfont icon-home search-tag-icon"></view>
+        <text>小组讨论桌</text>
+      </view>
     </scroll-view>
   </view>
 
