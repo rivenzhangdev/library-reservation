@@ -4,3 +4,4 @@ miniprogram_npm/
 dist/
 typings/
 commitlint.config.js
+miniprogram/assets/icons/iconfonts

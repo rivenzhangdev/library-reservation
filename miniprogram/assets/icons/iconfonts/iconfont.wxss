@@ -1,0 +1,31 @@
+@font-face {
+  font-family: iconfont; /* Project id 5107890 */
+  src: url('/assets/icons/iconfonts/iconfont.woff2?t=1772890669155') format('woff2'),
+       url('/assets/icons/iconfonts/iconfont.woff?t=1772890669155') format('woff'),
+       url('/assets/icons/iconfonts/iconfont.ttf?t=1772890669155') format('truetype');
+}
+
+.iconfont {
+  font-family: iconfont !important;
+  font-size: 16px;
+  font-style: normal;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.icon-home::before {
+  content: "\e603";
+}
+
+.icon-tongzhi::before {
+  content: "\e691";
+}
+
+.icon-a-wodedefuben2::before {
+  content: "\e620";
+}
+
+.icon-Appointment::before {
+  content: "\e623";
+}
+

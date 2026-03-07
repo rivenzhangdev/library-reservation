@@ -24,13 +24,21 @@ page {
   display: flex;
   height: 60rpx;
   white-space: nowrap;
-  text {
+
+  .search-tag-item {
     display: flex;
+    gap: var(--common-mini-gap);
     align-items: center;
+    justify-content: center;
     margin-right: 8px;
     padding: 0 30rpx;
     background-color: var(--common-gray-color);
     border-radius: 9999rpx;
+  }
+
+  .search-tag-icon {
+    margin-bottom: 5rpx;
+    font-size: 30rpx;
   }
 }
 

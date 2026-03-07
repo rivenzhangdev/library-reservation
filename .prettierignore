@@ -3,4 +3,4 @@ miniprogram_npm
 .husky
 dist
 typings
-**/*.wxss
+miniprogram/assets/icons/iconfonts

@@ -1,6 +1,9 @@
 page {
   /* 间距相关 */
   --common-page-padding: 20rpx;
+  --common-mini-gap: 4px;
+  --common-gap: 8px;
+  --common-large-gap: 12px;
 
   /* 颜色相关 */
   --common-gray-color: #f5f5f5;

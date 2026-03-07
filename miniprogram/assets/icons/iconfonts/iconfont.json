@@ -1,0 +1,37 @@
+{
+  "id": "5107890",
+  "name": "miniprogram",
+  "font_family": "iconfont",
+  "css_prefix_text": "icon-",
+  "description": "",
+  "glyphs": [
+    {
+      "icon_id": "7769438",
+      "name": "home",
+      "font_class": "home",
+      "unicode": "e603",
+      "unicode_decimal": 58883
+    },
+    {
+      "icon_id": "18371352",
+      "name": "通知",
+      "font_class": "tongzhi",
+      "unicode": "e691",
+      "unicode_decimal": 59025
+    },
+    {
+      "icon_id": "26648292",
+      "name": "我的",
+      "font_class": "a-wodedefuben2",
+      "unicode": "e620",
+      "unicode_decimal": 58912
+    },
+    {
+      "icon_id": "45492389",
+      "name": "Appointment",
+      "font_class": "Appointment",
+      "unicode": "e623",
+      "unicode_decimal": 58915
+    }
+  ]
+}
