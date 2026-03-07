@@ -52,8 +52,8 @@ module.exports = {
     'rule-empty-line-before': null,
     
     // ========== CSS 属性顺序规则 ==========
-    // 启用属性顺序检查（按字母顺序排列）
-    'order/properties-alphabetical-order': true,
+    // 禁用属性顺序检查（让 Prettier 处理格式化）
+    'order/properties-alphabetical-order': null,
     
     // 或者使用自定义顺序组（更常用）
     // 'order/order': [
