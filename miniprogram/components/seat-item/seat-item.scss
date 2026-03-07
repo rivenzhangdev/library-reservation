@@ -1,0 +1,140 @@
+@import '/assets/icons/iconfonts/iconfont.wxss';
+
+.seat-item {
+  box-sizing: border-box;
+  width: 100%;
+  padding: 32rpx;
+  background: #fff;
+  border-radius: 16rpx;
+  box-shadow: 0 2rpx 12rpx rgba(0, 0, 0, 0.05);
+
+  &__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 24rpx;
+  }
+
+  &__info {
+    display: flex;
+    flex: 1;
+    align-items: center;
+  }
+
+  &__icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 80rpx;
+    height: 80rpx;
+    margin-right: 24rpx;
+    background: linear-gradient(135deg, #e8f9f0 0%, #d4edda 100%);
+    border-radius: 50%;
+
+    .iconfont {
+      color: #2ecc71;
+      font-size: 40rpx;
+    }
+  }
+
+  &__text {
+    display: flex;
+    flex-direction: column;
+  }
+
+  &__label {
+    margin-bottom: 8rpx;
+    color: #666;
+    font-size: 28rpx;
+  }
+
+  &__name {
+    color: #333;
+    font-weight: 600;
+    font-size: 32rpx;
+  }
+
+  &__status {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 8rpx 24rpx;
+    background: #e8f9f0;
+    border-radius: 20rpx;
+
+    &-text {
+      color: #2ecc71;
+      font-size: 24rpx;
+    }
+  }
+
+  &__attributes {
+    display: flex;
+    gap: 24rpx;
+    margin-bottom: 32rpx;
+  }
+
+  &__attribute {
+    padding: 12rpx 24rpx;
+    background: #f7f8fa;
+    border-radius: 8rpx;
+
+    &-text {
+      color: #666;
+      font-size: 26rpx;
+    }
+  }
+
+  &__footer {
+    display: flex;
+    gap: 24rpx;
+    align-items: center;
+  }
+
+  &__btn {
+    &--primary {
+      display: flex;
+      flex: 1;
+      align-items: center;
+      justify-content: center;
+      height: 72rpx;
+      color: #fff;
+      font-size: 28rpx;
+      background: #409eff;
+      border: none;
+      border-radius: 12rpx;
+      outline: none;
+
+      &::after {
+        border: none;
+      }
+    }
+
+    &--icon {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 72rpx;
+      height: 72rpx;
+      background: #f7f8fa;
+      border-radius: 12rpx;
+
+      .iconfont {
+        color: #999;
+        font-size: 32rpx;
+      }
+    }
+
+    &--arrow {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-left: auto;
+
+      .iconfont {
+        color: #ccc;
+        font-size: 32rpx;
+      }
+    }
+  }
+}

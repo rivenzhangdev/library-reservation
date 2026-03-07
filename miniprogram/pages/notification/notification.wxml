@@ -1,0 +1,4 @@
+<!-- 通知页面 -->
+<view class="page-container">
+  <view class="page-content">通知页面</view>
+</view>

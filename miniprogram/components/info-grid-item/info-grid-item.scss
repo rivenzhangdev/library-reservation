@@ -1,0 +1,31 @@
+@import '/assets/icons/iconfonts/iconfont.wxss';
+
+.info-grid-item {
+  display: flex;
+  flex-direction: column;
+  gap: 12rpx;
+  min-height: 200rpx;
+  padding: 24rpx;
+  border-radius: 16rpx;
+
+  &__icon .info-grid-item-icon {
+    margin-bottom: 8rpx;
+    font-size: 50rpx;
+  }
+
+  &__label {
+    color: #666;
+    font-size: 26rpx;
+  }
+
+  &__value {
+    color: #333;
+    font-weight: 600;
+    font-size: 40rpx;
+  }
+
+  &__sublabel {
+    color: #999;
+    font-size: 24rpx;
+  }
+}

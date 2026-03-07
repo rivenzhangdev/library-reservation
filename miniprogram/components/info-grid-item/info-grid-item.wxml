@@ -1,0 +1,9 @@
+<!-- 信息卡片项组件 -->
+<view class="info-grid-item" style="background-color: {{bgColor}}">
+  <view class="info-grid-item__icon" style="color: {{iconColor}}">
+    <view class="iconfont icon-{{icon}} info-grid-item-icon"></view>
+  </view>
+  <view class="info-grid-item__label">{{label}}</view>
+  <view class="info-grid-item__value">{{value}}</view>
+  <view class="info-grid-item__sublabel">{{sublabel}}</view>
+</view>

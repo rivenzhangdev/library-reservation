@@ -2,6 +2,10 @@
   "usingComponents": {
     "navigation-bar": "/components/navigation-bar/navigation-bar",
     "van-button": "@vant/weapp/button/index",
-    "van-search": "@vant/weapp/search/index"
+    "van-search": "@vant/weapp/search/index",
+    "common-card": "/components/common-card/common-card",
+    "info-grid": "/components/info-grid/info-grid",
+    "info-grid-item": "/components/info-grid-item/info-grid-item",
+    "seat-item": "/components/seat-item/seat-item"
   }
 }

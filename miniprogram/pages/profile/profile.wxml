@@ -1,0 +1,4 @@
+<!-- 个人中心页面 -->
+<view class="page-container">
+  <view class="page-content">我的页面</view>
+</view>

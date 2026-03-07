@@ -1,8 +1,45 @@
 {
-  "pages": ["pages/index/index"],
+  "pages": [
+    "pages/index/index",
+    "pages/reservation/reservation",
+    "pages/notification/notification",
+    "pages/profile/profile"
+  ],
   "window": {
     "navigationBarTextStyle": "black",
     "navigationStyle": "custom"
+  },
+  "tabBar": {
+    "color": "#666666",
+    "selectedColor": "#409eff",
+    "backgroundColor": "#ffffff",
+    "borderStyle": "black",
+    "list": [
+      {
+        "pagePath": "pages/index/index",
+        "text": "首页",
+        "iconPath": "assets/images/tabBar/home.png",
+        "selectedIconPath": "assets/images/tabBar/home.png"
+      },
+      {
+        "pagePath": "pages/reservation/reservation",
+        "text": "预约",
+        "iconPath": "assets/images/tabBar/home.png",
+        "selectedIconPath": "assets/images/tabBar/home.png"
+      },
+      {
+        "pagePath": "pages/notification/notification",
+        "text": "通知",
+        "iconPath": "assets/images/tabBar/home.png",
+        "selectedIconPath": "assets/images/tabBar/home.png"
+      },
+      {
+        "pagePath": "pages/profile/profile",
+        "text": "我的",
+        "iconPath": "assets/images/tabBar/home.png",
+        "selectedIconPath": "assets/images/tabBar/home.png"
+      }
+    ]
   },
   "usingComponents": {
     "van-icon": "@vant/weapp/icon/index"

@@ -1,0 +1,20 @@
+<!-- 通用卡片组件 -->
+<view class="common-card">
+  <!-- 头部区域：支持 title 属性或 title 插槽 -->
+  <view class="common-card__header" wx:if="{{title || $slots.title}}">
+    <view class="common-card__header-content">
+      <block wx:if="{{title}}"> {{title}} </block>
+      <slot name="title" wx:else />
+    </view>
+    <!-- 右侧操作区域插槽 -->
+    <slot name="header-action" />
+  </view>
+
+  <!-- 内容区域 -->
+  <view class="common-card__content">
+    <slot />
+  </view>
+
+  <!-- 底部区域插槽 -->
+  <slot name="footer" />
+</view>
