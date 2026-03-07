@@ -1,0 +1,4 @@
+node_modules
+**/miniprogram_npm
+!.stylelintrc.js
+!.vscode/settings.json

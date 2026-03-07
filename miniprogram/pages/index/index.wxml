@@ -1,0 +1,38 @@
+<!-- 导航栏 -->
+<navigation-bar title="图书馆座位预约" back="{{false}}" />
+
+<!-- 页面容器 -->
+<view class="page-container">
+  <!-- 搜索区域 -->
+  <view class="search-area">
+    <van-search
+      class="search-input"
+      value="{{ value }}"
+      shape="round"
+      placeholder="请输入搜索关键词"
+    />
+    <!-- 搜索标签 -->
+    <scroll-view class="search-tag" scroll-x enable-flex>
+      <text>有插座</text>
+      <text>靠窗</text>
+      <text>单人桌</text>
+      <text>双人桌</text>
+      <text>小组讨论桌</text>
+    </scroll-view>
+  </view>
+
+  <!-- 轮播图 -->
+  <view class="swiper-area">
+    <swiper indicator-dots="{{true}}" autoplay="{{true}}" interval="3000" duration="1000">
+      <swiper-item>
+        <image src="https://picsum.photos/seed/picsum/200/300" mode="aspectFill" />
+      </swiper-item>
+      <swiper-item>
+        <image src="https://picsum.photos/seed/picsum/200/300" mode="aspectFill" />
+      </swiper-item>
+      <swiper-item>
+        <image src="https://picsum.photos/seed/picsum/200/300" mode="aspectFill" />
+      </swiper-item>
+    </swiper>
+  </view>
+</view>

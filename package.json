@@ -1,0 +1,42 @@
+{
+  "name": "miniprogram-ts-sass-quickstart",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "",
+  "scripts": {
+    "prepare": "husky",
+    "lint": "eslint . --ext .js,.ts",
+    "lint:fix": "eslint . --ext .js,.ts --fix",
+    "lint:style": "stylelint \"src/**/*.{css,scss}\"",
+    "lint:style:fix": "stylelint \"src/**/*.{css,scss}\" --fix",
+    "format": "prettier --write \"**/*.{js,ts,json,scss,css,wxml,wxs,md}\""
+  },
+  "keywords": [],
+  "author": "",
+  "license": "",
+  "dependencies": {
+    "@vant/weapp": "^1.11.7",
+    "stylelint-config-prettier": "^9.0.5"
+  },
+  "devDependencies": {
+    "@commitlint/cli": "^20.4.2",
+    "@commitlint/config-conventional": "^20.4.2",
+    "@types/eslint": "^9.6.1",
+    "@typescript-eslint/eslint-plugin": "^8.56.1",
+    "@typescript-eslint/parser": "^8.56.1",
+    "cz-conventional-changelog": "^3.3.0",
+    "eslint": "^8.57.1",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-prettier": "^5.5.5",
+    "husky": "^9.1.7",
+    "lint-staged": "^15.5.2",
+    "miniprogram-api-typings": "^2.8.3-1",
+    "prettier": "^3.8.1",
+    "prettier-plugin-rational-order": "^1.0.3"
+  },
+  "config": {
+    "commitizen": {
+      "path": "./node_modules/cz-conventional-changelog"
+    }
+  }
+}

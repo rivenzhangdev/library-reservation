@@ -1,0 +1,9 @@
+/**app.wxss**/
+@use './styles/vant/var.scss';
+@import './styles/common.wxss';
+
+page {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
