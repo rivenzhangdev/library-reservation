@@ -19,20 +19,17 @@ Component({
       type: String,
       value: '',
     },
+    // 背景颜色（直接传颜色值）
     bgColor: {
       type: String,
       value: '#f8f9fa',
     },
+    // 图标颜色（直接传颜色值）
     iconColor: {
       type: String,
-      value: '#409eff',
+      value: '',
     },
   },
-
-  /**
-   * 组件的初始数据
-   */
-  data: {},
 
   /**
    * 组件的方法列表

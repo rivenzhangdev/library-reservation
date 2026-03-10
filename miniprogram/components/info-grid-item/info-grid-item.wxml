@@ -1,7 +1,13 @@
 <!-- 信息卡片项组件 -->
 <view class="info-grid-item" style="background-color: {{bgColor}}">
-  <view class="info-grid-item__icon" style="color: {{iconColor}}">
-    <view class="iconfont icon-{{icon}} info-grid-item-icon"></view>
+  <view class="info-grid-item__icon">
+    <uni-icon
+      type="iconfont"
+      name="{{icon}}"
+      size="50"
+      color="{{iconColor}}"
+      custom-class="info-grid-item-icon"
+    />
   </view>
   <view class="info-grid-item__label">{{label}}</view>
   <view class="info-grid-item__value">{{value}}</view>

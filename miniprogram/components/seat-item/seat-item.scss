@@ -31,7 +31,7 @@
     background: linear-gradient(135deg, #e8f9f0 0%, #d4edda 100%);
     border-radius: 50%;
 
-    .iconfont {
+    .seat-item__iconfont {
       color: #2ecc71;
       font-size: 40rpx;
     }
@@ -119,7 +119,7 @@
       background: #f7f8fa;
       border-radius: 12rpx;
 
-      .iconfont {
+      .seat-item__iconfont {
         color: #999;
         font-size: 32rpx;
       }
@@ -131,7 +131,7 @@
       justify-content: center;
       margin-left: auto;
 
-      .iconfont {
+      .seat-item__iconfont {
         color: #ccc;
         font-size: 32rpx;
       }

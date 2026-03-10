@@ -1,0 +1,29 @@
+@import '/assets/icons/iconfonts/iconfont.wxss';
+
+.uni-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  // Vant 图标样式
+  .van-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  // Iconfont 图标样式
+  .uni-icon-font {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    // 确保 iconfont 的样式优先级
+    &.iconfont {
+      font-family: iconfont !important;
+      font-style: normal;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+  }
+}

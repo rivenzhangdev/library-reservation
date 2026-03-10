@@ -1,15 +1,16 @@
 page {
   /* 间距相关 */
   --common-page-padding: 20rpx;
-  --common-mini-gap: 4px;
-  --common-gap: 8px;
-  --common-large-gap: 12rpx;
+  --common-mini-gap: 8rpx;
+  --common-gap: 12rpx;
+  --common-large-gap: 16rpx;
 
   /* 颜色相关 */
   --common-gray-color: #f5f5f5;
   --common-card-bg-color: #fff;
   --common-text-color: #333;
   --common-secondary-text-color: #666;
+  --common-primary-color: #409eff;
 
   /* 边框圆角相关 */
   --common-mini-border-radius: 4rpx;
@@ -23,4 +24,9 @@ page {
   --common-mini-font-size: 16rpx;
   --common-font-size: 24rpx;
   --common-large-font-size: 32rpx;
+  
+  /* 按钮相关 */
+  --button-small-width: 160rpx;
+  --tag-min-width: 120rpx;
+  --filter-option-min-width: 160rpx;
 }

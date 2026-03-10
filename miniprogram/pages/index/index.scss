@@ -74,8 +74,15 @@ swiper-item {
     align-items: center;
   }
 
-  &-icon .iconfont {
-    font-size: 48rpx;
+  &-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    .van-icon {
+      color: #2ecc71;
+      font-size: 48rpx;
+    }
   }
 
   &-info {
@@ -97,10 +104,7 @@ swiper-item {
 
   &-status {
     padding: 8rpx 24rpx;
-    color: #2ecc71;
     font-size: 26rpx;
-    background-color: #e8f9f0;
-    border-radius: 9999rpx;
   }
 }
 
@@ -124,6 +128,22 @@ swiper-item {
 
     .action-icon {
       font-size: 50rpx;
+
+      &--blue {
+        color: #409eff;
+      }
+
+      &--purple {
+        color: #9b59b6;
+      }
+
+      &--green {
+        color: #2ecc71;
+      }
+
+      &--orange {
+        color: #e67e22;
+      }
     }
 
     .action-text {
@@ -161,6 +181,22 @@ swiper-item {
       color: #fff;
       font-size: 28rpx;
       border-radius: 50%;
+
+      &--blue {
+        background-color: #409eff;
+      }
+
+      &--green {
+        background-color: #2ecc71;
+      }
+
+      &--red {
+        background-color: #e74c3c;
+      }
+
+      &--gray {
+        background-color: #95a5a6;
+      }
     }
 
     .seat-status-label {
@@ -234,5 +270,129 @@ swiper-item {
     display: flex;
     flex-direction: column;
     gap: 24rpx;
+  }
+}
+
+// 座位状态概览中的图表
+.trend-chart-wrapper {
+  width: 100%;
+  height: 400rpx;
+  margin-top: 24rpx;
+  padding-top: 16rpx;
+  border-top: 1rpx solid #f0f0f0;
+
+  /* stylelint-disable-next-line selector-type-no-unknown */
+  ec-canvas {
+    width: 100%;
+    height: 100%;
+  }
+}
+
+// 今日座位使用趋势图表
+.trend-section {
+  .chart-container {
+    width: 100%;
+    height: 400rpx;
+
+    /* stylelint-disable-next-line selector-type-no-unknown */
+    ec-canvas {
+      width: 100%;
+      height: 100%;
+    }
+  }
+}
+
+// 活动通知
+.activity-section {
+  .view-all {
+    display: flex;
+    gap: 8rpx;
+    align-items: center;
+    color: #409eff;
+    font-size: 28rpx;
+
+    &-text {
+      color: inherit;
+    }
+
+    &-icon {
+      color: inherit;
+      font-size: 28rpx;
+    }
+  }
+
+  .activity-list {
+    display: flex;
+    flex-direction: column;
+    gap: 24rpx;
+  }
+
+  .activity-card {
+    display: flex;
+    flex-direction: column;
+    gap: 20rpx;
+    padding: 24rpx;
+    background-color: #f8f9fa;
+    border-radius: 16rpx;
+    transition: all 0.3s ease;
+
+    &:active {
+      background-color: #f0f1f2;
+      transform: scale(0.98);
+    }
+
+    .activity-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+
+      .activity-title {
+        color: #333;
+        font-weight: 600;
+        font-size: 30rpx;
+      }
+
+      .activity-status {
+        .van-tag {
+          font-size: 24rpx;
+        }
+      }
+    }
+
+    .activity-description {
+      color: #666;
+      font-size: 28rpx;
+      line-height: 1.5;
+    }
+
+    .activity-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+
+      .activity-time {
+        display: flex;
+        gap: 12rpx;
+        align-items: center;
+        color: #999;
+        font-size: 26rpx;
+
+        &-icon {
+          color: #999;
+          font-size: 28rpx;
+        }
+      }
+
+      .activity-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 160rpx;
+        height: 60rpx;
+        padding: 0 32rpx;
+        font-size: 26rpx;
+        line-height: 60rpx;
+      }
+    }
   }
 }

@@ -1,0 +1,24 @@
+<!-- 通用图标组件：支持 van-icon 和 iconfont -->
+<view class="uni-icon {{customClass}}">
+  <!-- 使用 Vant 图标 -->
+  <van-icon
+    wx:if="{{type === 'vant' && name}}"
+    name="{{name}}"
+    size="{{size}}rpx"
+    color="{{color}}"
+    class-prefix="{{classPrefix}}"
+    class="{{customClass}}"
+    bind:click="onClick"
+  />
+
+  <!-- 使用 Iconfont 图标 -->
+  <view
+    wx:elif="{{type === 'iconfont' && name}}"
+    class="iconfont icon-{{name}} uni-icon-font {{customClass}}"
+    style="{{iconStyle}}"
+    bind:tap="onClick"
+  ></view>
+
+  <!-- 默认插槽：支持自定义内容 -->
+  <slot wx:else bind:tap="onClick" />
+</view>

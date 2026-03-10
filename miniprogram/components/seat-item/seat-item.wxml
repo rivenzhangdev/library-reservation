@@ -4,7 +4,7 @@
   <view class="seat-item__header">
     <view class="seat-item__info">
       <view class="seat-item__icon">
-        <view class="iconfont {{icon}}"></view>
+        <uni-icon type="vant" name="{{icon}}" size="40" custom-class="seat-item__iconfont" />
       </view>
       <view class="seat-item__text">
         <text class="seat-item__label">{{seatLabel}}</text>
@@ -30,10 +30,7 @@
   <view class="seat-item__footer">
     <button class="seat-item__btn seat-item__btn--primary" bindtap="onReserve">立即预约</button>
     <view class="seat-item__btn seat-item__btn--icon" bindtap="onFavorite">
-      <view class="iconfont icon-heart"></view>
-    </view>
-    <view class="seat-item__btn seat-item__btn--arrow" bindtap="onDetail">
-      <view class="iconfont icon-arrow"></view>
+      <uni-icon type="vant" name="star-o" size="32" custom-class="seat-item__iconfont" />
     </view>
   </view>
 </view>
