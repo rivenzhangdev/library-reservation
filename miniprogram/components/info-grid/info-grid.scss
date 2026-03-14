@@ -1,6 +1,6 @@
 .info-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 20rpx;
+  gap: var(--common-gap);
   width: 100%;
 }

@@ -3,16 +3,16 @@
 .seat-item {
   box-sizing: border-box;
   width: 100%;
-  padding: 32rpx;
-  background: #fff;
-  border-radius: 16rpx;
-  box-shadow: 0 2rpx 12rpx rgba(0, 0, 0, 0.05);
+  padding: var(--card-padding);
+  background: var(--common-card-bg-color);
+  border-radius: var(--common-large-border-radius);
+  box-shadow: var(--common-card-shadow);
 
   &__header {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    margin-bottom: 24rpx;
+    margin-bottom: var(--card-header-margin-bottom);
   }
 
   &__info {
@@ -27,13 +27,13 @@
     justify-content: center;
     width: 80rpx;
     height: 80rpx;
-    margin-right: 24rpx;
+    margin-right: var(--common-section-gap);
     background: linear-gradient(135deg, #e8f9f0 0%, #d4edda 100%);
     border-radius: 50%;
 
     .seat-item__iconfont {
-      color: #2ecc71;
-      font-size: 40rpx;
+      color: var(--common-success-color);
+      font-size: var(--icon-medium-size);
     }
   }
 
@@ -43,15 +43,15 @@
   }
 
   &__label {
-    margin-bottom: 8rpx;
-    color: #666;
-    font-size: 28rpx;
+    margin-bottom: var(--common-mini-gap);
+    color: var(--common-secondary-text-color);
+    font-size: var(--common-large-font-size);
   }
 
   &__name {
-    color: #333;
-    font-weight: 600;
-    font-size: 32rpx;
+    color: var(--common-text-color);
+    font-weight: var(--common-font-weight-bold);
+    font-size: var(--common-title-font-size);
   }
 
   &__status {
@@ -60,34 +60,34 @@
     justify-content: center;
     padding: 8rpx 24rpx;
     background: #e8f9f0;
-    border-radius: 20rpx;
+    border-radius: var(--common-circle-border-radius);
 
     &-text {
-      color: #2ecc71;
-      font-size: 24rpx;
+      color: var(--common-success-color);
+      font-size: var(--common-medium-font-size);
     }
   }
 
   &__attributes {
     display: flex;
-    gap: 24rpx;
-    margin-bottom: 32rpx;
+    gap: var(--common-section-gap);
+    margin-bottom: var(--card-header-margin-bottom);
   }
 
   &__attribute {
     padding: 12rpx 24rpx;
-    background: #f7f8fa;
-    border-radius: 8rpx;
+    background: var(--common-gray-color);
+    border-radius: var(--common-mini-border-radius);
 
     &-text {
-      color: #666;
-      font-size: 26rpx;
+      color: var(--common-secondary-text-color);
+      font-size: var(--common-medium-font-size);
     }
   }
 
   &__footer {
     display: flex;
-    gap: 24rpx;
+    gap: var(--common-section-gap);
     align-items: center;
   }
 
@@ -99,10 +99,10 @@
       justify-content: center;
       height: 72rpx;
       color: #fff;
-      font-size: 28rpx;
-      background: #409eff;
+      font-size: var(--common-large-font-size);
+      background: var(--common-primary-color);
       border: none;
-      border-radius: 12rpx;
+      border-radius: var(--common-large-border-radius);
       outline: none;
 
       &::after {
@@ -116,12 +116,12 @@
       justify-content: center;
       width: 72rpx;
       height: 72rpx;
-      background: #f7f8fa;
-      border-radius: 12rpx;
+      background: var(--common-gray-color);
+      border-radius: var(--common-large-border-radius);
 
       .seat-item__iconfont {
-        color: #999;
-        font-size: 32rpx;
+        color: var(--common-hint-text-color);
+        font-size: var(--icon-small-size);
       }
     }
 
@@ -133,8 +133,27 @@
 
       .seat-item__iconfont {
         color: #ccc;
-        font-size: 32rpx;
+        font-size: var(--icon-small-size);
       }
     }
+  }
+}
+
+// 英文长文本适配
+[lang='en'] .seat-item {
+  .seat-item__label {
+    font-size: 26rpx;
+  }
+
+  .seat-item__name {
+    font-size: 30rpx;
+  }
+
+  .seat-item__attribute-text {
+    font-size: 24rpx;
+  }
+
+  .seat-item__btn--primary {
+    font-size: 26rpx;
   }
 }

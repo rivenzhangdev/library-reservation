@@ -1,4 +1,108 @@
 <!-- 个人中心页面 -->
 <view class="page-container">
-  <view class="page-content">我的页面</view>
+  <!-- 导航栏 -->
+  <navigation-bar title="{{pageTitle}}" back="{{false}}" />
+
+  <view class="profile-content">
+    <!-- 语言切换按钮区域 -->
+    <view class="lang-switch-section">
+      <view class="lang-switch-card" bindtap="onLanguageSwitch">
+        <view class="lang-switch-content">
+          <uni-icon type="vant" name="globe" size="40" color="#409eff" />
+          <view class="lang-switch-text">
+            <text class="lang-switch-label">{{langSwitchLabel}}</text>
+            <text class="lang-switch-desc">{{langSwitchDesc}}</text>
+          </view>
+        </view>
+        <uni-icon type="vant" name="arrow" size="32" color="#999" />
+      </view>
+    </view>
+
+    <!-- 用户信息卡片 -->
+    <view class="user-card">
+      <!-- 用户头像 -->
+      <view class="user-avatar-wrapper">
+        <view class="user-avatar">
+          <uni-icon type="vant" name="user-o" size="80" color="#fff" />
+        </view>
+      </view>
+
+      <!-- 用户信息 -->
+      <view class="user-info">
+        <view class="user-name">{{userName}}</view>
+
+        <!-- 学号和手机 -->
+        <view class="user-details">
+          <view class="user-detail-item">
+            <uni-icon type="vant" name="idcard" size="28" color="rgba(255,255,255,0.8)" />
+            <text class="detail-text">{{studentId}}</text>
+          </view>
+          <view class="user-detail-item">
+            <uni-icon type="vant" name="phone" size="28" color="rgba(255,255,255,0.8)" />
+            <text class="detail-text">{{phone}}</text>
+          </view>
+        </view>
+      </view>
+    </view>
+
+    <!-- 我的服务 -->
+    <view class="service-section">
+      <view class="section-title">{{sectionTitle}}</view>
+
+      <view class="service-list">
+        <!-- 我的预约 -->
+        <view class="service-item" bindtap="onMyReservationTap">
+          <view class="service-item-left">
+            <view class="service-icon">
+              <uni-icon type="vant" name="calendar-o" size="40" color="#409eff" />
+            </view>
+            <text class="service-label">{{myReservationLabel}}</text>
+          </view>
+          <view class="service-item-right">
+            <view class="badge" wx:if="{{reservationBadge > 0}}">{{reservationBadge}}</view>
+            <uni-icon type="vant" name="arrow" size="32" color="#999" />
+          </view>
+        </view>
+
+        <!-- 我的收藏 -->
+        <view class="service-item" bindtap="onMyCollectionTap">
+          <view class="service-item-left">
+            <view class="service-icon">
+              <uni-icon type="vant" name="star-o" size="40" color="#e6a23c" />
+            </view>
+            <text class="service-label">{{myCollectionLabel}}</text>
+          </view>
+          <view class="service-item-right">
+            <uni-icon type="vant" name="arrow" size="32" color="#999" />
+          </view>
+        </view>
+
+        <!-- 预约历史 -->
+        <view class="service-item" bindtap="onHistoryTap">
+          <view class="service-item-left">
+            <view class="service-icon">
+              <uni-icon type="vant" name="records" size="40" color="#2ecc71" />
+            </view>
+            <text class="service-label">{{historyLabel}}</text>
+          </view>
+          <view class="service-item-right">
+            <uni-icon type="vant" name="arrow" size="32" color="#999" />
+          </view>
+        </view>
+
+        <!-- 设置 -->
+        <view class="service-item" bindtap="onSettingsTap">
+          <view class="service-item-left">
+            <view class="service-icon">
+              <uni-icon type="vant" name="setting-o" size="40" color="#9b59b6" />
+            </view>
+            <text class="service-label">{{settingsLabel}}</text>
+          </view>
+          <view class="service-item-right">
+            <uni-icon type="vant" name="arrow" size="32" color="#999" />
+          </view>
+        </view>
+      </view>
+    </view>
+  </view>
 </view>

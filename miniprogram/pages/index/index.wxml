@@ -1,37 +1,27 @@
 <!-- 导航栏 -->
-<navigation-bar title="图书馆座位预约" back="{{false}}" />
+<navigation-bar title="{{navTitle}}" back="{{false}}">
+  <view slot="right" class="nav-right">
+    <view class="lang-switch-btn" bind:tap="onSwitchLanguage">
+      <text>{{currentLang === 'zh' ? 'EN' : '中文'}}</text>
+    </view>
+  </view>
+</navigation-bar>
 
 <!-- 页面容器 -->
-<view class="page-container">
+<view class="page-container {{languageClass}}">
   <!-- 搜索区域 -->
   <view class="search-area">
     <van-search
       class="search-input"
       value="{{ value }}"
       shape="round"
-      placeholder="请输入搜索关键词"
+      placeholder="{{searchPlaceholder}}"
     />
     <!-- 搜索标签 -->
     <scroll-view class="search-tag" scroll-x enable-flex>
-      <view class="search-tag-item">
+      <view class="search-tag-item" wx:for="{{searchTags}}" wx:key="*this">
         <uni-icon type="vant" name="fire-o" size="28" color="#409eff" />
-        <text>有插座</text>
-      </view>
-      <view class="search-tag-item">
-        <uni-icon type="vant" name="fire-o" size="28" color="#409eff" />
-        <text>靠窗</text>
-      </view>
-      <view class="search-tag-item">
-        <uni-icon type="vant" name="fire-o" size="28" color="#409eff" />
-        <text>单人桌</text>
-      </view>
-      <view class="search-tag-item">
-        <uni-icon type="vant" name="fire-o" size="28" color="#409eff" />
-        <text>双人桌</text>
-      </view>
-      <view class="search-tag-item">
-        <uni-icon type="vant" name="fire-o" size="28" color="#409eff" />
-        <text>小组讨论桌</text>
+        <text>{{item}}</text>
       </view>
     </scroll-view>
   </view>
@@ -53,31 +43,14 @@
 
   <!-- 功能卡片区域 -->
   <view class="action-area">
-    <view class="action-card">
-      <!-- 使用 Vant 图标 -->
-      <uni-icon type="vant" name="shopping-cart-o" size="50" color="#409eff" />
-      <text class="action-text">立即预约</text>
-    </view>
-    <view class="action-card">
-      <!-- 使用 Iconfont 图标 -->
-      <view class="action-icon-wrapper">
-        <uni-icon type="iconfont" name="home" size="50" color="#9b59b6" />
-      </view>
-      <text class="action-text">我的预约</text>
-    </view>
-    <view class="action-card">
-      <!-- 使用 Vant 图标 -->
-      <view class="action-icon-wrapper">
-        <uni-icon type="vant" name="replay" size="50" color="#2ecc71" />
-      </view>
-      <text class="action-text">快速续约</text>
-    </view>
-    <view class="action-card">
-      <!-- 使用 Iconfont 图标 -->
-      <view class="action-icon-wrapper">
-        <uni-icon type="iconfont" name="home" size="50" color="#e67e22" />
-      </view>
-      <text class="action-text">扫码签到</text>
+    <view class="action-card" wx:for="{{actionCards}}" wx:key="*this">
+      <uni-icon
+        type="{{item.icon === 'home' ? 'iconfont' : 'vant'}}"
+        name="{{item.icon}}"
+        size="50"
+        color="#409eff"
+      />
+      <text class="action-text">{{item.text}}</text>
     </view>
   </view>
 
@@ -88,15 +61,17 @@
         <uni-icon type="vant" name="clock-o" size="48" color="#2ecc71" />
       </view>
       <view class="opening-hours-info">
-        <view class="opening-hours-title">今日开放时间</view>
-        <view class="opening-hours-time">08:00 - 22:00</view>
+        <view class="opening-hours-title">{{openingHoursTitle}}</view>
+        <view class="opening-hours-time">{{openingHoursTime}}</view>
       </view>
     </view>
-    <van-tag type="success" size="medium" class="opening-hours-status">营业中</van-tag>
+    <van-tag type="success" size="medium" class="opening-hours-status"
+      >{{openingHoursStatus}}</van-tag
+    >
   </view>
 
   <!-- 座位状态概览数据统计 -->
-  <common-card class="seat-section" title="座位状态概览">
+  <common-card class="seat-section" title="{{seatStatusTitle}}">
     <view class="seat-status-grid">
       <!-- 总座位数 -->
       <view class="seat-status-card">
@@ -104,9 +79,9 @@
           <view class="seat-status-icon seat-status-icon--blue">
             <uni-icon type="vant" name="cluster-o" size="28" color="#fff" />
           </view>
-          <text class="seat-status-label">总座位数</text>
+          <text class="seat-status-label">{{seatStatus.total.label}}</text>
         </view>
-        <view class="seat-status-value">500</view>
+        <view class="seat-status-value">{{seatStatus.total.value}}</view>
       </view>
 
       <!-- 可用座位 -->
@@ -115,14 +90,14 @@
           <view class="seat-status-icon seat-status-icon--green">
             <uni-icon type="vant" name="passed" size="28" color="#fff" />
           </view>
-          <text class="seat-status-label">可用座位</text>
-          <view class="seat-status-percent">64%</view>
+          <text class="seat-status-label">{{seatStatus.available.label}}</text>
+          <view class="seat-status-percent">{{seatStatus.available.percent}}</view>
         </view>
-        <view class="seat-status-value">320</view>
+        <view class="seat-status-value">{{seatStatus.available.value}}</view>
         <view class="seat-status-progress">
           <view
             class="seat-status-progress-bar"
-            style="width: 64%; background-color: #2ecc71"
+            style="width: {{seatStatus.available.percent}}; background-color: #2ecc71"
           ></view>
           <view class="seat-status-progress-bg"></view>
         </view>
@@ -134,14 +109,14 @@
           <view class="seat-status-icon seat-status-icon--red">
             <uni-icon type="vant" name="clock-o" size="28" color="#fff" />
           </view>
-          <text class="seat-status-label">已预约座位</text>
-          <view class="seat-status-percent">30%</view>
+          <text class="seat-status-label">{{seatStatus.reserved.label}}</text>
+          <view class="seat-status-percent">{{seatStatus.reserved.percent}}</view>
         </view>
-        <view class="seat-status-value">150</view>
+        <view class="seat-status-value">{{seatStatus.reserved.value}}</view>
         <view class="seat-status-progress">
           <view
             class="seat-status-progress-bar"
-            style="width: 30%; background-color: #e74c3c"
+            style="width: {{seatStatus.reserved.percent}}; background-color: #e74c3c"
           ></view>
           <view class="seat-status-progress-bg"></view>
         </view>
@@ -153,14 +128,14 @@
           <view class="seat-status-icon seat-status-icon--gray">
             <uni-icon type="vant" name="underway-o" size="28" color="#fff" />
           </view>
-          <text class="seat-status-label">维修中座位</text>
-          <view class="seat-status-percent">6%</view>
+          <text class="seat-status-label">{{seatStatus.maintenance.label}}</text>
+          <view class="seat-status-percent">{{seatStatus.maintenance.percent}}</view>
         </view>
-        <view class="seat-status-value">30</view>
+        <view class="seat-status-value">{{seatStatus.maintenance.value}}</view>
         <view class="seat-status-progress">
           <view
             class="seat-status-progress-bar"
-            style="width: 6%; background-color: #95a5a6"
+            style="width: {{seatStatus.maintenance.percent}}; background-color: #95a5a6"
           ></view>
           <view class="seat-status-progress-bg"></view>
         </view>
@@ -174,98 +149,40 @@
   </common-card>
 
   <!-- 实时信息 -->
-  <common-card class="info-section" title="实时信息">
+  <common-card class="info-section" title="{{realTimeTitle}}">
     <!-- 信息网格 -->
     <info-grid>
       <info-grid-item
-        icon="home"
-        label="图书馆内用户数量"
-        value="280"
-        sublabel="当前在线人数"
-        bgColor="#e8f4ff"
-        iconColor="#409eff"
-      />
-      <info-grid-item
-        icon="home"
-        label="舒适阅读环境"
-        value="24℃"
-        sublabel="图书馆温度"
-        bgColor="#fff7e8"
-        iconColor="#e6a23c"
-      />
-      <info-grid-item
-        icon="home"
-        label="安静适宜学习"
-        value="45dB"
-        sublabel="噪音指数"
-        bgColor="#e8f9f0"
-        iconColor="#2ecc71"
-      />
-      <info-grid-item
-        icon="home"
-        label="当前最受欢迎区域"
-        value="A 区 2 楼"
-        sublabel="热门区域"
-        bgColor="#ffe8e8"
-        iconColor="#e74c3c"
-      />
-      <info-grid-item
-        icon="home"
-        label="今日已预约座位"
-        value="156"
-        sublabel="当前预约数"
-        bgColor="#f3e8ff"
-        iconColor="#9b59b6"
-      />
-      <info-grid-item
-        icon="home"
-        label="今日预约总量"
-        value="325"
-        sublabel="今日总预约"
-        bgColor="#e8f0ff"
-        iconColor="#3498db"
+        wx:for="{{realTimeItems}}"
+        wx:key="*this"
+        icon="{{item.icon}}"
+        label="{{item.label}}"
+        value="{{item.value}}"
+        sublabel="{{item.sublabel}}"
+        bgColor="{{item.bgColor}}"
+        iconColor="{{item.iconColor}}"
       />
     </info-grid>
   </common-card>
 
   <!-- 推荐座位 -->
-  <common-card class="seat-recommend-section" title="推荐座位">
+  <common-card class="seat-recommend-section" title="{{recommendTitle}}">
     <view slot="header-action" class="view-all">
-      <text class="view-all-text">查看全部</text>
+      <text class="view-all-text">{{viewAllText}}</text>
       <uni-icon type="vant" name="arrow" size="28" color="#666" />
     </view>
 
     <!-- 座位列表 -->
     <view class="seat-list">
       <seat-item
-        seat-label="靠窗座位"
-        seat-name="A1"
-        seat-type="单人桌"
-        distance="25m"
-        status="available"
-        icon="bag-o"
-        bind:reserve="onSeatReserve"
-        bind:favorite="onSeatFavorite"
-        bind:detail="onSeatDetail"
-      />
-      <seat-item
-        seat-label="安静座位"
-        seat-name="B12"
-        seat-type="单人桌"
-        distance="15m"
-        status="available"
-        icon="bag-o"
-        bind:reserve="onSeatReserve"
-        bind:favorite="onSeatFavorite"
-        bind:detail="onSeatDetail"
-      />
-      <seat-item
-        seat-label="插座座位"
-        seat-name="C08"
-        seat-type="双人桌"
-        distance="30m"
-        status="available"
-        icon="bag-o"
+        wx:for="{{seatList}}"
+        wx:key="seatName"
+        seat-label="{{item.seatLabel}}"
+        seat-name="{{item.seatName}}"
+        seat-type="{{item.seatType}}"
+        distance="{{item.distance}}"
+        status="{{item.status}}"
+        icon="{{item.icon}}"
         bind:reserve="onSeatReserve"
         bind:favorite="onSeatFavorite"
         bind:detail="onSeatDetail"
@@ -274,72 +191,34 @@
   </common-card>
 
   <!-- 活动通知 -->
-  <common-card class="activity-section" title="活动通知">
-    <view slot="header-action" class="view-all" bind:tap="onViewMoreActivities">
-      <text class="view-all-text">更多活动</text>
+  <common-card class="activity-section" title="{{activityTitle}}">
+    <view slot="header-action" class="view-all" bindtap="onViewMoreActivities">
+      <text class="view-all-text">{{viewMoreActivity}}</text>
       <uni-icon type="vant" name="arrow" size="28" color="#666" />
     </view>
 
     <!-- 活动列表 -->
     <view class="activity-list">
-      <view class="activity-card">
+      <view class="activity-card" wx:for="{{activityList}}" wx:key="*this">
         <view class="activity-header">
-          <view class="activity-title">阅读马拉松挑战赛</view>
-          <van-tag type="warning" size="medium" class="activity-status">进行中</van-tag>
+          <view class="activity-title">{{item.title}}</view>
+          <van-tag type="{{item.status}}" size="medium" class="activity-status"
+            >{{item.statusText}}</van-tag
+          >
         </view>
-        <view class="activity-description">挑战连续阅读 7 天，赢取精美礼品！</view>
+        <view class="activity-description">{{item.desc}}</view>
         <view class="activity-footer">
           <view class="activity-time">
             <uni-icon type="vant" name="calendar-o" size="28" color="#999" />
-            <text>2026.01.05 - 2026.01.20</text>
+            <text>{{item.time}}</text>
           </view>
-          <van-button type="primary" size="small" round class="activity-btn">立即参与</van-button>
-        </view>
-      </view>
-
-      <view class="activity-card">
-        <view class="activity-header">
-          <view class="activity-title">读书分享会</view>
-          <van-tag type="primary" size="medium" class="activity-status">报名中</van-tag>
-        </view>
-        <view class="activity-description">每月一期，分享你的读书心得与感悟。</view>
-        <view class="activity-footer">
-          <view class="activity-time">
-            <uni-icon type="vant" name="calendar-o" size="28" color="#999" />
-            <text>2026.01.15 - 2026.01.25</text>
-          </view>
-          <van-button type="primary" size="small" round class="activity-btn">立即报名</van-button>
-        </view>
-      </view>
-
-      <view class="activity-card">
-        <view class="activity-header">
-          <view class="activity-title">文献检索培训课程</view>
-          <van-tag type="success" size="medium" class="activity-status">即将开始</van-tag>
-        </view>
-        <view class="activity-description">学习高效文献检索技巧，提升学术研究能力。</view>
-        <view class="activity-footer">
-          <view class="activity-time">
-            <uni-icon type="vant" name="calendar-o" size="28" color="#999" />
-            <text>2026.01.20 - 2026.01.22</text>
-          </view>
-          <van-button type="primary" size="small" round class="activity-btn">立即预约</van-button>
-        </view>
-      </view>
-
-      <view class="activity-card">
-        <view class="activity-header">
-          <view class="activity-title">经典诵读活动</view>
-          <van-tag type="default" size="medium" class="activity-status">已结束</van-tag>
-        </view>
-        <view class="activity-description">诵读中华经典，传承优秀文化。</view>
-        <view class="activity-footer">
-          <view class="activity-time">
-            <uni-icon type="vant" name="calendar-o" size="28" color="#999" />
-            <text>2025.12.20 - 2025.12.31</text>
-          </view>
-          <van-button type="default" size="small" round class="activity-btn" disabled
-            >已结束</van-button
+          <van-button
+            type="primary"
+            size="small"
+            round
+            class="activity-btn"
+            disabled="{{item.disabled}}"
+            >{{item.btnText}}</van-button
           >
         </view>
       </view>

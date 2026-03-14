@@ -1,6 +1,8 @@
 {
   "editor.codeActionsOnSave": {
-    "source.fixAll.stylelint": "explicit"
+    "source.fixAll.stylelint": "explicit",
+    "source.organizeImports": true,
+    "source.fixAll.eslint": true
   },
   "editor.formatOnSave": true,
   "editor.defaultFormatter": "esbenp.prettier-vscode",
@@ -9,5 +11,6 @@
     "*.wxss": "css",
     "*.wxml": "html",
     "*.scss": "scss"
-  }
+  },
+  "typescript.preferences.includePackageJsonAutoImports": "auto"
 }

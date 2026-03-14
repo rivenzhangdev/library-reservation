@@ -3,32 +3,32 @@
 .info-grid-item {
   display: flex;
   flex-direction: column;
-  gap: 12rpx;
+  gap: var(--common-mini-gap);
   min-height: 200rpx;
   padding: 24rpx;
-  border-radius: 16rpx;
+  border-radius: var(--common-large-border-radius);
 
   &__icon {
-    margin-bottom: 8rpx;
+    margin-bottom: var(--common-mini-gap);
 
     .info-grid-item-icon {
-      font-size: 50rpx;
+      font-size: var(--icon-extra-large-size);
     }
   }
 
   &__label {
-    color: #666;
-    font-size: 26rpx;
+    color: var(--common-secondary-text-color);
+    font-size: var(--common-medium-font-size);
   }
 
   &__value {
-    color: #333;
-    font-weight: 600;
-    font-size: 40rpx;
+    color: var(--common-text-color);
+    font-weight: var(--common-font-weight-bold);
+    font-size: var(--common-extra-big-font-size);
   }
 
   &__sublabel {
-    color: #999;
-    font-size: 24rpx;
+    color: var(--common-hint-text-color);
+    font-size: var(--common-medium-font-size);
   }
 }

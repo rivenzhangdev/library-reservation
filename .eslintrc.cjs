@@ -9,7 +9,7 @@ module.exports = {
   parserOptions: {
     ecmaVersion: 2020,
     sourceType: 'script',
-    project: null,
+    project: './tsconfig.json',  // 修改这里，启用项目类型检查
     tsconfigRootDir: __dirname,
     warnOnUnsupportedTypeScriptVersion: false,
   },
@@ -28,7 +28,12 @@ module.exports = {
     '@typescript-eslint/ban-ts-comment': 'off',
     '@typescript-eslint/no-this-alias': 'off',
     'semi': ['error', 'always'],
-    '@typescript-eslint/no-unused-vars': ['warn', { argsIgnorePattern: '^_' }],
+    // 更严格地处理未使用的变量，包括导入
+    '@typescript-eslint/no-unused-vars': ['error', { 
+      argsIgnorePattern: '^_', 
+      varsIgnorePattern: '^_', 
+      caughtErrorsIgnorePattern: '^_' 
+    }],
   },
   globals: {
     App: 'readonly',
@@ -47,7 +52,7 @@ module.exports = {
       parserOptions: {
         ecmaVersion: 2020,
         sourceType: 'script',
-        project: null,
+        project: './tsconfig.json',  // 为 TypeScript 文件启用项目类型检查
       },
     },
   ],

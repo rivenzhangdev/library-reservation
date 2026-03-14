@@ -4,7 +4,17 @@
 @import '/assets/icons/iconfonts/iconfont.wxss';
 
 page {
+  display: flex;
+  flex-direction: column;
   box-sizing: border-box;
+  min-height: 100vh;
   margin: 0;
   padding: 0;
+}
+
+.page-container {
+  display: flex;
+  flex-direction: column;
+  gap: 30rpx;
+  padding: 0 var(--common-page-padding);
 }

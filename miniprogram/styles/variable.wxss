@@ -1,32 +1,77 @@
 page {
-  /* 间距相关 */
+  /* 页面基础 */
   --common-page-padding: 20rpx;
+  --common-page-bg-color: #f5f5f5;
+  
+  /* 间距相关 */
   --common-mini-gap: 8rpx;
   --common-gap: 12rpx;
   --common-large-gap: 16rpx;
-
+  --common-section-gap: 24rpx;
+  --common-content-padding: 30rpx;
+  
   /* 颜色相关 */
   --common-gray-color: #f5f5f5;
   --common-card-bg-color: #fff;
   --common-text-color: #333;
   --common-secondary-text-color: #666;
+  --common-hint-text-color: #999;
   --common-primary-color: #409eff;
-
+  --common-success-color: #2ecc71;
+  --common-warning-color: #e6a23c;
+  --common-danger-color: #e74c3c;
+  --common-info-color: #3498db;
+  
   /* 边框圆角相关 */
   --common-mini-border-radius: 4rpx;
   --common-border-radius: 8rpx;
   --common-large-border-radius: 12rpx;
-
+  --common-round-border-radius: 16rpx;
+  --common-circle-border-radius: 9999rpx;
+  
   /* 阴影相关 */
   --common-box-shadow: 0 2rpx 12rpx rgba(0, 0, 0, 0.05);
-
+  --common-card-shadow: 0 2rpx 12rpx rgba(0, 0, 0, 0.05);
+  
   /* 字体大小相关 */
   --common-mini-font-size: 16rpx;
+  --common-small-font-size: 20rpx;
   --common-font-size: 24rpx;
-  --common-large-font-size: 32rpx;
+  --common-medium-font-size: 26rpx;
+  --common-large-font-size: 28rpx;
+  --common-title-font-size: 30rpx;
+  --common-heading-font-size: 32rpx;
+  --common-big-font-size: 36rpx;
+  --common-extra-big-font-size: 40rpx;
+  
+  /* 字重相关 */
+  --common-font-weight-normal: 400;
+  --common-font-weight-medium: 500;
+  --common-font-weight-bold: 600;
   
   /* 按钮相关 */
   --button-small-width: 160rpx;
+  --button-medium-height: 60rpx;
   --tag-min-width: 120rpx;
   --filter-option-min-width: 160rpx;
+  
+  /* 图标相关 */
+  --icon-mini-size: 28rpx;
+  --icon-small-size: 32rpx;
+  --icon-medium-size: 40rpx;
+  --icon-large-size: 48rpx;
+  --icon-extra-large-size: 50rpx;
+  
+  /* 卡片相关 */
+  --card-padding: 32rpx;
+  --card-header-margin-bottom: 24rpx;
+  
+  /* 导航栏相关 */
+  --nav-bar-height: 44px;
+  --nav-bar-android-height: 48px;
+  
+  /* 过渡动画 */
+  --transition-fast: 0.15s;
+  --transition-normal: 0.2s;
+  --transition-slow: 0.3s;
 }

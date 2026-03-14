@@ -12,7 +12,7 @@
       </view>
     </view>
     <view class="seat-item__status" wx:if="{{status === 'available'}}">
-      <text class="seat-item__status-text">可用</text>
+      <text class="seat-item__status-text">{{statusText}}</text>
     </view>
   </view>
 
@@ -28,7 +28,9 @@
 
   <!-- 卡片底部：操作按钮 -->
   <view class="seat-item__footer">
-    <button class="seat-item__btn seat-item__btn--primary" bindtap="onReserve">立即预约</button>
+    <button class="seat-item__btn seat-item__btn--primary" bindtap="onReserve">
+      {{reserveText}}
+    </button>
     <view class="seat-item__btn seat-item__btn--icon" bindtap="onFavorite">
       <uni-icon type="vant" name="star-o" size="32" custom-class="seat-item__iconfont" />
     </view>

@@ -1,4 +1,6 @@
 <!-- 预约页面 -->
+<navigation-bar title="座位预约" back="{{false}}" />
+
 <view class="page-container">
   <view class="page-content">预约页面</view>
 </view>

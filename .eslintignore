@@ -5,3 +5,4 @@ dist/
 typings/
 commitlint.config.js
 miniprogram/assets/icons/iconfonts
+miniprogram/components/ec-canvas

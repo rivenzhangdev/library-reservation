@@ -33,6 +33,15 @@ Component({
       type: String,
       value: 'icon-home',
     },
+    // 多语言文案
+    statusText: {
+      type: String,
+      value: '可用',
+    },
+    reserveText: {
+      type: String,
+      value: '立即预约',
+    },
   },
 
   /**
