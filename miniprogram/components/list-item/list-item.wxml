@@ -1,0 +1,18 @@
+<!-- 列表项组件 - 通用列表项，支持徽章和自定义图标 -->
+<view
+  class="list-item {{customClass}}"
+  bindtap="onTap"
+  hover-class="list-item-hover"
+  hover-stay-time="150"
+>
+  <view class="list-item-left">
+    <view class="list-item-icon" style="background-color: {{iconBgColor}};">
+      <uni-icon type="vant" name="{{iconName}}" size="{{iconSize}}" color="{{iconColor}}" />
+    </view>
+    <text class="list-item-label">{{label}}</text>
+  </view>
+  <view class="list-item-right">
+    <view class="badge" wx:if="{{badgeCount > 0}}">{{badgeCount}}</view>
+    <uni-icon type="vant" name="arrow" size="{{arrowSize}}" color="{{arrowColor}}" />
+  </view>
+</view>

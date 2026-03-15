@@ -22,11 +22,18 @@
     "miniprogram": {
       "list": [
         {
-          "name": "pages/reservation/reservation",
-          "pathName": "pages/reservation/reservation",
+          "name": "pages/profile/profile",
+          "pathName": "pages/profile/profile",
           "query": "",
           "scene": null,
           "launchMode": "default"
+        },
+        {
+          "name": "pages/reservation/reservation",
+          "pathName": "pages/reservation/reservation",
+          "query": "",
+          "launchMode": "default",
+          "scene": null
         }
       ]
     }

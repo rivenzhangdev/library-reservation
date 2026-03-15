@@ -30,36 +30,6 @@
   padding: 0 var(--common-page-padding);
 }
 
-// 语言切换按钮区域
-.lang-switch-area {
-  display: flex;
-  justify-content: flex-end;
-  padding: var(--common-mini-gap) 0;
-}
-
-.lang-switch-btn {
-  display: flex;
-  gap: var(--common-mini-gap);
-  align-items: center;
-  padding: 12rpx 24rpx;
-  color: var(--common-primary-color);
-  font-size: var(--common-medium-font-size);
-  background-color: rgba(64, 158, 255, 0.1);
-  border-radius: var(--common-border-radius);
-  cursor: pointer;
-  transition: all var(--transition-normal);
-
-  &:active {
-    transform: scale(0.98);
-    opacity: 0.7;
-  }
-}
-
-// 中文样式（默认）
-.page-container.lang-zh {
-  // 保留中文默认样式，如有需要可在此处添加
-}
-
 // 英文样式适配
 .page-container.lang-en {
   // 搜索标签增加宽度
@@ -308,7 +278,7 @@ swiper-item {
     .seat-status-percent {
       padding: 4rpx 12rpx;
       color: var(--common-primary-color);
-      font-size: var(--common-mini-font-size);
+      font-size: var(--common-font-size);
       background-color: #ecf5ff;
       border-radius: var(--common-mini-border-radius);
     }
@@ -371,6 +341,44 @@ swiper-item {
     display: flex;
     flex-direction: column;
     gap: var(--common-section-gap);
+
+    .seat-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      width: 100%;
+
+      &__left {
+        display: flex;
+        gap: var(--common-gap);
+        align-items: center;
+      }
+
+      &__favorite {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 72rpx;
+        height: 72rpx;
+        color: #666;
+        background-color: #f5f5f5;
+        border-radius: 50%;
+        transition: all 0.2s;
+
+        &:active {
+          color: #ff6b6b;
+          background-color: #e8e8e8;
+        }
+      }
+
+      &__arrow {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #999;
+        font-size: 32rpx;
+      }
+    }
   }
 }
 

@@ -1,0 +1,18 @@
+.section-list {
+  margin-bottom: var(--common-section-gap);
+}
+
+.section-title {
+  margin-bottom: var(--common-gap);
+  padding-left: var(--common-mini-gap);
+  color: var(--common-secondary-text-color);
+  font-weight: var(--common-font-weight-bold);
+  font-size: var(--common-large-font-size);
+}
+
+.section-content {
+  padding: var(--common-mini-gap);
+  overflow: hidden;
+  background-color: #fff;
+  border-radius: var(--common-large-border-radius);
+}

@@ -1,29 +1,40 @@
 import { t } from '../../utils/i18n';
 
+// 定义列表项类型
+interface ProfileItem {
+  label: string;
+  iconName: string;
+  iconColor: string;
+  iconBgColor: string;
+  badgeCount?: number;
+  action: string;
+}
+
 Page({
   /**
    * 页面的初始数据
    */
   data: {
     currentLang: 'zh',
-    // 多语言文案
-    pageTitle: t('profile.pageTitle'),
-    sectionTitle: t('profile.sectionTitle'),
+    // 多语言文案 - 初始值设为空字符串，在 onLoad 中初始化
+    pageTitle: '',
+    sectionTitle: '',
+    centerTitle: '',
+    settingsTitle: '',
     // 用户信息
-    userName: t('profile.user.name'),
-    studentId: t('profile.user.studentId'),
-    phone: t('profile.user.phone'),
-    creditScore: t('profile.user.creditScore'),
-    balance: t('profile.user.balance'),
-    // 服务菜单
-    myReservationLabel: t('profile.service.myReservation'),
-    myCollectionLabel: t('profile.service.myCollection'),
-    historyLabel: t('profile.service.history'),
-    settingsLabel: t('profile.service.settings'),
-    // 徽章数量
-    reservationBadge: 2,
+    userName: '',
+    studentId: '',
+    phone: '',
+    creditScore: '',
+    balance: '',
+    // 我的服务模块数据
+    serviceItems: [] as ProfileItem[],
+    // 个人中心模块数据
+    centerItems: [] as ProfileItem[],
+    // 系统设置模块数据
+    settingsItems: [] as ProfileItem[],
     // 语言切换按钮文案
-    langSwitchLabel: t('common.lang.en'),
+    langSwitchLabel: '',
     langSwitchDesc: '切换到英文',
   },
 
@@ -31,7 +42,115 @@ Page({
    * 生命周期函数--监听页面加载
    */
   onLoad() {
+    this.initPageData();
     this.updateLanguage();
+  },
+
+  /**
+   * 初始化页面数据
+   */
+  initPageData() {
+    this.setData({
+      pageTitle: t('profile.pageTitle'),
+      sectionTitle: t('profile.sectionTitle'),
+      centerTitle: t('profile.centerTitle'),
+      settingsTitle: t('profile.settingsTitle'),
+      userName: t('profile.user.name'),
+      studentId: t('profile.user.studentId'),
+      phone: t('profile.user.phone'),
+      creditScore: t('profile.user.creditScore'),
+      balance: t('profile.user.balance'),
+      langSwitchLabel: t('common.lang.en'),
+      // 我的服务模块
+      serviceItems: [
+        {
+          label: t('profile.service.myReservation'),
+          iconName: 'calendar-o',
+          iconColor: '#409eff',
+          iconBgColor: '#e8f4ff',
+          badgeCount: 2,
+          action: 'onMyReservationTap',
+        },
+        {
+          label: t('profile.service.myCollection'),
+          iconName: 'star-o',
+          iconColor: '#e6a23c',
+          iconBgColor: '#fff0f0',
+          badgeCount: 0,
+          action: 'onMyCollectionTap',
+        },
+        {
+          label: t('profile.service.myActivity'),
+          iconName: 'todo-list-o',
+          iconColor: '#e74c3c',
+          iconBgColor: '#fff7e8',
+          badgeCount: 1,
+          action: 'onMyActivityTap',
+        },
+      ],
+      // 个人中心模块
+      centerItems: [
+        {
+          label: t('profile.center.personalInfo'),
+          iconName: 'user-o',
+          iconColor: '#722ed1',
+          iconBgColor: '#f9f0ff',
+          badgeCount: 0,
+          action: 'onPersonalInfoTap',
+        },
+        {
+          label: t('profile.center.creditCenter'),
+          iconName: 'star',
+          iconColor: '#faad14',
+          iconBgColor: '#fff7e6',
+          badgeCount: 0,
+          action: 'onCreditCenterTap',
+        },
+        {
+          label: t('profile.center.feedback'),
+          iconName: 'comment-o',
+          iconColor: '#1890ff',
+          iconBgColor: '#e6f7ff',
+          badgeCount: 1,
+          action: 'onFeedbackTap',
+        },
+      ],
+      // 系统设置模块
+      settingsItems: [
+        {
+          label: t('profile.settings.notification'),
+          iconName: 'bell',
+          iconColor: '#1890ff',
+          iconBgColor: '#e6f7ff',
+          badgeCount: 0,
+          action: 'onNotificationTap',
+        },
+        {
+          label: t('profile.settings.privacy'),
+          iconName: 'shield-o',
+          iconColor: '#52c41a',
+          iconBgColor: '#f6ffed',
+          badgeCount: 0,
+          action: 'onPrivacyTap',
+        },
+        {
+          label: t('profile.settings.help'),
+          iconName: 'question-o',
+          iconColor: '#fa8c16',
+          iconBgColor: '#fff7e6',
+          badgeCount: 0,
+          action: 'onHelpTap',
+        },
+        {
+          label: t('profile.settings.about'),
+          iconName: 'info-o',
+          iconColor: '#13c2c2',
+          iconBgColor: '#e6fffb',
+          badgeCount: 0,
+          action: 'onAboutTap',
+        },
+      ],
+    });
   },
 
   /**
@@ -54,19 +173,120 @@ Page({
         currentLang,
         pageTitle: t('profile.pageTitle'),
         sectionTitle: t('profile.sectionTitle'),
+        centerTitle: t('profile.centerTitle'),
+        settingsTitle: t('profile.settingsTitle'),
         userName: t('profile.user.name'),
         studentId: t('profile.user.studentId'),
         phone: t('profile.user.phone'),
         creditScore: t('profile.user.creditScore'),
         balance: t('profile.user.balance'),
-        myReservationLabel: t('profile.service.myReservation'),
-        myCollectionLabel: t('profile.service.myCollection'),
-        historyLabel: t('profile.service.history'),
-        settingsLabel: t('profile.service.settings'),
-        // 语言切换按钮文案
         langSwitchLabel: isZh ? t('common.lang.en') : t('common.lang.zh'),
         langSwitchDesc: isZh ? '切换到英文' : 'Switch to Chinese',
+        // 我的服务模块
+        serviceItems: [
+          {
+            label: t('profile.service.myReservation'),
+            iconName: 'calendar-o',
+            iconColor: '#409eff',
+            iconBgColor: '#e8f4ff',
+            badgeCount: 2,
+            action: 'onMyReservationTap',
+          },
+          {
+            label: t('profile.service.myCollection'),
+            iconName: 'star-o',
+            iconColor: '#e6a23c',
+            iconBgColor: '#fff0f0',
+            badgeCount: 0,
+            action: 'onMyCollectionTap',
+          },
+          {
+            label: t('profile.service.myActivity'),
+            iconName: 'todo-list-o',
+            iconColor: '#e74c3c',
+            iconBgColor: '#fff7e8',
+            badgeCount: 1,
+            action: 'onMyActivityTap',
+          },
+        ],
+        // 个人中心模块
+        centerItems: [
+          {
+            label: t('profile.center.personalInfo'),
+            iconName: 'user-o',
+            iconColor: '#722ed1',
+            iconBgColor: '#f9f0ff',
+            badgeCount: 0,
+            action: 'onPersonalInfoTap',
+          },
+          {
+            label: t('profile.center.creditCenter'),
+            iconName: 'star',
+            iconColor: '#faad14',
+            iconBgColor: '#fff7e6',
+            badgeCount: 0,
+            action: 'onCreditCenterTap',
+          },
+          {
+            label: t('profile.center.feedback'),
+            iconName: 'comment-o',
+            iconColor: '#1890ff',
+            iconBgColor: '#e6f7ff',
+            badgeCount: 1,
+            action: 'onFeedbackTap',
+          },
+        ],
+        // 系统设置模块
+        settingsItems: [
+          {
+            label: t('profile.settings.notification'),
+            iconName: 'bell',
+            iconColor: '#1890ff',
+            iconBgColor: '#e6f7ff',
+            badgeCount: 0,
+            action: 'onNotificationTap',
+          },
+          {
+            label: t('profile.settings.privacy'),
+            iconName: 'shield-o',
+            iconColor: '#52c41a',
+            iconBgColor: '#f6ffed',
+            badgeCount: 0,
+            action: 'onPrivacyTap',
+          },
+          {
+            label: t('profile.settings.help'),
+            iconName: 'question-o',
+            iconColor: '#fa8c16',
+            iconBgColor: '#fff7e6',
+            badgeCount: 0,
+            action: 'onHelpTap',
+          },
+          {
+            label: t('profile.settings.about'),
+            iconName: 'info-o',
+            iconColor: '#13c2c2',
+            iconBgColor: '#e6fffb',
+            badgeCount: 0,
+            action: 'onAboutTap',
+          },
+        ],
       });
+    }
+  },
+
+  /**
+   * 处理模块项点击
+   */
+  onSectionItemTap(event: WechatMiniprogram.TouchEvent) {
+    const { item } = event.detail as { item: ProfileItem };
+    if (item && item.action) {
+      // 动态调用对应的方法
+      const action = item.action;
+      const method = (this as any)[action];
+      if (typeof method === 'function') {
+        method.call(this);
+      }
     }
   },
 
@@ -86,8 +306,10 @@ Page({
    * 跳转到我的预约
    */
   onMyReservationTap() {
-    wx.navigateTo({
-      url: '/pages/reservation/reservation',
+    // TODO: 跳转到我的预约页面
+    wx.showToast({
+      title: '敬请期待',
+      icon: 'none',
     });
   },
 
@@ -96,6 +318,17 @@ Page({
    */
   onMyCollectionTap() {
     // TODO: 跳转到收藏页面
+    wx.showToast({
+      title: '敬请期待',
+      icon: 'none',
+    });
+  },
+
+  /**
+   * 跳转到我的活动
+   */
+  onMyActivityTap() {
+    // TODO: 跳转到活动页面
     wx.showToast({
       title: '敬请期待',
       icon: 'none',
@@ -118,6 +351,83 @@ Page({
    */
   onSettingsTap() {
     // TODO: 跳转到设置页面
+    wx.showToast({
+      title: '敬请期待',
+      icon: 'none',
+    });
+  },
+
+  /**
+   * 跳转到个人信息
+   */
+  onPersonalInfoTap() {
+    // TODO: 跳转到个人信息页面
+    wx.showToast({
+      title: '敬请期待',
+      icon: 'none',
+    });
+  },
+
+  /**
+   * 跳转到信用中心
+   */
+  onCreditCenterTap() {
+    // TODO: 跳转到信用中心页面
+    wx.showToast({
+      title: '敬请期待',
+      icon: 'none',
+    });
+  },
+
+  /**
+   * 跳转到问题反馈
+   */
+  onFeedbackTap() {
+    // TODO: 跳转到问题反馈页面
+    wx.showToast({
+      title: '敬请期待',
+      icon: 'none',
+    });
+  },
+
+  /**
+   * 跳转到关于我们
+   */
+  onAboutTap() {
+    // TODO: 跳转到关于我们页面
+    wx.showToast({
+      title: '敬请期待',
+      icon: 'none',
+    });
+  },
+
+  /**
+   * 跳转到帮助中心
+   */
+  onHelpTap() {
+    // TODO: 跳转到帮助中心页面
+    wx.showToast({
+      title: '敬请期待',
+      icon: 'none',
+    });
+  },
+
+  /**
+   * 跳转到隐私设置
+   */
+  onPrivacyTap() {
+    // TODO: 跳转到隐私设置页面
+    wx.showToast({
+      title: '敬请期待',
+      icon: 'none',
+    });
+  },
+
+  /**
+   * 跳转到通知设置
+   */
+  onNotificationTap() {
+    // TODO: 跳转到通知设置页面
     wx.showToast({
       title: '敬请期待',
       icon: 'none',

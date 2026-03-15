@@ -1,0 +1,61 @@
+.list-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--common-mini-gap);
+  padding: 24rpx 32rpx;
+  background-color: #fff;
+  border-radius: var(--common-large-border-radius);
+  transition: background-color var(--transition-normal);
+
+  &:last-child {
+    margin-bottom: 0;
+  }
+
+  &-left {
+    display: flex;
+    flex: 1;
+    gap: var(--common-section-gap);
+    align-items: center;
+  }
+
+  &-right {
+    display: flex;
+    gap: var(--common-mini-gap);
+    align-items: center;
+  }
+}
+
+.list-item-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 80rpx;
+  height: 80rpx;
+  border-radius: var(--common-large-border-radius);
+}
+
+.list-item-label {
+  color: var(--common-text-color);
+  font-weight: var(--common-font-weight-medium);
+  font-size: var(--common-title-font-size);
+}
+
+.badge {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 36rpx;
+  height: 36rpx;
+  padding: 0 12rpx;
+  color: #fff;
+  font-weight: var(--common-font-weight-bold);
+  font-size: var(--common-mini-font-size);
+  background-color: var(--common-danger-color);
+  border-radius: 18rpx;
+}
+
+// 点击态
+.list-item-hover {
+  background-color: var(--common-gray-color);
+}

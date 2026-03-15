@@ -1,0 +1,21 @@
+<!-- 通用模块容器组件 -->
+<view class="section-list {{containerClass}}">
+  <!-- 标题 -->
+  <view class="section-title" wx:if="{{title}}">{{title}}</view>
+
+  <!-- 列表容器 -->
+  <view class="section-content">
+    <!-- 列表项 -->
+    <list-item
+      wx:for="{{items}}"
+      wx:key="label"
+      iconName="{{item.iconName}}"
+      iconColor="{{item.iconColor}}"
+      iconBgColor="{{item.iconBgColor}}"
+      label="{{item.label}}"
+      badgeCount="{{item.badgeCount}}"
+      data-index="{{index}}"
+      bind:tap="onItemTap"
+    />
+  </view>
+</view>

@@ -1,4 +1,0 @@
-<!-- 信息网格组件 -->
-<view class="info-grid">
-  <slot />
-</view>

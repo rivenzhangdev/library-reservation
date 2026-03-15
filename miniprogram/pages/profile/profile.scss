@@ -186,7 +186,7 @@
   }
 }
 
-// 服务区域
+// 列表区域通用样式
 .section-title {
   margin-bottom: var(--common-gap);
   padding-left: var(--common-mini-gap);
@@ -195,23 +195,25 @@
   font-size: var(--common-large-font-size);
 }
 
-.service-list {
+.section-list {
+  padding: var(--common-mini-gap);
   overflow: hidden;
-  background-color: var(--common-card-bg-color);
+  background-color: #fff;
   border-radius: var(--common-large-border-radius);
-  box-shadow: var(--common-card-shadow);
 }
 
-.service-item {
+.list-item {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  margin-bottom: var(--common-mini-gap);
   padding: var(--card-padding) var(--content-padding);
-  border-bottom: 1rpx solid #f0f0f0;
+  background-color: #fff;
+  border-radius: var(--common-large-border-radius);
   transition: background-color var(--transition-normal);
 
   &:last-child {
-    border-bottom: none;
+    margin-bottom: 0;
   }
 
   &:active {
@@ -232,17 +234,16 @@
   }
 }
 
-.service-icon {
+.item-icon {
   display: flex;
   align-items: center;
   justify-content: center;
   width: 80rpx;
   height: 80rpx;
-  background-color: var(--common-gray-color);
   border-radius: var(--common-large-border-radius);
 }
 
-.service-label {
+.item-label {
   color: var(--common-text-color);
   font-weight: var(--common-font-weight-medium);
   font-size: var(--common-title-font-size);
@@ -262,8 +263,13 @@
   border-radius: 18rpx;
 }
 
+// 系统设置区域
+.settings-section {
+  margin-top: var(--common-section-gap);
+}
+
 // 英文长文本适配
-[lang='en'] {
+.lang-en {
   .user-name {
     font-size: 36rpx;
   }

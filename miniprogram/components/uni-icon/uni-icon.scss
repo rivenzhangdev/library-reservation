@@ -20,7 +20,7 @@
 
     // 确保 iconfont 的样式优先级
     &.iconfont {
-      font-family: iconfont !important;
+      font-family: iconfont;
       font-style: normal;
       -webkit-font-smoothing: antialiased;
       -moz-osx-font-smoothing: grayscale;

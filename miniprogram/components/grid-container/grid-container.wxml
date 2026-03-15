@@ -1,0 +1,7 @@
+<!-- 网格容器组件 - 通用的网格布局容器 -->
+<view
+  class="grid-container {{customClass}}"
+  style="grid-template-columns: {{columns ? 'repeat(' + columns + ', 1fr)' : 'repeat(2, 1fr)'}};"
+>
+  <slot />
+</view>

@@ -1,0 +1,24 @@
+<!-- 交互卡片组件 - 通用可点击卡片 -->
+<view
+  class="interactive-card {{customClass}}"
+  bindtap="onTap"
+  hover-class="interactive-card-hover"
+  hover-stay-time="150"
+>
+  <view class="interactive-card-left">
+    <slot name="left">
+      <view class="interactive-card-icon">
+        <uni-icon type="vant" name="{{iconName}}" size="{{iconSize}}" color="{{iconColor}}" />
+      </view>
+      <view class="interactive-card-content" wx:if="{{title || desc}}">
+        <view class="interactive-card-title" wx:if="{{title}}">{{title}}</view>
+        <view class="interactive-card-desc" wx:if="{{desc}}">{{desc}}</view>
+      </view>
+    </slot>
+  </view>
+  <view class="interactive-card-right">
+    <slot name="right">
+      <uni-icon type="vant" name="arrow" size="{{arrowSize}}" color="{{arrowColor}}" />
+    </slot>
+  </view>
+</view>

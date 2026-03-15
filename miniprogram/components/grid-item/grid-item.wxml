@@ -1,0 +1,48 @@
+<!-- 网格卡片项组件 - 通用的网格卡片展示 -->
+<view
+  class="grid-item {{customClass}} {{statusClass}}"
+  style="background-color: {{bgColor}};"
+  bindtap="onTap"
+  hover-class="{{clickable ? 'grid-item-hover' : ''}}"
+  hover-stay-time="150"
+>
+  <!-- 模式 1：简单图标 + 标签（info-grid-item 模式） -->
+  <block wx:if="{{mode === 'simple'}}">
+    <view class="grid-item__icon" wx:if="{{icon}}">
+      <uni-icon type="{{iconType}}" name="{{icon}}" size="{{iconSize}}" color="{{iconColor}}" />
+    </view>
+    <view class="grid-item__label">{{label}}</view>
+    <view class="grid-item__value" wx:if="{{value}}">{{value}}</view>
+    <view class="grid-item__sublabel" wx:if="{{sublabel}}">{{sublabel}}</view>
+  </block>
+
+  <!-- 模式 2：卡片式 -->
+  <block wx:elif="{{mode === 'card'}}">
+    <view class="grid-item__header">
+      <view class="grid-item__name-row">
+        <text class="grid-item__name">{{name}}</text>
+        <!-- 状态标签在右上角 -->
+        <view class="grid-item__status-tag" wx:if="{{statusText}}">
+          <text class="grid-item__status-text">{{statusText}}</text>
+        </view>
+      </view>
+    </view>
+
+    <!-- 第二行：属性标签 -->
+    <view class="grid-item__attributes" wx:if="{{attributes.length > 0}}">
+      <view class="grid-item__attribute" wx:for="{{attributes}}" wx:key="*this">
+        <text class="grid-item__attribute-text">{{item}}</text>
+      </view>
+    </view>
+
+    <!-- 底部：插槽，支持自定义内容 -->
+    <view class="grid-item__footer" wx:if="{{showFooter}}">
+      <slot name="footer" />
+    </view>
+  </block>
+
+  <!-- 模式 3：自定义内容（插槽模式） -->
+  <block wx:elif="{{mode === 'custom'}}">
+    <slot />
+  </block>
+</view>

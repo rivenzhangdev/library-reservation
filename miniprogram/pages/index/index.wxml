@@ -1,11 +1,14 @@
-<!-- 导航栏 -->
-<navigation-bar title="{{navTitle}}" back="{{false}}">
-  <view slot="right" class="nav-right">
-    <view class="lang-switch-btn" bind:tap="onSwitchLanguage">
-      <text>{{currentLang === 'zh' ? 'EN' : '中文'}}</text>
+<!-- 页面根容器 -->
+<page-meta>
+  <!-- 导航栏 -->
+  <navigation-bar title="{{navTitle}}" back="{{false}}">
+    <view slot="right" class="nav-right">
+      <view class="lang-switch-btn" bind:tap="onSwitchLanguage">
+        <text>{{currentLang === 'zh' ? 'EN' : '中文'}}</text>
+      </view>
     </view>
-  </view>
-</navigation-bar>
+  </navigation-bar>
+</page-meta>
 
 <!-- 页面容器 -->
 <view class="page-container {{languageClass}}">
@@ -43,7 +46,7 @@
 
   <!-- 功能卡片区域 -->
   <view class="action-area">
-    <view class="action-card" wx:for="{{actionCards}}" wx:key="*this">
+    <view class="action-card" wx:for="{{actionCards}}" wx:key="text">
       <uni-icon
         type="{{item.icon === 'home' ? 'iconfont' : 'vant'}}"
         name="{{item.icon}}"
@@ -151,10 +154,12 @@
   <!-- 实时信息 -->
   <common-card class="info-section" title="{{realTimeTitle}}">
     <!-- 信息网格 -->
-    <info-grid>
-      <info-grid-item
+    <grid-container>
+      <grid-item
         wx:for="{{realTimeItems}}"
-        wx:key="*this"
+        wx:key="label"
+        mode="simple"
+        iconType="iconfont"
         icon="{{item.icon}}"
         label="{{item.label}}"
         value="{{item.value}}"
@@ -162,7 +167,7 @@
         bgColor="{{item.bgColor}}"
         iconColor="{{item.iconColor}}"
       />
-    </info-grid>
+    </grid-container>
   </common-card>
 
   <!-- 推荐座位 -->
@@ -174,19 +179,36 @@
 
     <!-- 座位列表 -->
     <view class="seat-list">
-      <seat-item
+      <grid-item
         wx:for="{{seatList}}"
         wx:key="seatName"
-        seat-label="{{item.seatLabel}}"
-        seat-name="{{item.seatName}}"
-        seat-type="{{item.seatType}}"
-        distance="{{item.distance}}"
-        status="{{item.status}}"
-        icon="{{item.icon}}"
-        bind:reserve="onSeatReserve"
-        bind:favorite="onSeatFavorite"
-        bind:detail="onSeatDetail"
-      />
+        mode="card"
+        name="{{item.seatName}}"
+        statusText="{{item.statusText}}"
+        attributes="{{[item.seatType, item.distance]}}"
+        showFooter="{{true}}"
+        clickable="{{false}}"
+      >
+        <!-- 自定义底部按钮 -->
+        <view slot="footer" class="seat-footer">
+          <view class="seat-footer__left">
+            <van-button
+              type="primary"
+              size="small"
+              class="seat-footer__reserve"
+              bind:click="onSeatReserve"
+            >
+              {{item.reserveText}}
+            </van-button>
+            <view class="seat-footer__favorite" bindtap="onSeatFavorite">
+              <uni-icon type="vant" name="star-o" size="32" />
+            </view>
+          </view>
+          <view class="seat-footer__arrow">
+            <uni-icon type="vant" name="arrow" size="32" color="#999" />
+          </view>
+        </view>
+      </grid-item>
     </view>
   </common-card>
 
@@ -199,7 +221,7 @@
 
     <!-- 活动列表 -->
     <view class="activity-list">
-      <view class="activity-card" wx:for="{{activityList}}" wx:key="*this">
+      <view class="activity-card" wx:for="{{activityList}}" wx:key="title">
         <view class="activity-header">
           <view class="activity-title">{{item.title}}</view>
           <van-tag type="{{item.status}}" size="medium" class="activity-status"

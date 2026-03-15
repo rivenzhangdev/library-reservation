@@ -9,7 +9,6 @@ export default {
   'search.tags.group': 'Group Discussion Table',
 
   // Action Cards
-  'actions.reserve': 'Reserve Now',
   'actions.myReservation': 'My Reservations',
   'actions.renew': 'Quick Renewal',
   'actions.checkin': 'Scan to Check-in',
@@ -43,7 +42,6 @@ export default {
 
   // Recommended Seats
   'recommend.title': 'Recommended Seats',
-  'recommend.viewAll': 'View All',
 
   // Seat Items
   'seat.window': 'Window Seat',
@@ -51,8 +49,6 @@ export default {
   'seat.power': 'Power Socket Seat',
   'seat.type.single': 'Single Desk',
   'seat.type.double': 'Double Desk',
-  'seat.status.available': 'Available',
-  'seat.reserve': 'Reserve Now',
 
   // Activity Notification
   'activity.title': 'Activity Notification',
@@ -61,21 +57,13 @@ export default {
   // Activity Cards
   'activity.marathon': 'Reading Marathon Challenge',
   'activity.marathon.desc': 'Challenge 7 days of continuous reading, win exquisite gifts!',
-  'activity.marathon.status': 'Ongoing',
-  'activity.marathon.btn': 'Join Now',
 
   'activity.sharing': 'Book Sharing Session',
   'activity.sharing.desc': 'Monthly sharing of your reading thoughts and insights.',
-  'activity.sharing.status': 'Registering',
-  'activity.sharing.btn': 'Register Now',
 
   'activity.retrieval': 'Literature Retrieval Training',
   'activity.retrieval.desc': 'Learn efficient literature retrieval skills.',
-  'activity.retrieval.status': 'Starting Soon',
-  'activity.retrieval.btn': 'Reserve Now',
 
   'activity.classic': 'Classic Recitation Activity',
   'activity.classic.desc': 'Recite Chinese classics, inherit excellent culture.',
-  'activity.classic.status': 'Ended',
-  'activity.classic.btn': 'Ended',
 };

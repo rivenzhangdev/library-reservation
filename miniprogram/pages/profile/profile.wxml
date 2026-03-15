@@ -1,8 +1,10 @@
 <!-- 个人中心页面 -->
-<view class="page-container">
+<page-meta>
   <!-- 导航栏 -->
   <navigation-bar title="{{pageTitle}}" back="{{false}}" />
+</page-meta>
 
+<view class="page-container">
   <view class="profile-content">
     <!-- 语言切换按钮区域 -->
     <view class="lang-switch-section">
@@ -46,63 +48,20 @@
     </view>
 
     <!-- 我的服务 -->
-    <view class="service-section">
-      <view class="section-title">{{sectionTitle}}</view>
+    <section-list
+      title="{{sectionTitle}}"
+      items="{{serviceItems}}"
+      bind:itemTap="onSectionItemTap"
+    />
 
-      <view class="service-list">
-        <!-- 我的预约 -->
-        <view class="service-item" bindtap="onMyReservationTap">
-          <view class="service-item-left">
-            <view class="service-icon">
-              <uni-icon type="vant" name="calendar-o" size="40" color="#409eff" />
-            </view>
-            <text class="service-label">{{myReservationLabel}}</text>
-          </view>
-          <view class="service-item-right">
-            <view class="badge" wx:if="{{reservationBadge > 0}}">{{reservationBadge}}</view>
-            <uni-icon type="vant" name="arrow" size="32" color="#999" />
-          </view>
-        </view>
+    <!-- 个人中心 -->
+    <section-list title="{{centerTitle}}" items="{{centerItems}}" bind:itemTap="onSectionItemTap" />
 
-        <!-- 我的收藏 -->
-        <view class="service-item" bindtap="onMyCollectionTap">
-          <view class="service-item-left">
-            <view class="service-icon">
-              <uni-icon type="vant" name="star-o" size="40" color="#e6a23c" />
-            </view>
-            <text class="service-label">{{myCollectionLabel}}</text>
-          </view>
-          <view class="service-item-right">
-            <uni-icon type="vant" name="arrow" size="32" color="#999" />
-          </view>
-        </view>
-
-        <!-- 预约历史 -->
-        <view class="service-item" bindtap="onHistoryTap">
-          <view class="service-item-left">
-            <view class="service-icon">
-              <uni-icon type="vant" name="records" size="40" color="#2ecc71" />
-            </view>
-            <text class="service-label">{{historyLabel}}</text>
-          </view>
-          <view class="service-item-right">
-            <uni-icon type="vant" name="arrow" size="32" color="#999" />
-          </view>
-        </view>
-
-        <!-- 设置 -->
-        <view class="service-item" bindtap="onSettingsTap">
-          <view class="service-item-left">
-            <view class="service-icon">
-              <uni-icon type="vant" name="setting-o" size="40" color="#9b59b6" />
-            </view>
-            <text class="service-label">{{settingsLabel}}</text>
-          </view>
-          <view class="service-item-right">
-            <uni-icon type="vant" name="arrow" size="32" color="#999" />
-          </view>
-        </view>
-      </view>
-    </view>
+    <!-- 系统设置 -->
+    <section-list
+      title="{{settingsTitle}}"
+      items="{{settingsItems}}"
+      bind:itemTap="onSectionItemTap"
+    />
   </view>
 </view>

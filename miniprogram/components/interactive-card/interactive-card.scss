@@ -1,0 +1,51 @@
+.interactive-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--interactive-card-padding);
+  background-color: var(--common-card-bg-color);
+  border-radius: var(--interactive-card-border-radius);
+  box-shadow: var(--common-card-shadow);
+  transition: all var(--transition-normal);
+
+  &-left {
+    display: flex;
+    flex: 1;
+    gap: var(--common-gap);
+    align-items: center;
+  }
+
+  &-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  &-content {
+    display: flex;
+    flex-direction: column;
+    gap: 4rpx;
+  }
+
+  &-title {
+    color: var(--common-text-color);
+    font-weight: var(--common-font-weight-bold);
+    font-size: var(--common-title-font-size);
+  }
+
+  &-desc {
+    color: var(--common-secondary-text-color);
+    font-size: var(--common-medium-font-size);
+  }
+
+  &-right {
+    display: flex;
+    align-items: center;
+  }
+}
+
+// 点击态
+.interactive-card-hover {
+  transform: scale(0.98);
+  opacity: 0.7;
+}

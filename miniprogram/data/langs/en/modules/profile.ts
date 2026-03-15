@@ -3,6 +3,8 @@ export default {
   // Page Title
   'profile.pageTitle': 'Profile',
   'profile.sectionTitle': 'My Services',
+  'profile.centerTitle': 'Personal Center',
+  'profile.settingsTitle': 'System Settings',
 
   // User Info
   'profile.user.name': 'Zhang San',
@@ -14,6 +16,18 @@ export default {
   // Service Menu
   'profile.service.myReservation': 'My Reservations',
   'profile.service.myCollection': 'My Collections',
+  'profile.service.myActivity': 'My Activities',
   'profile.service.history': 'Reservation History',
   'profile.service.settings': 'Settings',
+
+  // Personal Center Menu
+  'profile.center.personalInfo': 'Personal Info',
+  'profile.center.creditCenter': 'Credit Center',
+  'profile.center.feedback': 'Feedback',
+
+  // System Settings Menu
+  'profile.settings.notification': 'Notification',
+  'profile.settings.privacy': 'Privacy',
+  'profile.settings.help': 'Help Center',
+  'profile.settings.about': 'About Us',
 };

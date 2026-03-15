@@ -22,8 +22,10 @@
     "baseUrl": ".",
     "paths": {
       "@/*": ["./src/*"]
-    }
+    },
+    "outDir": "./dist",
+    "rootDir": "."
   },
   "include": ["./**/*.ts"],
-  "exclude": ["node_modules", "miniprogram/components/ec-canvas/echarts.min.js"]
+  "exclude": ["node_modules", "**/ec-canvas/echarts.min.js", "**/*.min.js", "dist"]
 }

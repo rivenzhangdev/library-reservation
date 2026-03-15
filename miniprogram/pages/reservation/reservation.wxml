@@ -1,5 +1,7 @@
 <!-- 预约页面 -->
-<navigation-bar title="座位预约" back="{{false}}" />
+<page-meta>
+  <navigation-bar title="座位预约" back="{{false}}" />
+</page-meta>
 
 <view class="page-container">
   <view class="page-content">预约页面</view>
