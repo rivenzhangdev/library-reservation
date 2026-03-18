@@ -1,14 +1,14 @@
 .content-card {
   box-sizing: border-box;
   width: 100%;
-  background: #fff;
-  border-radius: 16rpx;
-  transition: background-color 0.2s ease;
+  background: var(--common-white-color);
+  border-radius: var(--common-border-radius-xl);
+  transition: background-color var(--transition-normal);
 }
 
 .content-card--list.content-card-hover {
   &:active {
-    background-color: #f5f5f5;
+    background-color: var(--common-hover-bg-color);
   }
 }
 
@@ -18,7 +18,7 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 20rpx 24rpx;
+    padding: var(--common-spacing-xl) var(--common-spacing-2xl);
 
     .content-card-left {
       display: flex;
@@ -31,17 +31,17 @@
         flex-shrink: 0;
         align-items: center;
         justify-content: center;
-        width: 72rpx;
-        height: 72rpx;
-        margin-right: 20rpx;
-        border-radius: 50%;
+        width: var(--icon-size-3xl);
+        height: var(--icon-size-3xl);
+        margin-right: var(--common-spacing-xl);
+        border-radius: var(--common-border-radius-pill);
       }
 
       .content-card-title {
         overflow: hidden;
-        color: #333;
-        font-weight: 500;
-        font-size: 28rpx;
+        color: var(--common-dark-text-color);
+        font-weight: var(--common-font-weight-medium);
+        font-size: var(--common-font-size-lg);
         white-space: nowrap;
         text-overflow: ellipsis;
       }
@@ -49,7 +49,7 @@
 
     .content-card-right {
       display: flex;
-      gap: 12rpx;
+      gap: var(--common-spacing-md);
       align-items: center;
 
       .content-card-badge {
@@ -65,7 +65,7 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 20rpx 24rpx;
+    padding: var(--common-spacing-xl) var(--common-spacing-2xl);
 
     .content-card-left {
       display: flex;
@@ -78,17 +78,17 @@
         flex-shrink: 0;
         align-items: center;
         justify-content: center;
-        width: 72rpx;
-        height: 72rpx;
-        margin-right: 20rpx;
-        border-radius: 50%;
+        width: var(--icon-size-3xl);
+        height: var(--icon-size-3xl);
+        margin-right: var(--common-spacing-xl);
+        border-radius: var(--common-border-radius-pill);
       }
 
       .content-card-title {
         overflow: hidden;
-        color: #333;
-        font-weight: 500;
-        font-size: 28rpx;
+        color: var(--common-dark-text-color);
+        font-weight: var(--common-font-weight-medium);
+        font-size: var(--common-font-size-lg);
         white-space: nowrap;
         text-overflow: ellipsis;
       }
@@ -96,7 +96,7 @@
 
     .content-card-right {
       display: flex;
-      gap: 12rpx;
+      gap: var(--common-spacing-md);
       align-items: center;
 
       .content-card-badge {
@@ -109,7 +109,7 @@
 
   // Card 模式 - 内容卡片
   &--card {
-    padding: 28rpx;
+    padding: var(--common-spacing-3xl);
     box-shadow: var(--common-box-shadow);
 
     .content-card-detail {
@@ -117,7 +117,7 @@
         display: flex;
         align-items: flex-start;
         justify-content: space-between;
-        margin-bottom: 16rpx;
+        margin-bottom: var(--common-spacing-lg);
       }
 
       &-left {
@@ -131,10 +131,10 @@
         flex-shrink: 0;
         align-items: center;
         justify-content: center;
-        width: 80rpx;
-        height: 80rpx;
-        margin-right: 24rpx;
-        border-radius: 50%;
+        width: var(--icon-size-4xl);
+        height: var(--icon-size-4xl);
+        margin-right: var(--common-spacing-2xl);
+        border-radius: var(--common-border-radius-pill);
       }
 
       &-content {
@@ -143,18 +143,18 @@
       }
 
       &-title {
-        margin-bottom: 8rpx;
-        color: #333;
-        font-weight: 600;
-        font-size: 30rpx;
+        margin-bottom: var(--common-spacing-sm);
+        color: var(--common-dark-text-color);
+        font-weight: var(--common-font-weight-bold);
+        font-size: var(--common-font-size-2xl);
         line-height: 1.4;
       }
 
       &-desc {
         display: -webkit-box;
         overflow: hidden;
-        color: #666;
-        font-size: 26rpx;
+        color: var(--common-regular-text-color);
+        font-size: var(--common-font-size-md);
         line-height: 1.5;
         -webkit-line-clamp: 2;
         -webkit-box-orient: vertical;
@@ -168,17 +168,17 @@
         display: flex;
         align-items: center;
         justify-content: space-between;
-        margin-top: 16rpx;
-        padding-top: 16rpx;
-        border-top: 1rpx solid #f0f0f0;
+        margin-top: var(--common-spacing-lg);
+        padding-top: var(--common-spacing-lg);
+        border-top: 1rpx solid var(--common-border-color);
       }
 
       &-time {
         display: flex;
-        gap: 8rpx;
+        gap: var(--common-spacing-sm);
         align-items: center;
-        color: #999;
-        font-size: 24rpx;
+        color: var(--common-hint-text-color);
+        font-size: var(--common-font-size);
 
         .content-card-time-text {
           white-space: nowrap;
@@ -186,20 +186,20 @@
       }
 
       &-btn {
-        min-width: 160rpx;
+        min-width: var(--button-small-width);
       }
     }
   }
 
   // Message 模式 - 消息通知
   &--message {
-    padding: 28rpx;
+    padding: var(--common-spacing-3xl);
 
     .content-card-message {
       &-header {
         display: flex;
         align-items: flex-start;
-        margin-bottom: 16rpx;
+        margin-bottom: var(--common-spacing-lg);
       }
 
       &-icon {
@@ -207,21 +207,21 @@
         flex-shrink: 0;
         align-items: center;
         justify-content: center;
-        width: 72rpx;
-        height: 72rpx;
-        margin-right: 20rpx;
-        border-radius: 50%;
+        width: var(--icon-size-3xl);
+        height: var(--icon-size-3xl);
+        margin-right: var(--common-spacing-xl);
+        border-radius: var(--common-border-radius-pill);
 
         &--reservation {
-          background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+          background: var(--common-purple-gradient);
         }
 
         &--system {
-          background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+          background: var(--common-pink-gradient);
         }
 
         &--activity {
-          background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+          background: var(--common-blue-gradient);
         }
 
         &--message {
@@ -235,53 +235,53 @@
       }
 
       &-title {
-        margin-bottom: 8rpx;
-        color: #333;
-        font-weight: 600;
-        font-size: 30rpx;
+        margin-bottom: var(--common-spacing-sm);
+        color: var(--common-dark-text-color);
+        font-weight: var(--common-font-weight-bold);
+        font-size: var(--common-font-size-2xl);
         line-height: 1.4;
       }
 
       &-desc {
-        color: #666;
-        font-size: 26rpx;
+        color: var(--common-regular-text-color);
+        font-size: var(--common-font-size-md);
         line-height: 1.5;
       }
 
       &-time {
-        margin-left: 16rpx;
-        color: #999;
-        font-size: 24rpx;
+        margin-left: var(--common-spacing-lg);
+        color: var(--common-hint-text-color);
+        font-size: var(--common-font-size);
         white-space: nowrap;
       }
 
       &-footer {
-        padding-top: 16rpx;
-        border-top: 1rpx solid #f0f0f0;
+        padding-top: var(--common-spacing-lg);
+        border-top: 1rpx solid var(--common-border-color);
       }
 
       &-actions {
         display: flex;
-        gap: 24rpx;
+        gap: var(--common-spacing-2xl);
         align-items: center;
 
         .action-link {
-          font-size: 26rpx;
+          font-size: var(--common-font-size-md);
           cursor: pointer;
 
           &--primary {
-            color: #409eff;
+            color: var(--common-primary-color);
           }
 
           &--default {
-            color: #666;
+            color: var(--common-regular-text-color);
           }
         }
 
         .action-divider {
           width: 1rpx;
-          height: 24rpx;
-          background: #e9ecef;
+          height: var(--icon-size-2xl);
+          background: var(--common-light-border-color);
         }
       }
     }

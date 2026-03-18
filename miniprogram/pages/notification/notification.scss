@@ -1,6 +1,6 @@
 .page-container {
   min-height: 100vh;
-  background-color: #f7f8fa;
+  background-color: var(--common-page-bg-color);
 }
 
 // 按钮点击效果
@@ -10,13 +10,13 @@
 
 // van-tabs 样式覆盖
 .van-tabs {
-  background-color: #f7f8fa !important;
+  background-color: var(--common-page-bg-color) !important;
 }
 
 // 带徽章的标签
 .tab-with-badge {
   display: inline-flex;
-  gap: 12rpx;
+  gap: var(--common-spacing-md);
   align-items: center;
 }
 
@@ -24,16 +24,16 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-width: 32rpx;
-  height: 32rpx;
-  padding: 0 8rpx;
+  min-width: var(--icon-size-2xl);
+  height: var(--icon-size-2xl);
+  padding: 0 var(--common-spacing-sm);
   background: linear-gradient(135deg, #ff6b6b 0%, #ff4d4f 100%);
-  border-radius: 16rpx;
+  border-radius: var(--common-border-radius-xl);
 
   text {
-    color: #fff;
-    font-weight: 600;
-    font-size: 20rpx;
+    color: var(--common-white-color);
+    font-weight: var(--common-font-weight-bold);
+    font-size: var(--common-font-size-sm);
     line-height: 1;
   }
 }
@@ -42,38 +42,38 @@
 .actions-bar {
   display: flex;
   justify-content: flex-start;
-  padding: 20rpx var(--common-page-padding);
+  padding: var(--common-spacing-xl) var(--common-page-padding);
 }
 
 .mark-all-read-btn {
   display: inline-flex;
-  gap: 12rpx;
+  gap: var(--common-spacing-md);
   align-items: center;
-  padding: 14rpx 36rpx;
-  color: #fff;
-  font-weight: 600;
-  font-size: 28rpx;
-  background: linear-gradient(135deg, #2e5cff 0%, #8b3dff 100%);
-  border-radius: 14rpx;
+  padding: var(--common-spacing-lg) var(--common-spacing-4xl);
+  color: var(--common-white-color);
+  font-weight: var(--common-font-weight-bold);
+  font-size: var(--common-font-size-lg);
+  background: var(--common-primary-gradient);
+  border-radius: var(--common-border-radius-lg);
   box-shadow: 0 6rpx 20rpx rgba(46, 92, 255, 0.25);
 }
 
 // 通知列表
 .notification-list {
-  padding: 16rpx var(--common-page-padding);
+  padding: var(--common-spacing-lg) var(--common-page-padding);
 }
 
 // 空状态
 .empty-state {
   display: flex;
   flex-direction: column;
-  gap: 24rpx;
+  gap: var(--common-spacing-2xl);
   align-items: center;
   justify-content: center;
   padding: 120rpx 0;
 }
 
 .empty-text {
-  color: #999;
-  font-size: 28rpx;
+  color: var(--common-hint-text-color);
+  font-size: var(--common-font-size-lg);
 }

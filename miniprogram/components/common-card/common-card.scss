@@ -2,9 +2,9 @@
   box-sizing: border-box;
   width: 100%;
   padding: var(--card-padding);
-  background: var(--common-card-bg-color);
-  border-radius: var(--common-round-border-radius);
-  box-shadow: var(--common-card-shadow);
+  background: var(--common-white-color);
+  border-radius: var(--common-border-radius-xl);
+  box-shadow: var(--common-shadow-sm);
 
   &__header {
     display: flex;
@@ -13,9 +13,9 @@
     margin-bottom: var(--card-header-margin-bottom);
 
     &-content {
-      color: var(--common-text-color);
+      color: var(--common-dark-text-color);
       font-weight: var(--common-font-weight-bold);
-      font-size: var(--common-big-font-size);
+      font-size: var(--common-font-size-4xl);
     }
   }
 

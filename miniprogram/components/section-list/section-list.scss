@@ -1,21 +1,21 @@
 .section-list {
-  margin-bottom: var(--common-section-gap);
+  margin-bottom: var(--common-spacing-2xl);
 }
 
 .section-title {
-  margin-bottom: var(--common-gap);
-  padding-left: var(--common-mini-gap);
-  color: var(--common-secondary-text-color);
+  margin-bottom: var(--common-spacing-lg);
+  padding-left: var(--common-spacing-sm);
+  color: var(--common-regular-text-color);
   font-weight: var(--common-font-weight-bold);
-  font-size: var(--common-large-font-size);
+  font-size: var(--common-font-size-xl);
 }
 
 .section-list-content {
   display: flex;
   flex-direction: column;
-  gap: var(--common-gap);
-  padding: var(--common-mini-gap);
+  gap: var(--common-spacing-lg);
+  padding: var(--common-spacing-sm);
   overflow: hidden;
-  background-color: #fff;
-  border-radius: var(--common-large-border-radius);
+  background-color: var(--common-white-color);
+  border-radius: var(--common-border-radius-lg);
 }

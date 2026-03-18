@@ -1,76 +1,137 @@
 page {
-  /* 页面基础 */
-  --common-page-padding: 20rpx;
+  /* ========================================
+   * 页面基础变量
+   * ======================================== */
+  --common-page-padding: var(--common-spacing-xl);
   --common-page-bg-color: #f5f5f5;
-  
-  /* 间距相关 */
-  --common-mini-gap: 8rpx;
-  --common-gap: 12rpx;
-  --common-large-gap: 16rpx;
-  --common-section-gap: 24rpx;
-  --common-content-padding: 30rpx;
-  
-  /* 颜色相关 */
+
+  /* ========================================
+   * 间距变量系统（统一使用新命名）
+   * ======================================== */
+
+  /* 标准化间距系统 */
+  --common-spacing-xs: 4rpx;
+  --common-spacing-sm: 8rpx;
+  --common-spacing-md: 12rpx;
+  --common-spacing-lg: 16rpx;
+  --common-spacing-xl: 20rpx;
+  --common-spacing-2xl: 24rpx;
+  --common-spacing-3xl: 28rpx;
+  --common-spacing-4xl: 32rpx;
+  --common-spacing-5xl: 40rpx;
+
+  /* ========================================
+   * 颜色变量系统
+   * ======================================== */
+
+  /* 基础色 */
+  --common-white-color: #fff;
+  --common-black-color: #000;
   --common-gray-color: #f5f5f5;
-  --common-card-bg-color: #fff;
-  --common-text-color: #333;
-  --common-secondary-text-color: #666;
-  --common-hint-text-color: #999;
+
+  /* 主题色 */
   --common-primary-color: #409eff;
   --common-success-color: #2ecc71;
   --common-warning-color: #e6a23c;
   --common-danger-color: #e74c3c;
   --common-info-color: #3498db;
-  
-  /* 边框圆角相关 */
-  --common-mini-border-radius: 4rpx;
-  --common-border-radius: 8rpx;
-  --common-large-border-radius: 12rpx;
-  --common-round-border-radius: 16rpx;
-  --common-circle-border-radius: 9999rpx;
-  
-  /* 阴影相关 */
-  --common-box-shadow: 0 2rpx 12rpx rgba(0, 0, 0, 0.05);
-  --common-card-shadow: 0 2rpx 12rpx rgba(0, 0, 0, 0.05);
-  
-  /* 字体大小相关 */
-  --common-mini-font-size: 16rpx;
-  --common-small-font-size: 20rpx;
-  --common-font-size: 24rpx;
-  --common-medium-font-size: 26rpx;
-  --common-large-font-size: 28rpx;
-  --common-title-font-size: 30rpx;
-  --common-heading-font-size: 32rpx;
-  --common-big-font-size: 36rpx;
-  --common-extra-big-font-size: 40rpx;
-  
-  /* 字重相关 */
+
+  /* 文字颜色 */
+  --common-dark-text-color: #333;
+  --common-regular-text-color: #666;
+  --common-hint-text-color: #999;
+
+  /* 背景色 */
+  --common-hover-bg-color: #f5f5f5;
+  --common-info-bg-color: #ecf5ff;
+
+  /* 装饰色 */
+  --common-gold-color: #ffd700;
+  --common-border-color: #f0f0f0;
+  --common-light-border-color: #e9ecef;
+
+  /* 渐变色 */
+  --common-primary-gradient: linear-gradient(135deg, #2e5cff 0%, #8b3dff 100%);
+  --common-purple-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  --common-pink-gradient: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+  --common-blue-gradient: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+
+  /* ========================================
+   * 圆角变量系统（统一使用新命名）
+   * ======================================== */
+  --common-border-radius-sm: 4rpx;
+  --common-border-radius-md: 8rpx;
+  --common-border-radius-lg: 12rpx;
+  --common-border-radius-xl: 16rpx;
+  --common-border-radius-2xl: 20rpx;
+  --common-border-radius-pill: 9999rpx;
+
+  /* ========================================
+   * 阴影变量系统
+   * ======================================== */
+  --common-shadow-sm: 0 2rpx 8rpx rgba(0, 0, 0, 0.05);
+  --common-shadow-md: 0 4rpx 16rpx rgba(0, 0, 0, 0.08);
+  --common-shadow-lg: 0 8rpx 24rpx rgba(0, 0, 0, 0.1);
+  --common-shadow-xl: 0 8rpx 32rpx rgba(0, 0, 0, 0.12);
+  --common-shadow-primary: 0 8rpx 32rpx rgba(46, 92, 255, 0.3);
+
+  /* ========================================
+   * 字体大小变量系统（统一使用新命名）
+   * ======================================== */
+  --common-font-size-xs: 20rpx;
+  --common-font-size-sm: 22rpx;
+  --common-font-size-md: 24rpx;
+  --common-font-size-lg: 26rpx;
+  --common-font-size-xl: 28rpx;
+  --common-font-size-2xl: 30rpx;
+  --common-font-size-3xl: 32rpx;
+  --common-font-size-4xl: 36rpx;
+  --common-font-size-5xl: 40rpx;
+
+  /* ========================================
+   * 字重变量系统
+   * ======================================== */
   --common-font-weight-normal: 400;
   --common-font-weight-medium: 500;
   --common-font-weight-bold: 600;
-  
-  /* 按钮相关 */
+  --common-font-weight-semibold: 600;
+
+  /* ========================================
+   * 按钮变量系统
+   * ======================================== */
   --button-small-width: 160rpx;
   --button-medium-height: 60rpx;
   --tag-min-width: 120rpx;
   --filter-option-min-width: 160rpx;
-  
-  /* 图标相关 */
-  --icon-mini-size: 28rpx;
-  --icon-small-size: 32rpx;
-  --icon-medium-size: 40rpx;
-  --icon-large-size: 48rpx;
-  --icon-extra-large-size: 50rpx;
-  
-  /* 卡片相关 */
-  --card-padding: 32rpx;
-  --card-header-margin-bottom: 24rpx;
-  
-  /* 导航栏相关 */
+
+  /* ========================================
+   * 图标尺寸变量系统（统一使用新命名）
+   * ======================================== */
+  --icon-size-xs: 24rpx;
+  --icon-size-sm: 28rpx;
+  --icon-size-md: 32rpx;
+  --icon-size-lg: 40rpx;
+  --icon-size-xl: 48rpx;
+  --icon-size-2xl: 60rpx;
+  --icon-size-3xl: 72rpx;
+  --icon-size-4xl: 80rpx;
+  --icon-size-5xl: 160rpx;
+
+  /* ========================================
+   * 卡片变量系统
+   * ======================================== */
+  --card-padding: var(--common-spacing-4xl);
+  --card-header-margin-bottom: var(--common-spacing-2xl);
+
+  /* ========================================
+   * 导航栏变量系统
+   * ======================================== */
   --nav-bar-height: 44px;
   --nav-bar-android-height: 48px;
-  
-  /* 过渡动画 */
+
+  /* ========================================
+   * 过渡动画变量系统
+   * ======================================== */
   --transition-fast: 0.15s;
   --transition-normal: 0.2s;
   --transition-slow: 0.3s;

@@ -1,20 +1,20 @@
 // 导航栏右侧按钮
 .nav-right {
   display: flex;
-  gap: var(--common-mini-gap);
+  gap: var(--common-spacing-sm);
   align-items: center;
-  padding-right: var(--common-content-padding);
+  padding-right: var(--common-spacing-3xl);
 }
 
 .lang-switch-btn {
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 8rpx 16rpx;
-  color: var(--common-text-color);
-  font-size: var(--common-medium-font-size);
+  padding: var(--common-spacing-sm) var(--common-spacing-lg);
+  color: var(--common-dark-text-color);
+  font-size: var(--common-font-size-lg);
   background-color: transparent;
-  border-radius: var(--common-border-radius);
+  border-radius: var(--common-border-radius-md);
   transition: all var(--transition-normal);
 
   &:active {
@@ -26,7 +26,7 @@
 .page-container {
   display: flex;
   flex-direction: column;
-  gap: 30rpx;
+  gap: var(--common-spacing-3xl);
   padding: 0 var(--common-page-padding);
 }
 
@@ -34,48 +34,48 @@
 .page-container.lang-en {
   // 搜索标签增加宽度
   .search-tag-item {
-    padding: 0 20rpx;
-    font-size: 26rpx;
+    padding: 0 var(--common-spacing-xl);
+    font-size: var(--common-font-size-md);
   }
 
   // 功能卡片文字缩小
   .action-text {
-    font-size: 24rpx;
+    font-size: var(--common-font-size-md);
   }
 
   // 开放时间标题调整
   .opening-hours-title {
-    font-size: 28rpx;
+    font-size: var(--common-font-size-lg);
   }
 
   // 座位状态标签调整
   .seat-status-label {
-    font-size: 24rpx;
+    font-size: var(--common-font-size-md);
   }
 
   // 座位列表文字调整
   .seat-item__label {
-    font-size: 28rpx;
+    font-size: var(--common-font-size-lg);
   }
 
   .seat-item__type {
-    font-size: 26rpx;
+    font-size: var(--common-font-size-md);
   }
 
   // 活动标题调整
   .activity-title {
-    font-size: 28rpx;
+    font-size: var(--common-font-size-lg);
   }
 
   // 活动描述调整
   .activity-description {
-    font-size: 26rpx;
+    font-size: var(--common-font-size-md);
   }
 
   // 按钮文字调整
   .activity-btn {
-    min-width: 180rpx;
-    font-size: 24rpx;
+    min-width: var(--button-small-width);
+    font-size: var(--common-font-size-md);
   }
 }
 
@@ -91,23 +91,23 @@
 
 .search-tag {
   display: flex;
-  height: 60rpx;
+  height: var(--icon-size-2xl);
   white-space: nowrap;
 
   .search-tag-item {
     display: flex;
-    gap: var(--common-mini-gap);
+    gap: var(--common-spacing-sm);
     align-items: center;
     justify-content: center;
     margin-right: 8px;
-    padding: 0 30rpx;
-    font-size: 30rpx;
+    padding: 0 var(--common-spacing-3xl);
+    font-size: var(--common-font-size-2xl);
     background-color: var(--common-gray-color);
-    border-radius: 9999rpx;
+    border-radius: var(--common-border-radius-pill);
   }
 
   .search-tag-icon {
-    font-size: 30rpx;
+    font-size: var(--common-font-size-2xl);
   }
 }
 
@@ -119,7 +119,7 @@ swiper {
   width: 100%;
   height: 300rpx;
   overflow: hidden;
-  border-radius: 8rpx;
+  border-radius: var(--common-border-radius-md);
 }
 
 swiper-item {
@@ -133,13 +133,13 @@ swiper-item {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: var(--common-content-padding);
+  padding: var(--common-spacing-3xl);
   background-color: var(--common-gray-color);
-  border-radius: var(--common-large-border-radius);
+  border-radius: var(--common-border-radius-lg);
 
   &-content {
     display: flex;
-    gap: var(--common-gap);
+    gap: var(--common-spacing-lg);
     align-items: center;
   }
 
@@ -150,36 +150,36 @@ swiper-item {
 
     .van-icon {
       color: var(--common-success-color);
-      font-size: var(--icon-large-size);
+      font-size: var(--icon-size-xl);
     }
   }
 
   &-info {
     display: flex;
     flex-direction: column;
-    gap: var(--common-mini-gap);
+    gap: var(--common-spacing-sm);
   }
 
   &-title {
-    color: var(--common-text-color);
+    color: var(--common-dark-text-color);
     font-weight: var(--common-font-weight-bold);
-    font-size: var(--common-title-font-size);
+    font-size: var(--common-font-size-2xl);
   }
 
   &-time {
-    color: var(--common-secondary-text-color);
-    font-size: var(--common-medium-font-size);
+    color: var(--common-regular-text-color);
+    font-size: var(--common-font-size-lg);
   }
 
   &-status {
-    padding: 8rpx 24rpx;
-    font-size: var(--common-medium-font-size);
+    padding: var(--common-spacing-sm) var(--common-spacing-2xl);
+    font-size: var(--common-font-size-lg);
   }
 }
 
 .action-area {
   display: flex;
-  gap: var(--common-gap);
+  gap: var(--common-spacing-lg);
   justify-content: space-between;
   padding: var(--common-page-padding) 0;
   overflow-x: auto;
@@ -189,14 +189,14 @@ swiper-item {
     display: flex;
     flex: 1 1 0;
     flex-direction: column;
-    gap: var(--common-gap);
+    gap: var(--common-spacing-lg);
     align-items: center;
-    padding: var(--common-content-padding);
-    border-radius: var(--common-large-border-radius);
-    box-shadow: var(--common-box-shadow);
+    padding: var(--common-spacing-3xl);
+    border-radius: var(--common-border-radius-lg);
+    box-shadow: var(--common-shadow-sm);
 
     .action-icon {
-      font-size: var(--icon-extra-large-size);
+      font-size: var(--icon-size-2xl);
 
       &--blue {
         color: var(--common-primary-color);
@@ -216,8 +216,8 @@ swiper-item {
     }
 
     .action-text {
-      color: var(--common-text-color);
-      font-size: var(--common-font-size);
+      color: var(--common-dark-text-color);
+      font-size: var(--common-font-size-md);
       text-align: center;
     }
   }
@@ -226,31 +226,31 @@ swiper-item {
 .seat-status-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 20rpx;
+  gap: var(--common-spacing-xl);
 }
 
 .seat-status-card {
   display: flex;
   flex-direction: column;
-  gap: var(--common-large-gap);
-  padding: 24rpx;
+  gap: var(--common-spacing-lg);
+  padding: var(--common-spacing-2xl);
   background-color: var(--common-gray-color);
-  border-radius: var(--common-large-border-radius);
+  border-radius: var(--common-border-radius-lg);
 
   .seat-status-header {
     display: flex;
-    gap: var(--common-mini-gap);
+    gap: var(--common-spacing-sm);
     align-items: center;
 
     .seat-status-icon {
       display: flex;
       align-items: center;
       justify-content: center;
-      width: 60rpx;
-      height: 60rpx;
-      color: #fff;
-      font-size: var(--icon-small-size);
-      border-radius: 50%;
+      width: var(--icon-size-2xl);
+      height: var(--icon-size-2xl);
+      color: var(--common-white-color);
+      font-size: var(--icon-size-sm);
+      border-radius: var(--common-border-radius-pill);
 
       &--blue {
         background-color: var(--common-primary-color);
@@ -271,23 +271,23 @@ swiper-item {
 
     .seat-status-label {
       flex: 1;
-      color: var(--common-secondary-text-color);
-      font-size: var(--common-medium-font-size);
+      color: var(--common-regular-text-color);
+      font-size: var(--common-font-size-lg);
     }
 
     .seat-status-percent {
-      padding: 4rpx 12rpx;
+      padding: var(--common-spacing-xs) var(--common-spacing-lg);
       color: var(--common-primary-color);
-      font-size: var(--common-font-size);
-      background-color: #ecf5ff;
-      border-radius: var(--common-mini-border-radius);
+      font-size: var(--common-font-size-md);
+      background-color: var(--common-info-bg-color);
+      border-radius: var(--common-border-radius-sm);
     }
   }
 
   .seat-status-value {
-    color: var(--common-text-color);
+    color: var(--common-dark-text-color);
     font-weight: var(--common-font-weight-bold);
-    font-size: var(--common-extra-big-font-size);
+    font-size: var(--common-font-size-5xl);
   }
 
   .seat-status-progress {
@@ -295,7 +295,7 @@ swiper-item {
     height: 12rpx;
     overflow: hidden;
     background-color: #e9ecef;
-    border-radius: var(--common-mini-border-radius);
+    border-radius: var(--common-border-radius-sm);
 
     .seat-status-progress-bar {
       position: absolute;
@@ -303,7 +303,7 @@ swiper-item {
       left: 0;
       z-index: 1;
       height: 100%;
-      border-radius: var(--common-mini-border-radius);
+      border-radius: var(--common-border-radius-sm);
     }
 
     .seat-status-progress-bg {
@@ -322,10 +322,10 @@ swiper-item {
 .seat-recommend-section {
   .view-all {
     display: flex;
-    gap: var(--common-mini-gap);
+    gap: var(--common-spacing-sm);
     align-items: center;
     color: var(--common-primary-color);
-    font-size: var(--common-large-font-size);
+    font-size: var(--common-font-size-xl);
 
     &-text {
       color: inherit;
@@ -333,14 +333,14 @@ swiper-item {
 
     &-icon {
       color: inherit;
-      font-size: var(--icon-small-size);
+      font-size: var(--icon-size-sm);
     }
   }
 
   .seat-list {
     display: flex;
     flex-direction: column;
-    gap: var(--common-section-gap);
+    gap: var(--common-spacing-2xl);
 
     .seat-footer {
       display: flex;
@@ -351,7 +351,7 @@ swiper-item {
       &__left {
         display: flex;
         flex: 1 1 0;
-        gap: var(--common-large-gap);
+        gap: var(--common-spacing-lg);
         align-items: center;
         margin-right: 100rpx;
       }
@@ -368,11 +368,11 @@ swiper-item {
         display: flex;
         align-items: center;
         justify-content: center;
-        width: 72rpx;
-        height: 72rpx;
-        color: #666;
-        background-color: #f5f5f5;
-        border-radius: 50%;
+        width: var(--icon-size-3xl);
+        height: var(--icon-size-3xl);
+        color: var(--common-regular-text-color);
+        background-color: var(--common-hover-bg-color);
+        border-radius: var(--common-border-radius-pill);
       }
     }
   }
@@ -382,9 +382,9 @@ swiper-item {
 .trend-chart-wrapper {
   width: 100%;
   height: 400rpx;
-  margin-top: 24rpx;
-  padding-top: 16rpx;
-  border-top: 1rpx solid #f0f0f0;
+  margin-top: var(--common-spacing-2xl);
+  padding-top: var(--common-spacing-lg);
+  border-top: 1rpx solid var(--common-border-color);
 
   /* stylelint-disable-next-line selector-type-no-unknown */
   ec-canvas {
@@ -411,10 +411,10 @@ swiper-item {
 .activity-section {
   .view-all {
     display: flex;
-    gap: var(--common-mini-gap);
+    gap: var(--common-spacing-sm);
     align-items: center;
     color: var(--common-primary-color);
-    font-size: var(--common-large-font-size);
+    font-size: var(--common-font-size-xl);
 
     &-text {
       color: inherit;
@@ -422,23 +422,23 @@ swiper-item {
 
     &-icon {
       color: inherit;
-      font-size: var(--icon-small-size);
+      font-size: var(--icon-size-sm);
     }
   }
 
   .activity-list {
     display: flex;
     flex-direction: column;
-    gap: var(--common-section-gap);
+    gap: var(--common-spacing-2xl);
   }
 
   .activity-card {
     display: flex;
     flex-direction: column;
-    gap: 20rpx;
-    padding: 24rpx;
+    gap: var(--common-spacing-xl);
+    padding: var(--common-spacing-2xl);
     background-color: var(--common-gray-color);
-    border-radius: var(--common-large-border-radius);
+    border-radius: var(--common-border-radius-lg);
     transition: all var(--transition-slow);
 
     &:active {
@@ -452,21 +452,21 @@ swiper-item {
       justify-content: space-between;
 
       .activity-title {
-        color: var(--common-text-color);
+        color: var(--common-dark-text-color);
         font-weight: var(--common-font-weight-bold);
-        font-size: var(--common-title-font-size);
+        font-size: var(--common-font-size-2xl);
       }
 
       .activity-status {
         .van-tag {
-          font-size: var(--common-medium-font-size);
+          font-size: var(--common-font-size-lg);
         }
       }
     }
 
     .activity-description {
-      color: var(--common-secondary-text-color);
-      font-size: var(--common-large-font-size);
+      color: var(--common-regular-text-color);
+      font-size: var(--common-font-size-xl);
       line-height: 1.5;
     }
 
@@ -477,14 +477,14 @@ swiper-item {
 
       .activity-time {
         display: flex;
-        gap: var(--common-mini-gap);
+        gap: var(--common-spacing-sm);
         align-items: center;
         color: var(--common-hint-text-color);
-        font-size: var(--common-medium-font-size);
+        font-size: var(--common-font-size-lg);
 
         &-icon {
           color: var(--common-hint-text-color);
-          font-size: var(--icon-small-size);
+          font-size: var(--icon-size-sm);
         }
       }
 
@@ -493,8 +493,8 @@ swiper-item {
         align-items: center;
         justify-content: center;
         min-width: var(--button-small-width);
-        padding: 0 32rpx;
-        font-size: var(--common-medium-font-size);
+        padding: 0 var(--common-spacing-4xl);
+        font-size: var(--common-font-size-lg);
         line-height: var(--button-medium-height);
       }
     }

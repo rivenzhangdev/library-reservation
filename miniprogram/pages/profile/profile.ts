@@ -1,5 +1,23 @@
 import { t } from '../../utils/i18n';
 
+interface IProfileData {
+  currentLang: string;
+  pageTitle: string;
+  sectionTitle: string;
+  centerTitle: string;
+  settingsTitle: string;
+  userName: string;
+  studentId: string;
+  phone: string;
+  creditScore: string;
+  balance: string;
+  serviceItems: any[];
+  centerItems: any[];
+  settingsItems: any[];
+  langSwitchLabel: string;
+  langSwitchDesc: string;
+}
+
 Page({
   /**
    * 页面的初始数据
@@ -26,7 +44,7 @@ Page({
     // 语言切换按钮文案
     langSwitchLabel: '',
     langSwitchDesc: '切换到英文',
-  },
+  } as IProfileData,
 
   /**
    * 生命周期函数--监听页面加载
@@ -264,13 +282,14 @@ Page({
   /**
    * 处理模块项点击
    */
-  onSectionItemTap(event) {
+  onSectionItemTap(event: WechatMiniprogram.CustomEvent) {
     const { item } = event.detail;
     if (item && item.action) {
       // 动态调用对应的方法
-      const action = item.action;
-      if (typeof this[action] === 'function') {
-        this[action]();
+      const action = item.action as string;
+      const method = (this as any)[action];
+      if (typeof method === 'function') {
+        method();
       }
     }
   },

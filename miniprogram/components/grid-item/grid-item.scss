@@ -2,11 +2,11 @@
   position: relative;
   display: flex;
   flex-direction: column;
-  gap: var(--common-mini-gap);
+  gap: var(--common-spacing-sm);
   padding: var(--card-padding);
-  background-color: #fff;
-  border-radius: var(--common-large-border-radius);
-  box-shadow: var(--common-box-shadow);
+  background-color: var(--common-white-color);
+  border-radius: var(--common-border-radius-lg);
+  box-shadow: var(--common-shadow-sm);
   transition: all var(--transition-normal);
 
   // 简单模式（info-grid-item）
@@ -19,54 +19,54 @@
     display: flex;
     align-items: center;
     justify-content: flex-start;
-    margin-bottom: var(--common-mini-gap);
+    margin-bottom: var(--common-spacing-sm);
   }
 
   &__label {
-    color: var(--common-text-color);
+    color: var(--common-dark-text-color);
     font-weight: var(--common-font-weight-medium);
-    font-size: var(--common-title-font-size);
+    font-size: var(--common-font-size-2xl);
     text-align: left;
   }
 
   &__value {
-    margin-top: var(--common-mini-gap);
-    color: var(--common-text-color);
+    margin-top: var(--common-spacing-sm);
+    color: var(--common-dark-text-color);
     font-weight: var(--common-font-weight-bold);
-    font-size: 40rpx; // 增大数值字体
+    font-size: var(--common-font-size-5xl); // 增大数值字体
     text-align: left;
   }
 
   &__sublabel {
-    margin-top: 4rpx;
-    color: var(--common-secondary-text-color);
-    font-size: var(--common-font-size);
+    margin-top: var(--common-spacing-xs);
+    color: var(--common-regular-text-color);
+    font-size: var(--common-font-size-md);
     text-align: left;
   }
 
   // 卡片模式（seat-item）
   &__header {
-    margin-bottom: var(--common-gap);
+    margin-bottom: var(--common-spacing-md);
   }
 
   &__name-row {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    margin-bottom: var(--common-gap);
+    margin-bottom: var(--common-spacing-md);
   }
 
   &__name {
-    color: var(--common-text-color);
+    color: var(--common-dark-text-color);
     font-weight: var(--common-font-weight-bold);
-    font-size: var(--common-title-font-size);
+    font-size: var(--common-font-size-2xl);
   }
 
   &__status-tag {
-    padding: 6rpx 16rpx;
-    font-size: var(--common-font-size);
+    padding: var(--common-spacing-sm) var(--common-spacing-lg);
+    font-size: var(--common-font-size-md);
     background-color: rgba(64, 158, 255, 0.1);
-    border-radius: 8rpx;
+    border-radius: var(--common-border-radius-md);
 
     text {
       color: var(--common-primary-color);
@@ -77,28 +77,28 @@
 
   &__attributes {
     display: flex;
-    gap: var(--common-mini-gap);
-    margin-bottom: var(--common-gap);
+    gap: var(--common-spacing-sm);
+    margin-bottom: var(--common-spacing-md);
   }
 
   &__attribute {
-    padding: 6rpx 16rpx;
-    background-color: #f5f5f5;
-    border-radius: var(--common-mini-border-radius);
+    padding: var(--common-spacing-sm) var(--common-spacing-lg);
+    background-color: var(--common-hover-bg-color);
+    border-radius: var(--common-border-radius-sm);
 
     &-text {
-      color: #666;
+      color: var(--common-regular-text-color);
       font-weight: var(--common-font-weight-medium);
-      font-size: 28rpx;
+      font-size: var(--common-font-size-lg);
     }
   }
 
   &__footer {
     display: flex;
-    gap: var(--common-gap);
+    gap: var(--common-spacing-md);
     margin-top: auto;
-    padding-top: var(--common-gap);
-    border-top: 1rpx solid #f0f0f0;
+    padding-top: var(--common-spacing-md);
+    border-top: 1rpx solid var(--common-border-color);
   }
 
   &__btn {
@@ -106,12 +106,12 @@
     flex: 1;
     align-items: center;
     justify-content: center;
-    padding: 16rpx 0;
-    color: #fff;
-    font-size: var(--common-small-font-size);
+    padding: var(--common-spacing-lg) 0;
+    color: var(--common-white-color);
+    font-size: var(--common-font-size-sm);
     background-color: var(--common-primary-color);
     border: none;
-    border-radius: var(--common-border-radius);
+    border-radius: var(--common-border-radius-md);
 
     &--primary {
       font-weight: var(--common-font-weight-medium);
@@ -122,10 +122,10 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      width: 72rpx;
-      color: #666;
-      background-color: #f5f5f5;
-      border-radius: var(--common-border-radius);
+      width: var(--icon-size-3xl);
+      color: var(--common-regular-text-color);
+      background-color: var(--common-hover-bg-color);
+      border-radius: var(--common-border-radius-md);
     }
   }
 }

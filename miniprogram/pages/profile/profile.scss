@@ -6,18 +6,18 @@
 // 导航栏右侧按钮
 .nav-right {
   display: flex;
-  gap: var(--common-mini-gap);
+  gap: var(--common-spacing-sm);
   align-items: center;
-  padding-right: var(--common-content-padding);
+  padding-right: var(--common-spacing-3xl);
 }
 
 .nav-icon {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 60rpx;
-  height: 60rpx;
-  border-radius: 50%;
+  width: var(--icon-size-2xl);
+  height: var(--icon-size-2xl);
+  border-radius: var(--common-border-radius-pill);
   transition: background-color var(--transition-normal);
 
   &:active {
@@ -27,17 +27,17 @@
 
 // 语言切换区域
 .lang-switch-section {
-  padding: var(--common-page-padding) 0 var(--common-section-gap);
+  padding: var(--common-page-padding) 0 var(--common-spacing-2xl);
 }
 
 .lang-switch-card {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: var(--card-padding);
-  background-color: var(--common-card-bg-color);
-  border-radius: var(--common-large-border-radius);
-  box-shadow: var(--common-card-shadow);
+  padding: var(--card-padding) var(--common-spacing-3xl);
+  background-color: var(--common-white-color);
+  border-radius: var(--common-border-radius-lg);
+  box-shadow: var(--common-shadow-sm);
   transition: all var(--transition-normal);
 
   &:active {
@@ -48,40 +48,40 @@
 
 .lang-switch-content {
   display: flex;
-  gap: var(--common-gap);
+  gap: var(--common-spacing-md);
   align-items: center;
 }
 
 .lang-switch-text {
   display: flex;
   flex-direction: column;
-  gap: 4rpx;
+  gap: var(--common-spacing-xs);
 }
 
 .lang-switch-label {
-  color: var(--common-text-color);
+  color: var(--common-dark-text-color);
   font-weight: var(--common-font-weight-bold);
-  font-size: var(--common-title-font-size);
+  font-size: var(--common-font-size-2xl);
 }
 
 .lang-switch-desc {
-  color: var(--common-secondary-text-color);
-  font-size: var(--common-medium-font-size);
+  color: var(--common-regular-text-color);
+  font-size: var(--common-font-size-lg);
 }
 
 .profile-content {
-  padding-bottom: 30rpx;
+  padding-bottom: var(--common-spacing-3xl);
 }
 
 // 用户信息卡片
 .user-card {
   position: relative;
-  margin: 0 0 var(--common-section-gap);
-  padding: 40rpx 30rpx;
+  margin: 0 0 var(--common-spacing-2xl);
+  padding: var(--common-spacing-5xl) var(--common-spacing-3xl);
   overflow: hidden;
-  background: linear-gradient(135deg, #2e5cff 0%, #8b3dff 100%);
-  border-radius: var(--common-large-border-radius);
-  box-shadow: 0 8rpx 32rpx rgba(46, 92, 255, 0.3);
+  background: var(--common-primary-gradient);
+  border-radius: var(--common-border-radius-xl);
+  box-shadow: var(--common-shadow-primary);
 
   // 背景装饰
   &::before {
@@ -92,7 +92,7 @@
     width: 300rpx;
     height: 300rpx;
     background: rgba(255, 255, 255, 0.1);
-    border-radius: 50%;
+    border-radius: var(--common-border-radius-pill);
   }
 
   &::after {
@@ -103,7 +103,7 @@
     width: 240rpx;
     height: 240rpx;
     background: rgba(255, 255, 255, 0.08);
-    border-radius: 50%;
+    border-radius: var(--common-border-radius-pill);
   }
 }
 
@@ -112,18 +112,18 @@
   z-index: 1;
   display: flex;
   justify-content: center;
-  margin-bottom: 32rpx;
+  margin-bottom: var(--common-spacing-4xl);
 }
 
 .user-avatar {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 160rpx;
-  height: 160rpx;
+  width: var(--icon-size-5xl);
+  height: var(--icon-size-5xl);
   background: rgba(255, 255, 255, 0.2);
-  border-radius: 50%;
-  box-shadow: 0 8rpx 24rpx rgba(0, 0, 0, 0.1);
+  border-radius: var(--common-border-radius-pill);
+  box-shadow: var(--common-shadow-lg);
 }
 
 .user-info {
@@ -133,83 +133,83 @@
 }
 
 .user-name {
-  margin-bottom: 12rpx;
-  color: #fff;
-  font-weight: 600;
-  font-size: 40rpx;
+  margin-bottom: var(--common-spacing-md);
+  color: var(--common-white-color);
+  font-weight: var(--common-font-weight-bold);
+  font-size: var(--common-font-size-5xl);
 }
 
 .member-level {
   display: inline-block;
-  margin-bottom: 32rpx;
-  padding: 6rpx 20rpx;
-  color: #ffd700;
-  font-size: 24rpx;
+  margin-bottom: var(--common-spacing-4xl);
+  padding: var(--common-spacing-sm) var(--common-spacing-xl);
+  color: var(--common-gold-color);
+  font-size: var(--common-font-size-md);
   background: rgba(255, 215, 0, 0.2);
   border: 1rpx solid rgba(255, 215, 0, 0.5);
-  border-radius: 20rpx;
+  border-radius: var(--common-border-radius-2xl);
 }
 
 .user-details {
   display: flex;
-  gap: var(--common-large-gap);
+  gap: var(--common-spacing-lg);
   justify-content: center;
-  margin-bottom: var(--common-mini-gap);
+  margin-bottom: var(--common-spacing-sm);
 }
 
 .user-detail-item {
   display: flex;
-  gap: var(--common-mini-gap);
+  gap: var(--common-spacing-sm);
   align-items: center;
 
   .detail-text {
     color: rgba(255, 255, 255, 0.9);
-    font-size: var(--common-large-font-size);
+    font-size: var(--common-font-size-xl);
   }
 }
 
 .user-stats {
   display: flex;
-  gap: var(--common-large-gap);
+  gap: var(--common-spacing-lg);
   justify-content: center;
 }
 
 .user-stat-item {
   display: flex;
-  gap: var(--common-mini-gap);
+  gap: var(--common-spacing-sm);
   align-items: center;
 
   .stat-label {
-    color: #fff;
+    color: var(--common-white-color);
     font-weight: var(--common-font-weight-medium);
-    font-size: var(--common-large-font-size);
+    font-size: var(--common-font-size-xl);
   }
 }
 
 // 列表区域通用样式
 .section-title {
-  margin-bottom: var(--common-gap);
-  padding-left: var(--common-mini-gap);
-  color: var(--common-secondary-text-color);
+  margin-bottom: var(--common-spacing-md);
+  padding-left: var(--common-spacing-xs);
+  color: var(--common-regular-text-color);
   font-weight: var(--common-font-weight-bold);
-  font-size: var(--common-large-font-size);
+  font-size: var(--common-font-size-xl);
 }
 
 .section-list {
-  padding: var(--common-mini-gap);
+  padding: var(--common-spacing-xs);
   overflow: hidden;
-  background-color: #fff;
-  border-radius: var(--common-large-border-radius);
+  background-color: var(--common-white-color);
+  border-radius: var(--common-border-radius-xl);
 }
 
 .list-item {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: var(--common-mini-gap);
-  padding: var(--card-padding) var(--content-padding);
-  background-color: #fff;
-  border-radius: var(--common-large-border-radius);
+  margin-bottom: var(--common-spacing-xs);
+  padding: var(--card-padding) var(--common-spacing-3xl);
+  background-color: var(--common-white-color);
+  border-radius: var(--common-border-radius-xl);
   transition: background-color var(--transition-normal);
 
   &:last-child {
@@ -223,13 +223,13 @@
   &-left {
     display: flex;
     flex: 1;
-    gap: var(--common-section-gap);
+    gap: var(--common-spacing-2xl);
     align-items: center;
   }
 
   &-right {
     display: flex;
-    gap: var(--common-mini-gap);
+    gap: var(--common-spacing-sm);
     align-items: center;
   }
 }
@@ -238,15 +238,15 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 80rpx;
-  height: 80rpx;
-  border-radius: var(--common-large-border-radius);
+  width: var(--icon-size-4xl);
+  height: var(--icon-size-4xl);
+  border-radius: var(--common-border-radius-xl);
 }
 
 .item-label {
-  color: var(--common-text-color);
+  color: var(--common-dark-text-color);
   font-weight: var(--common-font-weight-medium);
-  font-size: var(--common-title-font-size);
+  font-size: var(--common-font-size-2xl);
 }
 
 .badge {
@@ -255,49 +255,49 @@
   justify-content: center;
   min-width: 36rpx;
   height: 36rpx;
-  padding: 0 12rpx;
-  color: #fff;
+  padding: 0 var(--common-spacing-lg);
+  color: var(--common-white-color);
   font-weight: var(--common-font-weight-bold);
-  font-size: var(--common-mini-font-size);
+  font-size: var(--common-font-size-xs);
   background-color: var(--common-danger-color);
-  border-radius: 18rpx;
+  border-radius: var(--common-border-radius-2xl);
 }
 
 // 系统设置区域
 .settings-section {
-  margin-top: var(--common-section-gap);
+  margin-top: var(--common-spacing-2xl);
 }
 
 // 英文长文本适配
 .lang-en {
   .user-name {
-    font-size: 36rpx;
+    font-size: var(--common-font-size-4xl);
   }
 
   .member-level {
-    padding: 6rpx 16rpx;
-    font-size: 22rpx;
+    padding: var(--common-spacing-sm) var(--common-spacing-lg);
+    font-size: var(--common-font-size-sm);
   }
 
   .user-detail-item {
     .detail-text {
-      font-size: 26rpx;
+      font-size: var(--common-font-size-md);
     }
   }
 
   .user-stat-item {
     .stat-label {
-      font-size: 26rpx;
+      font-size: var(--common-font-size-md);
     }
   }
 
   .service-label {
-    font-size: 28rpx;
+    font-size: var(--common-font-size-lg);
   }
 
   .badge {
-    min-width: 32rpx;
-    height: 32rpx;
-    font-size: 20rpx;
+    min-width: var(--icon-size-2xl);
+    height: var(--icon-size-2xl);
+    font-size: var(--common-font-size-xs);
   }
 }
