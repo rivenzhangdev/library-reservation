@@ -3,18 +3,19 @@
   <!-- 标题 -->
   <view class="section-title" wx:if="{{title}}">{{title}}</view>
 
-  <!-- 列表容器 -->
-  <view class="section-content">
-    <!-- 列表项 -->
-    <list-item
+  <!-- 列表内容 -->
+  <view class="section-list-content">
+    <content-card
       wx:for="{{items}}"
-      wx:key="label"
-      iconName="{{item.iconName}}"
+      wx:key="id"
+      mode="list"
+      icon="{{item.iconName || ''}}"
       iconColor="{{item.iconColor}}"
       iconBgColor="{{item.iconBgColor}}"
-      label="{{item.label}}"
-      badgeCount="{{item.badgeCount}}"
-      data-index="{{index}}"
+      title="{{item.label}}"
+      badgeCount="{{item.badgeCount || 0}}"
+      clickable="{{item.clickable !== false}}"
+      enableHover="{{enableHover}}"
       bind:tap="onItemTap"
     />
   </view>

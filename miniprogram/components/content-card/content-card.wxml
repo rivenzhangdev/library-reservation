@@ -1,0 +1,132 @@
+<!-- 通用内容卡片组件 -->
+<view
+  class="content-card {{customClass}} content-card--{{mode}}"
+  bind:tap="onTap"
+  hover-class="{{clickable && enableHover ? 'content-card-hover' : ''}}"
+  hover-stay-time="150"
+>
+  <!-- List 模式：简单列表项 -->
+  <block wx:if="{{mode === 'list'}}">
+    <view class="content-card-left">
+      <view wx:if="{{icon}}" class="content-card-icon" style="background-color: {{iconBgColor}}">
+        <uni-icon type="vant" name="{{icon}}" size="{{iconSize}}" color="{{iconColor}}" />
+      </view>
+      <text class="content-card-title">{{title}}</text>
+    </view>
+    <view class="content-card-right">
+      <van-info
+        wx:if="{{badgeCount > 0}}"
+        content="{{badgeCount}}"
+        custom-class="content-card-badge"
+      />
+      <uni-icon type="vant" name="arrow" size="{{arrowSize}}" color="{{arrowColor}}" />
+    </view>
+  </block>
+
+  <!-- Card 模式：内容卡片 -->
+  <block wx:if="{{mode === 'card'}}">
+    <view class="content-card-detail">
+      <view class="content-card-detail-header">
+        <view class="content-card-detail-left">
+          <view
+            wx:if="{{icon}}"
+            class="content-card-detail-icon"
+            style="background-color: {{iconBgColor}}"
+          >
+            <uni-icon type="vant" name="{{icon}}" size="{{iconSize}}" color="{{iconColor}}" />
+          </view>
+          <view class="content-card-detail-content">
+            <view class="content-card-detail-title">{{title}}</view>
+            <view class="content-card-detail-desc" wx:if="{{desc}}">{{desc}}</view>
+          </view>
+        </view>
+        <van-tag
+          type="{{status}}"
+          size="medium"
+          class="content-card-detail-status"
+          wx:if="{{statusText}}"
+        >
+          {{statusText}}
+        </van-tag>
+      </view>
+      <view class="content-card-detail-footer" wx:if="{{time || btnText}}">
+        <view class="content-card-detail-time" wx:if="{{time}}">
+          <uni-icon type="vant" name="calendar-o" size="28" color="#999" />
+          <text class="content-card-time-text">{{time}}</text>
+        </view>
+        <van-button
+          wx:if="{{btnText}}"
+          type="primary"
+          size="small"
+          round
+          class="content-card-detail-btn"
+          disabled="{{disabled}}"
+          bind:tap="onBtnTap"
+          catch:tap="stopPropagation"
+        >
+          {{btnText}}
+        </van-button>
+      </view>
+    </view>
+  </block>
+
+  <!-- Message 模式：消息通知 -->
+  <block wx:if="{{mode === 'message'}}">
+    <view class="content-card content-card--message">
+      <view class="content-card-message-header">
+        <view class="content-card-message-icon content-card-message-icon--{{type}}">
+          <uni-icon
+            type="vant"
+            name="{{icon || iconMap[type] || 'chat-o'}}"
+            size="{{iconSize}}"
+            color="#fff"
+          />
+        </view>
+        <view class="content-card-message-content">
+          <view class="content-card-message-title">{{title}}</view>
+          <view class="content-card-message-desc" wx:if="{{desc}}">{{desc}}</view>
+        </view>
+        <text class="content-card-message-time">{{time}}</text>
+      </view>
+      <view
+        class="content-card-message-footer"
+        wx:if="{{showViewDetail || showMarkRead || showDelete}}"
+      >
+        <view class="content-card-message-actions">
+          <view
+            class="action-link action-link--primary"
+            bind:tap="onActionTap"
+            data-action="viewDetail"
+            wx:if="{{showViewDetail}}"
+          >
+            {{viewDetailText}}
+          </view>
+          <view
+            class="action-link action-link--default"
+            bind:tap="onActionTap"
+            data-action="markRead"
+            wx:if="{{showMarkRead}}"
+          >
+            {{markReadText}}
+          </view>
+          <view class="action-divider" wx:if="{{showViewDetail || showMarkRead}}"></view>
+          <uni-icon
+            type="vant"
+            name="delete-o"
+            size="34"
+            color="#999"
+            bind:tap="onActionTap"
+            data-action="delete"
+            catch:tap="stopPropagation"
+            wx:if="{{showDelete}}"
+          />
+        </view>
+      </view>
+    </view>
+  </block>
+
+  <!-- Default 模式：完全自定义 -->
+  <block wx:if="{{mode === 'default'}}">
+    <slot />
+  </block>
+</view>

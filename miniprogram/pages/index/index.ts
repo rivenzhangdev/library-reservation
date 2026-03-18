@@ -541,6 +541,21 @@ Page({
   },
 
   /**
+   * 活动按钮点击事件
+   */
+  onActivityBtnTap(e: any) {
+    const index = e.currentTarget.dataset.index;
+    const activity = this.data.activityList[index];
+    if (activity && !activity.disabled) {
+      wx.showToast({
+        title: `${t('actions.reserve')} ${activity.title}`,
+        icon: 'none',
+      });
+      // TODO: 跳转到活动详情或报名页面
+    }
+  },
+
+  /**
    * 切换语言
    */
   onSwitchLanguage() {

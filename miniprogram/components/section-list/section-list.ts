@@ -20,6 +20,11 @@ Component({
       type: String,
       value: '',
     },
+    // 是否启用点击反馈效果
+    enableHover: {
+      type: Boolean,
+      value: true,
+    },
   },
 
   /**

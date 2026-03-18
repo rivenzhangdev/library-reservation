@@ -1,6 +1,5 @@
 {
   "usingComponents": {
-    "list-item": "/components/list-item/list-item",
     "section-list": "/components/section-list/section-list"
   }
 }

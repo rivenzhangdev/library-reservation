@@ -350,8 +350,18 @@ swiper-item {
 
       &__left {
         display: flex;
-        gap: var(--common-gap);
+        flex: 1 1 0;
+        gap: var(--common-large-gap);
         align-items: center;
+        margin-right: 100rpx;
+      }
+
+      &__reserve {
+        flex: 1 1 0;
+
+        button {
+          width: 100%;
+        }
       }
 
       &__favorite {
@@ -363,20 +373,6 @@ swiper-item {
         color: #666;
         background-color: #f5f5f5;
         border-radius: 50%;
-        transition: all 0.2s;
-
-        &:active {
-          color: #ff6b6b;
-          background-color: #e8e8e8;
-        }
-      }
-
-      &__arrow {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        color: #999;
-        font-size: 32rpx;
       }
     }
   }
@@ -497,7 +493,6 @@ swiper-item {
         align-items: center;
         justify-content: center;
         min-width: var(--button-small-width);
-        height: var(--button-medium-height);
         padding: 0 32rpx;
         font-size: var(--common-medium-font-size);
         line-height: var(--button-medium-height);

@@ -1,11 +1,79 @@
 .page-container {
   min-height: 100vh;
-  background-color: var(--common-page-bg-color);
+  background-color: #f7f8fa;
 }
 
-.page-content {
-  padding: var(--common-content-padding);
-  color: var(--common-secondary-text-color);
-  font-size: var(--common-heading-font-size);
-  text-align: center;
+// 按钮点击效果
+.button-hover {
+  opacity: 0.7;
+}
+
+// van-tabs 样式覆盖
+.van-tabs {
+  background-color: #f7f8fa !important;
+}
+
+// 带徽章的标签
+.tab-with-badge {
+  display: inline-flex;
+  gap: 12rpx;
+  align-items: center;
+}
+
+.tab-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 32rpx;
+  height: 32rpx;
+  padding: 0 8rpx;
+  background: linear-gradient(135deg, #ff6b6b 0%, #ff4d4f 100%);
+  border-radius: 16rpx;
+
+  text {
+    color: #fff;
+    font-weight: 600;
+    font-size: 20rpx;
+    line-height: 1;
+  }
+}
+
+// 全部已读按钮
+.actions-bar {
+  display: flex;
+  justify-content: flex-start;
+  padding: 20rpx var(--common-page-padding);
+}
+
+.mark-all-read-btn {
+  display: inline-flex;
+  gap: 12rpx;
+  align-items: center;
+  padding: 14rpx 36rpx;
+  color: #fff;
+  font-weight: 600;
+  font-size: 28rpx;
+  background: linear-gradient(135deg, #2e5cff 0%, #8b3dff 100%);
+  border-radius: 14rpx;
+  box-shadow: 0 6rpx 20rpx rgba(46, 92, 255, 0.25);
+}
+
+// 通知列表
+.notification-list {
+  padding: 16rpx var(--common-page-padding);
+}
+
+// 空状态
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  gap: 24rpx;
+  align-items: center;
+  justify-content: center;
+  padding: 120rpx 0;
+}
+
+.empty-text {
+  color: #999;
+  font-size: 28rpx;
 }

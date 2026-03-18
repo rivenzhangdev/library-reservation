@@ -1,0 +1,295 @@
+.content-card {
+  box-sizing: border-box;
+  width: 100%;
+  background: #fff;
+  border-radius: 16rpx;
+  transition: background-color 0.2s ease;
+}
+
+.content-card--list.content-card-hover {
+  &:active {
+    background-color: #f5f5f5;
+  }
+}
+
+.content-card {
+  // Simple 模式
+  &--simple {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 20rpx 24rpx;
+
+    .content-card-left {
+      display: flex;
+      flex: 1;
+      align-items: center;
+      min-width: 0;
+
+      .content-card-icon {
+        display: flex;
+        flex-shrink: 0;
+        align-items: center;
+        justify-content: center;
+        width: 72rpx;
+        height: 72rpx;
+        margin-right: 20rpx;
+        border-radius: 50%;
+      }
+
+      .content-card-title {
+        overflow: hidden;
+        color: #333;
+        font-weight: 500;
+        font-size: 28rpx;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+      }
+    }
+
+    .content-card-right {
+      display: flex;
+      gap: 12rpx;
+      align-items: center;
+
+      .content-card-badge {
+        position: relative;
+        top: auto;
+        right: auto;
+      }
+    }
+  }
+
+  // List 模式 - 列表项
+  &--list {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 20rpx 24rpx;
+
+    .content-card-left {
+      display: flex;
+      flex: 1;
+      align-items: center;
+      min-width: 0;
+
+      .content-card-icon {
+        display: flex;
+        flex-shrink: 0;
+        align-items: center;
+        justify-content: center;
+        width: 72rpx;
+        height: 72rpx;
+        margin-right: 20rpx;
+        border-radius: 50%;
+      }
+
+      .content-card-title {
+        overflow: hidden;
+        color: #333;
+        font-weight: 500;
+        font-size: 28rpx;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+      }
+    }
+
+    .content-card-right {
+      display: flex;
+      gap: 12rpx;
+      align-items: center;
+
+      .content-card-badge {
+        position: relative;
+        top: auto;
+        right: auto;
+      }
+    }
+  }
+
+  // Card 模式 - 内容卡片
+  &--card {
+    padding: 28rpx;
+    box-shadow: var(--common-box-shadow);
+
+    .content-card-detail {
+      &-header {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        margin-bottom: 16rpx;
+      }
+
+      &-left {
+        display: flex;
+        flex: 1;
+        min-width: 0;
+      }
+
+      &-icon {
+        display: flex;
+        flex-shrink: 0;
+        align-items: center;
+        justify-content: center;
+        width: 80rpx;
+        height: 80rpx;
+        margin-right: 24rpx;
+        border-radius: 50%;
+      }
+
+      &-content {
+        flex: 1;
+        min-width: 0;
+      }
+
+      &-title {
+        margin-bottom: 8rpx;
+        color: #333;
+        font-weight: 600;
+        font-size: 30rpx;
+        line-height: 1.4;
+      }
+
+      &-desc {
+        display: -webkit-box;
+        overflow: hidden;
+        color: #666;
+        font-size: 26rpx;
+        line-height: 1.5;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+      }
+
+      &-status {
+        flex-shrink: 0;
+      }
+
+      &-footer {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-top: 16rpx;
+        padding-top: 16rpx;
+        border-top: 1rpx solid #f0f0f0;
+      }
+
+      &-time {
+        display: flex;
+        gap: 8rpx;
+        align-items: center;
+        color: #999;
+        font-size: 24rpx;
+
+        .content-card-time-text {
+          white-space: nowrap;
+        }
+      }
+
+      &-btn {
+        min-width: 160rpx;
+      }
+    }
+  }
+
+  // Message 模式 - 消息通知
+  &--message {
+    padding: 28rpx;
+
+    .content-card-message {
+      &-header {
+        display: flex;
+        align-items: flex-start;
+        margin-bottom: 16rpx;
+      }
+
+      &-icon {
+        display: flex;
+        flex-shrink: 0;
+        align-items: center;
+        justify-content: center;
+        width: 72rpx;
+        height: 72rpx;
+        margin-right: 20rpx;
+        border-radius: 50%;
+
+        &--reservation {
+          background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        &--system {
+          background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        }
+
+        &--activity {
+          background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        }
+
+        &--message {
+          background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+        }
+      }
+
+      &-content {
+        flex: 1;
+        min-width: 0;
+      }
+
+      &-title {
+        margin-bottom: 8rpx;
+        color: #333;
+        font-weight: 600;
+        font-size: 30rpx;
+        line-height: 1.4;
+      }
+
+      &-desc {
+        color: #666;
+        font-size: 26rpx;
+        line-height: 1.5;
+      }
+
+      &-time {
+        margin-left: 16rpx;
+        color: #999;
+        font-size: 24rpx;
+        white-space: nowrap;
+      }
+
+      &-footer {
+        padding-top: 16rpx;
+        border-top: 1rpx solid #f0f0f0;
+      }
+
+      &-actions {
+        display: flex;
+        gap: 24rpx;
+        align-items: center;
+
+        .action-link {
+          font-size: 26rpx;
+          cursor: pointer;
+
+          &--primary {
+            color: #409eff;
+          }
+
+          &--default {
+            color: #666;
+          }
+        }
+
+        .action-divider {
+          width: 1rpx;
+          height: 24rpx;
+          background: #e9ecef;
+        }
+      }
+    }
+  }
+
+  // Custom 模式
+  &--custom {
+    padding: 0;
+    background: transparent;
+  }
+}

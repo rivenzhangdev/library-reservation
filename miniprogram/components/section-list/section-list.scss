@@ -10,7 +10,10 @@
   font-size: var(--common-large-font-size);
 }
 
-.section-content {
+.section-list-content {
+  display: flex;
+  flex-direction: column;
+  gap: var(--common-gap);
   padding: var(--common-mini-gap);
   overflow: hidden;
   background-color: #fff;

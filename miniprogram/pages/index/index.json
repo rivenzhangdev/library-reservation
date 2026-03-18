@@ -4,6 +4,7 @@
     "common-card": "/components/common-card/common-card",
     "grid-container": "/components/grid-container/grid-container",
     "grid-item": "/components/grid-item/grid-item",
-    "ec-canvas": "/components/ec-canvas/ec-canvas"
+    "ec-canvas": "/components/ec-canvas/ec-canvas",
+    "content-card": "/components/content-card/content-card"
   }
 }

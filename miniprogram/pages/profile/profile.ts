@@ -1,15 +1,5 @@
 import { t } from '../../utils/i18n';
 
-// 定义列表项类型
-interface ProfileItem {
-  label: string;
-  iconName: string;
-  iconColor: string;
-  iconBgColor: string;
-  badgeCount?: number;
-  action: string;
-}
-
 Page({
   /**
    * 页面的初始数据
@@ -28,11 +18,11 @@ Page({
     creditScore: '',
     balance: '',
     // 我的服务模块数据
-    serviceItems: [] as ProfileItem[],
+    serviceItems: [],
     // 个人中心模块数据
-    centerItems: [] as ProfileItem[],
+    centerItems: [],
     // 系统设置模块数据
-    settingsItems: [] as ProfileItem[],
+    settingsItems: [],
     // 语言切换按钮文案
     langSwitchLabel: '',
     langSwitchDesc: '切换到英文',
@@ -76,7 +66,6 @@ Page({
           iconName: 'star-o',
           iconColor: '#e6a23c',
           iconBgColor: '#fff0f0',
-          badgeCount: 0,
           action: 'onMyCollectionTap',
         },
         {
@@ -95,7 +84,6 @@ Page({
           iconName: 'user-o',
           iconColor: '#722ed1',
           iconBgColor: '#f9f0ff',
-          badgeCount: 0,
           action: 'onPersonalInfoTap',
         },
         {
@@ -103,7 +91,6 @@ Page({
           iconName: 'star',
           iconColor: '#faad14',
           iconBgColor: '#fff7e6',
-          badgeCount: 0,
           action: 'onCreditCenterTap',
         },
         {
@@ -122,7 +109,6 @@ Page({
           iconName: 'bell',
           iconColor: '#1890ff',
           iconBgColor: '#e6f7ff',
-          badgeCount: 0,
           action: 'onNotificationTap',
         },
         {
@@ -130,7 +116,6 @@ Page({
           iconName: 'shield-o',
           iconColor: '#52c41a',
           iconBgColor: '#f6ffed',
-          badgeCount: 0,
           action: 'onPrivacyTap',
         },
         {
@@ -138,7 +123,6 @@ Page({
           iconName: 'question-o',
           iconColor: '#fa8c16',
           iconBgColor: '#fff7e6',
-          badgeCount: 0,
           action: 'onHelpTap',
         },
         {
@@ -146,7 +130,6 @@ Page({
           iconName: 'info-o',
           iconColor: '#13c2c2',
           iconBgColor: '#e6fffb',
-          badgeCount: 0,
           action: 'onAboutTap',
         },
       ],
@@ -190,6 +173,7 @@ Page({
             iconColor: '#409eff',
             iconBgColor: '#e8f4ff',
             badgeCount: 2,
+            clickable: true,
             action: 'onMyReservationTap',
           },
           {
@@ -197,7 +181,7 @@ Page({
             iconName: 'star-o',
             iconColor: '#e6a23c',
             iconBgColor: '#fff0f0',
-            badgeCount: 0,
+            clickable: true,
             action: 'onMyCollectionTap',
           },
           {
@@ -206,6 +190,7 @@ Page({
             iconColor: '#e74c3c',
             iconBgColor: '#fff7e8',
             badgeCount: 1,
+            clickable: true,
             action: 'onMyActivityTap',
           },
         ],
@@ -216,7 +201,7 @@ Page({
             iconName: 'user-o',
             iconColor: '#722ed1',
             iconBgColor: '#f9f0ff',
-            badgeCount: 0,
+            clickable: true,
             action: 'onPersonalInfoTap',
           },
           {
@@ -224,7 +209,7 @@ Page({
             iconName: 'star',
             iconColor: '#faad14',
             iconBgColor: '#fff7e6',
-            badgeCount: 0,
+            clickable: true,
             action: 'onCreditCenterTap',
           },
           {
@@ -233,6 +218,7 @@ Page({
             iconColor: '#1890ff',
             iconBgColor: '#e6f7ff',
             badgeCount: 1,
+            clickable: true,
             action: 'onFeedbackTap',
           },
         ],
@@ -243,15 +229,15 @@ Page({
             iconName: 'bell',
             iconColor: '#1890ff',
             iconBgColor: '#e6f7ff',
-            badgeCount: 0,
+            clickable: true,
             action: 'onNotificationTap',
           },
           {
             label: t('profile.settings.privacy'),
             iconName: 'shield-o',
-            iconColor: '#52c41a',
+            iconColor: '#52c414a',
             iconBgColor: '#f6ffed',
-            badgeCount: 0,
+            clickable: true,
             action: 'onPrivacyTap',
           },
           {
@@ -259,7 +245,7 @@ Page({
             iconName: 'question-o',
             iconColor: '#fa8c16',
             iconBgColor: '#fff7e6',
-            badgeCount: 0,
+            clickable: true,
             action: 'onHelpTap',
           },
           {
@@ -267,7 +253,7 @@ Page({
             iconName: 'info-o',
             iconColor: '#13c2c2',
             iconBgColor: '#e6fffb',
-            badgeCount: 0,
+            clickable: true,
             action: 'onAboutTap',
           },
         ],
@@ -278,14 +264,13 @@ Page({
   /**
    * 处理模块项点击
    */
-  onSectionItemTap(event: WechatMiniprogram.TouchEvent) {
-    const { item } = event.detail as { item: ProfileItem };
+  onSectionItemTap(event) {
+    const { item } = event.detail;
     if (item && item.action) {
       // 动态调用对应的方法
       const action = item.action;
-      const method = (this as any)[action];
-      if (typeof method === 'function') {
-        method.call(this);
+      if (typeof this[action] === 'function') {
+        this[action]();
       }
     }
   },

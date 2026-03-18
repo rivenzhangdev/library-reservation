@@ -221,29 +221,23 @@
 
     <!-- 活动列表 -->
     <view class="activity-list">
-      <view class="activity-card" wx:for="{{activityList}}" wx:key="title">
-        <view class="activity-header">
-          <view class="activity-title">{{item.title}}</view>
-          <van-tag type="{{item.status}}" size="medium" class="activity-status"
-            >{{item.statusText}}</van-tag
-          >
-        </view>
-        <view class="activity-description">{{item.desc}}</view>
-        <view class="activity-footer">
-          <view class="activity-time">
-            <uni-icon type="vant" name="calendar-o" size="28" color="#999" />
-            <text>{{item.time}}</text>
-          </view>
-          <van-button
-            type="primary"
-            size="small"
-            round
-            class="activity-btn"
-            disabled="{{item.disabled}}"
-            >{{item.btnText}}</van-button
-          >
-        </view>
-      </view>
+      <content-card
+        wx:for="{{activityList}}"
+        wx:key="title"
+        mode="card"
+        icon="gift-o"
+        iconBgColor="#e8f4ff"
+        iconColor="#409eff"
+        title="{{item.title}}"
+        desc="{{item.desc}}"
+        status="{{item.status}}"
+        statusText="{{item.statusText}}"
+        time="{{item.time}}"
+        btnText="{{item.btnText}}"
+        disabled="{{item.disabled}}"
+        clickable="{{false}}"
+        bind:btnTap="onActivityBtnTap"
+      />
     </view>
   </common-card>
 </view>

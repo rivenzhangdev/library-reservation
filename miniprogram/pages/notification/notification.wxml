@@ -1,4 +1,75 @@
 <!-- 通知页面 -->
-<view class="page-container">
-  <view class="page-content">通知页面</view>
+<page-meta>
+  <!-- 导航栏 -->
+  <navigation-bar title="{{pageTitle}}" back="{{true}}" />
+</page-meta>
+
+<!-- 页面容器 -->
+<view class="page-container {{languageClass}}">
+  <!-- 筛选标签栏 -->
+  <van-tabs
+    sticky
+    animated
+    color="#409eff"
+    title-active-color="#409eff"
+    line-height="6rpx"
+    line-width="48rpx"
+    bind:change="onFilterChange"
+  >
+    <van-tab
+      wx:for="{{filterTabs}}"
+      wx:key="value"
+      data-value="{{item.value}}"
+      title="{{item.label}}"
+    >
+      <view wx:if="{{item.badge > 0}}" slot="title">
+        <view class="tab-with-badge">
+          <text>{{item.label}}</text>
+          <view class="tab-badge">{{item.badge}}</view>
+        </view>
+      </view>
+    </van-tab>
+  </van-tabs>
+
+  <!-- 全部已读按钮 -->
+  <view class="actions-bar" wx:if="{{hasUnread}}">
+    <view
+      class="mark-all-read-btn"
+      hover-class="button-hover"
+      hover-stay-time="150"
+      bind:tap="onMarkAllRead"
+    >
+      <uni-icon type="vant" name="checked" size="32" color="#fff" />
+      <text>{{markAllReadText}}</text>
+    </view>
+  </view>
+
+  <!-- 通知列表 -->
+  <view class="notification-list">
+    <content-card
+      wx:for="{{notificationList}}"
+      wx:key="id"
+      mode="message"
+      type="{{item.type}}"
+      icon="{{item.icon}}"
+      title="{{item.title}}"
+      time="{{item.time}}"
+      desc="{{item.content}}"
+      show-view-detail="{{true}}"
+      show-mark-read="{{!item.isRead}}"
+      show-delete="{{true}}"
+      view-detail-text="{{viewDetailText}}"
+      mark-read-text="{{markReadText}}"
+      custom-class="notification-item"
+      enable-hover="{{false}}"
+      bind:tap="onCardTap"
+      bind:actionTap="onActionTap"
+    />
+
+    <!-- 空状态提示 -->
+    <view class="empty-state" wx:if="{{notificationList.length === 0}}">
+      <uni-icon type="vant" name="bell" size="80" color="#ddd" />
+      <text class="empty-text">{{emptyText}}</text>
+    </view>
+  </view>
 </view>
