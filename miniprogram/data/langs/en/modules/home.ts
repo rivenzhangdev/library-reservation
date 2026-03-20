@@ -1,5 +1,8 @@
 // Homepage English Language Pack
 export default {
+  // 导航栏
+  'nav.title': 'Library Seat Reservation',
+
   // Search Area
   'search.placeholder': 'Enter search keywords',
   'search.tags.power': 'With Power Socket',

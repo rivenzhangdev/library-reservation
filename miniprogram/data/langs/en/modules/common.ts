@@ -1,6 +1,6 @@
-// Common English Language Pack - Shared copy across pages
+// Common English language pack
 export default {
-  // Navigation Bar
+  // Navigation
   'common.nav.back': 'Back',
   'common.nav.home': 'Home',
 
@@ -28,19 +28,19 @@ export default {
   'common.hint.success': 'Success',
   'common.hint.error': 'Error',
   'common.hint.noData': 'No Data',
-  'common.hint.networkError': 'Network Error, Please Try Again Later',
+  'common.hint.networkError': 'Network error, please try again later',
 
   // Time
-  'common.time.days': 'Days',
-  'common.time.hours': 'Hours',
-  'common.time.minutes': 'Minutes',
-  'common.time.ago': 'Ago',
+  'common.time.days': 'days',
+  'common.time.hours': 'hours',
+  'common.time.minutes': 'minutes',
+  'common.time.ago': 'ago',
 
-  // Number Format
-  'common.number.people': 'People',
-  'common.number.items': 'Items',
+  // Number
+  'common.number.people': 'people',
+  'common.number.items': 'items',
 
-  // Language Switch
+  // Language
   'common.lang.switch': 'Switch Language',
   'common.lang.zh': '中文',
   'common.lang.en': 'English',

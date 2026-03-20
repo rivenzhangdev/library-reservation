@@ -1,0 +1,82 @@
+<view class="seat-map-container">
+  <view class="seat-map-header">
+    <view class="flex items-center">
+      <text class="iconfont icon-chair seat-icon"></text>
+      <text class="seat-title">{{seatMapTitle}}</text>
+      <text class="seat-subtitle">{{seatMapSubtitle}}</text>
+    </view>
+  </view>
+
+  <view class="seat-map-content">
+    <!-- 座位网格区域（可滚动） -->
+    <scroll-view
+      scroll-x="{{true}}"
+      scroll-y="{{false}}"
+      class="seat-grid-container"
+      show-scrollbar="{{false}}"
+    >
+      <view class="seat-grid" style="width: {{gridWidth}}rpx;">
+        <!-- 座位网格 -->
+        <view
+          class="grid-layout"
+          style="grid-template-columns: repeat({{cols}}, {{seatSize}}rpx); grid-template-rows: repeat({{rows}}, {{seatSize}}rpx);"
+        >
+          <view
+            wx:for="{{seats}}"
+            wx:key="id"
+            id="{{item.id}}"
+            class="seat-item seat-{{item.status}}"
+            style="width: {{seatSize}}rpx; height: {{seatSize}}rpx;"
+            data-id="{{item.id}}"
+            bindtap="handleSeatClick"
+          >
+            <!-- 座位号 -->
+            <text class="seat-number">{{item.row}}-{{item.col}}</text>
+
+            <!-- 插座图标 -->
+            <view wx:if="{{item.hasSocket}}" class="socket-icon">
+              <text class="iconfont icon-plug"></text>
+            </view>
+
+            <!-- 靠窗标记 -->
+            <view wx:if="{{item.isWindow}}" class="window-label">{{seatMapWindow}}</view>
+          </view>
+        </view>
+      </view>
+    </scroll-view>
+
+    <view class="legend-container">
+      <view class="legend-item">
+        <view class="legend-icon legend-available"></view>
+        <text class="legend-text">{{seatMapLegendAvailable}}</text>
+        <text class="legend-desc">{{seatMapLegendAvailableDesc}}</text>
+      </view>
+
+      <view class="legend-item">
+        <view class="legend-icon legend-booked"></view>
+        <text class="legend-text">{{seatMapLegendBooked}}</text>
+        <text class="legend-desc">{{seatMapLegendBookedDesc}}</text>
+      </view>
+
+      <view class="legend-item">
+        <view class="legend-icon legend-maintenance"></view>
+        <text class="legend-text">{{seatMapLegendMaintenance}}</text>
+        <text class="legend-desc">{{seatMapLegendMaintenanceDesc}}</text>
+      </view>
+
+      <view class="legend-item">
+        <view class="legend-icon legend-selected"></view>
+        <text class="legend-text">{{seatMapLegendSelected}}</text>
+        <text class="legend-desc">{{seatMapLegendSelectedDesc}}</text>
+      </view>
+
+      <view class="legend-item">
+        <view class="legend-icon legend-mine"></view>
+        <text class="legend-text">{{seatMapLegendMine}}</text>
+        <text class="legend-desc">{{seatMapLegendMineDesc}}</text>
+      </view>
+    </view>
+
+    <text class="instruction-text"> {{seatMapInstruction}} </text>
+  </view>
+</view>

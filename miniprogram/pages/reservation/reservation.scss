@@ -1,11 +1,453 @@
+// ========================================
+// 通用 Mixin
+// ========================================
+
+// 白色卡片容器
+@mixin white-card {
+  margin-top: var(--common-spacing-4xl);
+  padding: var(--common-spacing-4xl) var(--common-spacing-3xl);
+  background-color: var(--common-white-color);
+  border-radius: var(--common-border-radius-xl);
+  box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.06);
+}
+
+// 选项按钮样式
+@mixin option-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 88rpx;
+  color: var(--common-dark-text-color);
+  font-size: var(--common-font-size-lg);
+  background-color: var(--common-gray-color);
+  border-radius: var(--common-border-radius-lg);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+
+  &:active {
+    transform: scale(0.98);
+    opacity: 0.7;
+  }
+
+  &.active {
+    color: var(--common-white-color);
+    background-color: var(--common-primary-color);
+    box-shadow: 0 4rpx 12rpx rgba(var(--common-primary-color-rgb), 0.3);
+  }
+}
+
+// 标题样式
+@mixin section-title {
+  margin-bottom: var(--common-spacing-3xl);
+  color: var(--common-dark-text-color);
+  font-weight: var(--common-font-weight-bold);
+  font-size: var(--common-font-size-xl);
+}
+
+// 信息标签
+@mixin info-label {
+  color: var(--common-hint-text-color);
+  font-size: var(--common-font-size-lg);
+}
+
+// 信息值
+@mixin info-value {
+  color: var(--common-dark-text-color);
+  font-weight: var(--common-font-weight-medium);
+  font-size: var(--common-font-size-lg);
+}
+
+// ========================================
+// 页面基础样式
+// ========================================
+
 .page-container {
   min-height: 100vh;
+  padding-bottom: var(--common-spacing-4xl);
   background-color: var(--common-page-bg-color);
 }
 
-.page-content {
-  padding: var(--common-spacing-3xl);
-  color: var(--common-regular-text-color);
-  font-size: var(--common-font-size-3xl);
+/* 楼层选择区域 */
+.floor-section {
+  padding: var(--common-spacing-4xl) var(--common-spacing-3xl);
+  background-color: var(--common-white-color);
+}
+
+.section-title {
+  @include section-title;
+}
+
+.floor-tags {
+  display: flex;
+  flex-wrap: nowrap;
+  gap: var(--common-spacing-lg);
+  height: 100rpx;
+  padding-bottom: var(--common-spacing-sm);
+  line-height: normal;
+  white-space: nowrap;
+}
+
+.floor-tag {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  min-width: 160rpx;
+  height: 72rpx;
+  margin-right: 12px;
+  color: var(--common-dark-text-color);
+  font-size: var(--common-font-size-lg);
+  background-color: var(--common-white-color);
+  border: 2rpx solid var(--common-border-color);
+  border-radius: var(--common-border-radius-lg);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+
+  &:active {
+    transform: scale(0.98);
+    opacity: 0.7;
+  }
+
+  &.active {
+    color: var(--common-white-color);
+    background-color: var(--common-primary-color);
+    border-color: var(--common-primary-color);
+  }
+}
+
+/* 筛选和搜索栏 */
+.filter-bar {
+  display: flex;
+  gap: var(--common-spacing-lg);
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 var(--common-spacing-3xl);
+  background-color: var(--common-white-color);
+}
+
+.filter-left {
+  display: flex;
+  align-items: center;
+}
+
+.filter-right {
+  display: flex;
+  flex: 1;
+  align-items: center;
+}
+
+.filter-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 200rpx;
+  height: 72rpx;
+  font-size: var(--common-font-size-lg); // 调大一号：md -> lg
+}
+
+.filter-button.van-button {
+  width: 100%;
+  height: 100%;
+  border-radius: var(--common-border-radius-lg);
+}
+
+.search-box {
+  width: 100%;
+}
+
+.search-box.van-search__content {
+  background-color: var(--common-gray-color);
+  border-radius: var(--common-border-radius-pill);
+}
+
+.search-box.van-search__input {
+  font-size: var(--common-font-size-lg); // 调大一号：md -> lg
+}
+
+/* 筛选条件面板 */
+.filter-panel .common-card {
+  border-radius: var(--common-border-radius-xl);
+}
+
+.filter-panel .common-card .common-card__content {
+  padding: var(--common-spacing-4xl) var(--common-spacing-3xl);
+}
+
+.filter-panel-title {
+  margin-bottom: var(--common-spacing-4xl);
+  color: var(--common-dark-text-color);
+  font-weight: var(--common-font-weight-bold);
+  font-size: var(--common-font-size-xl); // 调大一号：lg -> xl
+}
+
+.filter-row {
+  display: flex;
+  gap: var(--common-spacing-3xl);
+  margin-bottom: var(--common-spacing-4xl);
+}
+
+.filter-item {
+  flex: 1;
+}
+
+.filter-label {
+  margin-bottom: var(--common-spacing-lg);
+  color: var(--common-hint-text-color);
+  font-size: var(--common-font-size-md); // 调大一号：sm -> md
+}
+
+.filter-selector {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 80rpx;
+  padding: 0 var(--common-spacing-3xl);
+  background-color: var(--common-gray-color);
+  border-radius: var(--common-border-radius-lg);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+
+  &:active {
+    background-color: var(--common-hover-bg-color);
+  }
+
+  .selector-text {
+    color: var(--common-dark-text-color);
+    font-size: var(--common-font-size-lg); // 调大一号：md -> lg
+  }
+
+  [class*='van-icon'] {
+    flex-shrink: 0;
+    color: var(--common-hint-text-color);
+  }
+}
+
+.facility-options {
+  display: flex;
+  flex-wrap: nowrap;
+  gap: var(--common-spacing-4xl);
+  margin-top: var(--common-spacing-lg);
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.facility-item {
+  display: flex;
+  gap: var(--common-spacing-xs);
+  align-items: center;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+
+  &:active {
+    opacity: 0.7;
+  }
+}
+
+.facility-checkbox {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+}
+
+.facility-checkbox .van-checkbox__icon {
+  width: 32rpx;
+  height: 32rpx;
+  border-radius: 4rpx;
+}
+
+.facility-checkbox .van-checkbox__label {
+  color: var(--common-dark-text-color);
+  font-size: var(--common-font-size-lg); // 调大一号：md -> lg
+}
+
+.facility-label {
+  color: var(--common-dark-text-color);
+  font-size: var(--common-font-size-lg); // 调大一号：md -> lg
+  white-space: nowrap;
+}
+
+.filter-actions {
+  margin-top: var(--common-spacing-4xl);
+  padding-top: var(--common-spacing-4xl);
+  border-top: 1rpx solid var(--common-border-color);
+}
+
+.reset-button {
+  display: inline-block;
+  padding: var(--common-spacing-lg) 0;
+  color: var(--common-primary-color);
+  font-size: var(--common-font-size-lg); // 调大一号：md -> lg
+  cursor: pointer;
+
+  &:active {
+    opacity: 0.7;
+  }
+}
+
+.content-placeholder {
+  padding: var(--common-spacing-5xl);
+  color: var(--common-hint-text-color);
+  font-size: var(--common-font-size-xl); // 调大一号：lg -> xl
   text-align: center;
+}
+
+/* 已选座位信息 */
+.selected-info {
+  @include white-card;
+
+  padding: var(--common-spacing-3xl);
+}
+
+.info-label {
+  @include info-label;
+}
+
+.info-value {
+  @include info-value;
+}
+
+/* 时间选择模块 */
+.time-selection-section {
+  @include white-card;
+}
+
+.section-subtitle {
+  margin-bottom: var(--common-spacing-3xl);
+  color: var(--common-dark-text-color);
+  font-weight: var(--common-font-weight-medium);
+  font-size: var(--common-font-size-lg); // 调大一号：md -> lg
+}
+
+/* 日期选择 */
+.date-picker {
+  margin-bottom: var(--common-spacing-4xl);
+}
+
+.date-picker .van-cell-group {
+  overflow: hidden;
+  border-radius: var(--common-border-radius-lg);
+}
+
+.date-picker .van-field {
+  min-height: 88rpx;
+  background-color: var(--common-gray-color);
+  border-radius: var(--common-border-radius-lg);
+}
+
+.date-picker .van-field__control {
+  color: var(--common-dark-text-color);
+  font-size: var(--common-font-size-lg); // 调大一号：md -> lg
+}
+
+.date-picker .van-icon-calendar-o {
+  color: var(--common-hint-text-color);
+  font-size: var(--icon-size-md);
+}
+
+/* 时段选择 */
+.time-period-section {
+  margin-bottom: var(--common-spacing-4xl);
+}
+
+.time-period-options {
+  display: flex;
+  gap: var(--common-spacing-lg);
+}
+
+.time-period-option {
+  @include option-button;
+
+  flex: 1;
+}
+
+/* 时长选择 */
+.duration-section {
+  margin-bottom: var(--common-spacing-4xl);
+}
+
+.duration-options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--common-spacing-lg);
+}
+
+.duration-option {
+  @include option-button;
+
+  min-width: 200rpx;
+}
+
+/* 预约确认模块 */
+.reservation-confirm-section {
+  @include white-card;
+}
+
+.confirm-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--common-spacing-4xl);
+}
+
+.confirm-title {
+  @include section-title;
+}
+
+.confirm-info-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--common-spacing-3xl);
+}
+
+.confirm-info-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-bottom: var(--common-spacing-3xl);
+  border-bottom: 1rpx solid var(--common-border-color);
+
+  &:last-child {
+    padding-bottom: 0;
+    border-bottom: none;
+  }
+
+  &.confirm-fee {
+    padding-top: var(--common-spacing-3xl);
+    border-top: 2rpx solid var(--common-border-color);
+    border-bottom: none;
+  }
+}
+
+.info-label {
+  @include info-label;
+}
+
+.info-value {
+  @include info-value;
+}
+
+.info-fee {
+  color: var(--common-primary-color);
+  font-weight: var(--common-font-weight-bold);
+  font-size: var(--common-font-size-lg);
+}
+
+.confirm-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 96rpx;
+  color: var(--common-white-color);
+  font-weight: var(--common-font-weight-bold);
+  font-size: var(--common-font-size-xl); // 调大一号：lg -> xl
+  background-color: var(--common-primary-color);
+  border-radius: var(--common-border-radius-xl);
+  box-shadow: 0 4rpx 16rpx rgba(var(--common-primary-color-rgb), 0.3);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+
+  &:active {
+    transform: scale(0.98);
+    opacity: 0.8;
+  }
 }

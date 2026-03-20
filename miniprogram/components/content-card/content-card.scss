@@ -178,7 +178,7 @@
         gap: var(--common-spacing-sm);
         align-items: center;
         color: var(--common-hint-text-color);
-        font-size: var(--common-font-size);
+        font-size: var(--common-font-size-md);
 
         .content-card-time-text {
           white-space: nowrap;
@@ -251,7 +251,7 @@
       &-time {
         margin-left: var(--common-spacing-lg);
         color: var(--common-hint-text-color);
-        font-size: var(--common-font-size);
+        font-size: var(--common-font-size-md);
         white-space: nowrap;
       }
 

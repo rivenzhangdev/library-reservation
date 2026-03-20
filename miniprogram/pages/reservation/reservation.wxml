@@ -1,8 +1,182 @@
 <!-- 预约页面 -->
 <page-meta>
-  <navigation-bar title="座位预约" back="{{false}}" />
+  <navigation-bar title="{{navTitle}}" back="{{false}}" />
 </page-meta>
 
-<view class="page-container">
-  <view class="page-content">预约页面</view>
+<view class="page-container {{languageClass}}">
+  <!-- 楼层选择区域 -->
+  <view class="floor-section">
+    <view class="section-title">{{t('reservation.floor.select')}}</view>
+    <scroll-view class="floor-tags" scroll-x enable-flex>
+      <view
+        wx:for="{{floors}}"
+        wx:key="id"
+        class="floor-tag {{currentFloor === item.id ? 'active' : ''}}"
+        bind:tap="onFloorTap"
+        data-id="{{item.id}}"
+      >
+        {{item.name}}
+      </view>
+    </scroll-view>
+  </view>
+
+  <!-- 筛选和搜索栏 -->
+  <view class="filter-bar">
+    <view class="filter-left">
+      <van-button icon="filter-o" size="small" class="filter-button" bind:tap="onFilterTap">
+        {{t('reservation.filter')}}
+      </van-button>
+    </view>
+    <view class="filter-right">
+      <van-search
+        value="{{searchValue}}"
+        placeholder="{{t('reservation.search.placeholder')}}"
+        shape="round"
+        bind:change="onSearchChange"
+        class="search-box"
+      />
+    </view>
+  </view>
+
+  <!-- 筛选条件面板 -->
+  <view class="filter-panel" wx:if="{{showFilterPanel}}">
+    <common-card>
+      <view class="filter-panel-title">{{filterConditionsText}}</view>
+
+      <!-- 区域和座位类型 -->
+      <view class="filter-row">
+        <view class="filter-item">
+          <view class="filter-label">{{filterAreaText}}</view>
+          <view class="filter-selector" bind:tap="onAreaTap">
+            <text class="selector-text">{{selectedArea.name}}</text>
+            <uni-icon type="vant" name="arrow" size="24" />
+          </view>
+        </view>
+
+        <view class="filter-item">
+          <view class="filter-label">{{filterSeatTypeText}}</view>
+          <view class="filter-selector" bind:tap="onSeatTypeTap">
+            <text class="selector-text">{{selectedSeatType.name}}</text>
+            <uni-icon type="vant" name="arrow" size="24" />
+          </view>
+        </view>
+      </view>
+
+      <!-- 设施选项 -->
+      <view class="filter-item">
+        <view class="filter-label">{{filterFacilityText}}</view>
+        <view class="facility-options">
+          <view class="facility-item" bind:tap="onFacilityTap" data-type="power">
+            <van-checkbox
+              checked="{{facilities.power}}"
+              shape="square"
+              icon-size="32rpx"
+              class="facility-checkbox"
+            />
+            <text class="facility-label">{{filterFacilityPowerText}}</text>
+          </view>
+          <view class="facility-item" bind:tap="onFacilityTap" data-type="window">
+            <van-checkbox
+              checked="{{facilities.window}}"
+              shape="square"
+              icon-size="32rpx"
+              class="facility-checkbox"
+            />
+            <text class="facility-label">{{filterFacilityWindowText}}</text>
+          </view>
+        </view>
+      </view>
+
+      <!-- 重置按钮 -->
+      <view class="filter-actions">
+        <text class="reset-button" bind:tap="onResetFilter">{{filterResetText}}</text>
+      </view>
+    </common-card>
+  </view>
+
+  <!-- 座位列表区域 -->
+  <view>
+    <!-- 座位选择组件 -->
+    <seats-select
+      seats="{{seats}}"
+      selectedSeats="{{selectedSeatIds}}"
+      theme="{{theme}}"
+      currentLang="{{currentLang}}"
+      bind:seatSelect="onSeatSelect"
+      bind:error="onSeatError"
+    />
+
+    <!-- 时间选择模块 -->
+    <view class="time-selection-section">
+      <view class="section-title">{{t('reservation.time.select')}}</view>
+
+      <!-- 日期选择 -->
+      <view class="date-picker">
+        <van-cell-group>
+          <van-field
+            readonly
+            model:value="{{selectedDate}}"
+            placeholder="{{t('reservation.time.date.placeholder')}}"
+            bind:click="onDateClick"
+            is-link
+            right-icon="calendar-o"
+          />
+        </van-cell-group>
+      </view>
+
+      <!-- 时段选择 -->
+      <view class="time-period-section">
+        <view class="section-subtitle">{{t('reservation.time.period')}}</view>
+        <view class="time-period-options">
+          <block wx:for="{{timePeriods}}" wx:key="value">
+            <view
+              class="time-period-option {{currentTimePeriod === item.value ? 'active' : ''}}"
+              bind:tap="onTimePeriodTap"
+              data-value="{{item.value}}"
+            >
+              {{item.label}}
+            </view>
+          </block>
+        </view>
+      </view>
+
+      <!-- 时长选择 -->
+      <view class="duration-section">
+        <view class="section-subtitle">{{t('reservation.time.duration')}}</view>
+        <view class="duration-options">
+          <block wx:for="{{durations}}" wx:key="value">
+            <view
+              class="duration-option {{currentDuration === item.value ? 'active' : ''}}"
+              bind:tap="onDurationTap"
+              data-value="{{item.value}}"
+            >
+              {{item.label}}
+            </view>
+          </block>
+        </view>
+      </view>
+    </view>
+
+    <!-- 预约确认模块 -->
+    <view class="reservation-confirm-section" wx:if="{{selectedSeatIds.length > 0}}">
+      <view class="confirm-card">
+        <view class="confirm-title">{{t('reservation.confirm.title')}}</view>
+
+        <!-- 确认信息列表 -->
+        <view class="confirm-info-list">
+          <block wx:for="{{reservationInfoItems}}" wx:key="label">
+            <view class="confirm-info-item">
+              <text class="info-label">{{item.label}}</text>
+              <text class="info-value {{item.highlight ? 'info-fee' : ''}}">{{item.value}}</text>
+            </view>
+          </block>
+        </view>
+
+        <!-- 确认按钮 -->
+        <view class="confirm-button" bind:tap="onConfirmReservation"
+          >{{t('reservation.confirm.button')}}</view
+        >
+      </view>
+    </view>
+  </view>
 </view>

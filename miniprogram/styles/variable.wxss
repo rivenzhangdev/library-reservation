@@ -50,6 +50,21 @@ page {
   --common-border-color: #f0f0f0;
   --common-light-border-color: #e9ecef;
 
+  /* 状态颜色（通用语义化命名，可用于任何业务场景） */
+  --common-status-success-color: var(--common-success-color);
+  --common-status-success-border-color: #16a34a;
+  --common-status-success-active-color: #22c55e;
+  --common-status-danger-color: var(--common-danger-color);
+  --common-status-danger-border-color: #dc2626;
+  --common-status-warning-color: var(--common-warning-color);
+  --common-status-warning-border-color: #f59e0b;
+  --common-status-info-color: var(--common-info-color);
+  --common-status-info-border-color: #2563eb;
+  --common-status-gray-color: var(--common-gray-color);
+  --common-status-gray-border-color: #6b7280;
+  --common-status-purple-color: #a855f7;
+  --common-status-purple-border-color: #9333ea;
+
   /* 渐变色 */
   --common-primary-gradient: linear-gradient(135deg, #2e5cff 0%, #8b3dff 100%);
   --common-purple-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);

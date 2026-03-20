@@ -39,7 +39,24 @@ const appConfig: IAppOption = {
     const languageClass = `lang-${lang}`;
     this.globalData.languageClass = languageClass;
 
-    // 通知所有页面更新语言类名
+    // 更新 tabBar 标题
+    const tabBarTexts = {
+      zh: ['首页', '预约', '通知', '我的'],
+      en: ['Home', 'Reserve', 'Notify', 'Profile'],
+    };
+
+    // 更新所有 tabBar 项的文本
+    tabBarTexts[lang].forEach((text, index) => {
+      wx.setTabBarItem({
+        index,
+        text,
+        fail: (err) => {
+          console.error('设置 tabBar 标题失败:', err);
+        },
+      });
+    });
+
+    // 通知所有页面更新语言类名和 currentLang
     const pages = getCurrentPages();
     pages.forEach((page) => {
       if (page.setData) {

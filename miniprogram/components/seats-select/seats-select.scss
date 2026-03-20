@@ -1,0 +1,233 @@
+/* 座位选择组件样式 */
+.seat-map-container {
+  box-sizing: border-box;
+  width: 100%;
+  padding: var(--common-spacing-lg);
+  overflow: visible;
+  background-color: var(--common-white-color);
+  border: 1rpx solid var(--common-border-color);
+  border-radius: var(--common-border-radius-lg);
+  box-shadow: var(--common-shadow-md);
+}
+
+/* 座位地图头部 */
+.seat-map-header {
+  margin-bottom: var(--common-spacing-md);
+}
+
+/* 座位图标 */
+.seat-icon {
+  margin-right: var(--common-spacing-xs);
+  color: var(--common-primary-color);
+  font-size: var(--icon-size-lg);
+}
+
+/* 座位标题 */
+.seat-title {
+  color: var(--common-dark-text-color);
+  font-weight: var(--common-font-weight-medium);
+  font-size: var(--common-font-size-md);
+}
+
+/* 座位副标题 */
+.seat-subtitle {
+  margin-left: var(--common-spacing-sm);
+  color: var(--common-hint-text-color);
+  font-size: var(--common-font-size-xs);
+}
+
+/* 座位地图内容 */
+.seat-map-content {
+  display: flex;
+  flex-direction: column;
+}
+
+/* 座位网格容器 */
+.seat-grid-container {
+  width: 100%;
+  padding: var(--common-spacing-sm);
+  overflow: auto;
+  white-space: nowrap;
+}
+
+/* 座位网格 */
+.seat-grid {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-height: 400rpx;
+  padding: var(--common-spacing-md);
+}
+
+/* 网格布局 */
+.grid-layout {
+  display: grid;
+  gap: var(--common-spacing-sm);
+  min-height: 300rpx;
+  margin-bottom: var(--common-spacing-lg);
+}
+
+/* 座位项基础样式 */
+.seat-item {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--common-border-radius-sm);
+  cursor: pointer;
+  transition: all var(--transition-normal) ease;
+}
+
+.seat-item:active {
+  transform: scale(0.95);
+}
+
+/* 可用座位 */
+.seat-item.seat-available {
+  background-color: var(--common-status-success-color);
+}
+
+.seat-item.seat-available:active {
+  background-color: var(--common-status-success-active-color);
+}
+
+/* 已预约座位 */
+.seat-item.seat-booked {
+  background-color: var(--common-status-danger-color);
+  cursor: not-allowed;
+}
+
+/* 维修中座位 */
+.seat-item.seat-maintenance {
+  background-color: var(--common-status-gray-color);
+  cursor: not-allowed;
+}
+
+/* 已选择座位 */
+.seat-item.seat-selected {
+  background-color: var(--common-status-info-color);
+}
+
+.seat-item.seat-selected:active {
+  background-color: var(--common-status-info-border-color);
+}
+
+/* 我的预约座位 */
+.seat-item.seat-mine {
+  background-color: var(--common-status-purple-color);
+}
+
+.seat-item.seat-mine:active {
+  background-color: #c084fc;
+}
+
+/* 座位号 */
+.seat-number {
+  color: var(--common-white-color);
+  font-weight: var(--common-font-weight-bold);
+  font-size: var(--common-font-size-xs);
+}
+
+/* 插座图标 */
+.socket-icon {
+  position: absolute;
+  top: 4rpx;
+  right: 4rpx;
+  color: var(--common-white-color);
+  font-size: var(--icon-size-xs);
+}
+
+/* 靠窗标记 */
+.window-label {
+  position: absolute;
+  bottom: 4rpx;
+  color: var(--common-white-color);
+  font-size: var(--common-font-size-xs);
+}
+
+/* 图例容器 */
+.legend-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--common-spacing-lg);
+  align-items: center;
+  justify-content: center;
+  margin-top: var(--common-spacing-md);
+}
+
+/* 图例项 */
+.legend-item {
+  display: flex;
+  gap: var(--common-spacing-xs);
+  align-items: center;
+}
+
+/* 图例图标 */
+.legend-icon {
+  width: var(--icon-size-sm);
+  height: var(--icon-size-sm);
+  border: 2rpx solid;
+  border-radius: var(--common-border-radius-sm);
+}
+
+.legend-available {
+  background-color: var(--common-status-success-color);
+  border-color: var(--common-status-success-border-color);
+}
+
+.legend-booked {
+  background-color: var(--common-status-danger-color);
+  border-color: var(--common-status-danger-border-color);
+}
+
+.legend-maintenance {
+  background-color: var(--common-status-gray-color);
+  border-color: var(--common-status-gray-border-color);
+}
+
+.legend-selected {
+  background-color: var(--common-status-info-color);
+  border-color: var(--common-status-info-border-color);
+}
+
+.legend-mine {
+  background-color: var(--common-status-purple-color);
+  border-color: var(--common-status-purple-border-color);
+}
+
+/* 图例文本 */
+.legend-text {
+  color: var(--common-dark-text-color);
+  font-size: var(--common-font-size-xs);
+}
+
+.legend-desc {
+  margin-left: 4rpx;
+  color: var(--common-hint-text-color);
+  font-size: var(--common-font-size-xs);
+}
+
+/* 说明文字 */
+.instruction-text {
+  display: block;
+  margin-top: var(--common-spacing-md);
+  color: var(--common-hint-text-color);
+  font-size: var(--common-font-size-xs);
+  text-align: center;
+}
+
+/* 按钮样式重置 */
+button {
+  margin: 0;
+  padding: 0;
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+/* 文本样式重置 */
+text {
+  color: inherit;
+  font-size: inherit;
+}
