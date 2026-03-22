@@ -1,0 +1,169 @@
+.page-container {
+  min-height: 100vh;
+  padding-bottom: var(--common-spacing-lg);
+  background-color: var(--common-page-bg-color);
+}
+
+// 搜索栏
+.search-bar {
+  padding: var(--common-spacing-lg) var(--common-spacing-2xl);
+  background-color: var(--common-white-color);
+}
+
+// 状态筛选 (已废弃，使用通用组件)
+.status-scroll {
+  margin: 0 0 var(--common-spacing-lg) calc(var(--common-spacing-lg) * -1);
+  padding: var(--common-spacing-lg) var(--common-spacing-2xl);
+  background-color: var(--common-white-color);
+}
+
+.status-list {
+  display: flex;
+  flex-wrap: nowrap;
+  gap: var(--common-spacing-2xl);
+  align-items: center;
+}
+
+.status-item {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  padding: var(--common-spacing-md) var(--common-spacing-3xl);
+  white-space: nowrap;
+  background-color: var(--common-gray-color);
+  border-radius: var(--common-border-radius-pill);
+  cursor: pointer;
+  transition: all var(--transition-normal);
+
+  &.active {
+    background-color: var(--common-info-bg-color);
+
+    .status-text {
+      color: var(--common-primary-color);
+      font-weight: var(--common-font-weight-semibold);
+    }
+  }
+
+  .status-text {
+    color: var(--common-regular-text-color);
+    font-size: var(--common-font-size-lg);
+  }
+}
+
+// 活动列表
+.activity-item {
+  margin-bottom: var(--common-spacing-2xl);
+  overflow: hidden;
+  background-color: var(--common-white-color);
+  border-radius: var(--common-border-radius-xl);
+  box-shadow: var(--common-shadow-sm);
+}
+
+// 活动图片
+.activity-image-wrapper {
+  position: relative;
+  width: 100%;
+  height: 300rpx;
+}
+
+.activity-image {
+  width: 100%;
+  height: 100%;
+}
+
+.activity-tag {
+  position: absolute;
+  top: var(--common-spacing-lg);
+
+  &.tag-left {
+    left: var(--common-spacing-lg);
+  }
+
+  &.tag-right {
+    right: var(--common-spacing-lg);
+  }
+}
+
+// 活动内容
+.activity-content {
+  padding: var(--common-spacing-2xl);
+}
+
+.activity-title {
+  margin-bottom: var(--common-spacing-lg);
+  color: var(--common-dark-text-color);
+  font-weight: var(--common-font-weight-semibold);
+  font-size: var(--common-font-size-2xl);
+  line-height: 1.4;
+}
+
+// 活动信息
+.activity-info {
+  margin-bottom: var(--common-spacing-md);
+}
+
+// 活动信息 - 横向排列
+.activity-info-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--common-spacing-md);
+  align-items: center;
+  margin-bottom: var(--common-spacing-md);
+}
+
+.info-item {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  color: var(--common-regular-text-color);
+  font-size: var(--common-font-size-sm);
+}
+
+.info-icon {
+  margin-right: var(--common-spacing-xs);
+  font-size: var(--common-font-size-md);
+}
+
+// 活动描述
+.activity-description {
+  display: -webkit-box;
+  margin-bottom: var(--common-spacing-2xl);
+  overflow: hidden;
+  color: var(--common-regular-text-color);
+  font-size: var(--common-font-size-md);
+  line-height: 1.6;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+
+// 操作按钮
+.activity-actions {
+  display: flex;
+  gap: var(--common-spacing-lg);
+  justify-content: space-between;
+}
+
+.action-btn {
+  flex: 1;
+
+  &.full {
+    flex: none;
+    width: 100%;
+  }
+}
+
+// 空状态
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 120rpx 0;
+
+  .empty-text {
+    margin-top: var(--common-spacing-3xl);
+    color: var(--common-hint-text-color);
+    font-size: var(--common-font-size-md);
+  }
+}

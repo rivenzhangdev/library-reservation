@@ -143,6 +143,16 @@ page {
    * ======================================== */
   --nav-bar-height: 44px;
   --nav-bar-android-height: 48px;
+  --nav-bar-left-margin: -11px;
+  --nav-bar-left-padding: 11px 18px 11px 16px;
+  --nav-bar-icon-size: 12px;
+  --nav-bar-icon-width: 12px;
+  --nav-bar-icon-height: 24px;
+  --nav-bar-title-size: 17px;
+  --nav-bar-title-margin-right: 4px;
+  --nav-bar-loading-size: 16px;
+  --nav-bar-loading-width: 16px;
+  --nav-bar-loading-height: 16px;
 
   /* ========================================
    * 过渡动画变量系统
@@ -150,4 +160,14 @@ page {
   --transition-fast: 0.15s;
   --transition-normal: 0.2s;
   --transition-slow: 0.3s;
+
+  /* ========================================
+   * 边框变量系统
+   * ======================================== */
+  --common-border-width: 1rpx;
+
+  /* ========================================
+   * 卡片背景渐变色
+   * ======================================== */
+  --card-gradient-a: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
 }

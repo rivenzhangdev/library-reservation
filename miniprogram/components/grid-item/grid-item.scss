@@ -98,7 +98,7 @@
     gap: var(--common-spacing-md);
     margin-top: auto;
     padding-top: var(--common-spacing-md);
-    border-top: 1rpx solid var(--common-border-color);
+    border-top: var(--common-border-width) solid var(--common-border-color);
   }
 
   &__btn {

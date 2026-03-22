@@ -1,4 +1,4 @@
-import { type Seat, type SeatsSelectData } from './seats-select.types';
+import { Seat, SeatsSelectData } from '../../types/seats-select.types';
 import { t } from '../../utils/i18n';
 
 Component({
@@ -84,6 +84,11 @@ Component({
       setTimeout(() => {
         this.calculateGridSize();
       }, 100);
+
+      // 初始化时更新座位状态（处理初始选中状态）
+      if (this.data.seats && this.data.seats.length > 0) {
+        this.updateSeatsStatus();
+      }
     },
   },
 
@@ -94,6 +99,14 @@ Component({
     seats(newVal: Seat[]) {
       if (newVal && newVal.length > 0) {
         this.calculateGridSize();
+      }
+    },
+
+    // 监听已选中的座位列表变化
+    selectedSeats(newVal: string[]) {
+      console.log('[seats-select] selectedSeats changed:', newVal);
+      if (this.data.seats && this.data.seats.length > 0) {
+        this.updateSeatsStatus();
       }
     },
 
@@ -193,6 +206,34 @@ Component({
     },
 
     /**
+     * 更新座位状态（根据 selectedSeats 属性）
+     */
+    updateSeatsStatus() {
+      const seats = this.data.seats;
+      const selectedSeats = this.data.selectedSeats || [];
+
+      // 创建新的座位数组，避免直接修改原数据
+      const updatedSeats = seats.map((seat) => {
+        // 如果座位在已选列表中，设置为 'selected' 状态
+        if (selectedSeats.includes(seat.id)) {
+          return { ...seat, status: 'selected' as const };
+        } else {
+          // 否则恢复为 'available' 状态（前提是原本就是 available）
+          // 注意：不要改变 booked、maintenance、mine 等状态
+          if (seat.status === 'selected') {
+            return { ...seat, status: 'available' as const };
+          }
+          return seat;
+        }
+      });
+
+      console.log('[seats-select] Updated seats status:', updatedSeats);
+      this.setData({
+        seats: updatedSeats,
+      });
+    },
+
+    /**
      * 初始化多语言文本
      */
     initLanguage() {
@@ -200,15 +241,15 @@ Component({
         seatMapTitle: t('reservation.seatMap.title'),
         seatMapSubtitle: t('reservation.seatMap.subtitle'),
         seatMapWindow: t('reservation.seatMap.window'),
-        seatMapLegendAvailable: t('reservation.seatMap.legend.available'),
+        seatMapLegendAvailable: t('common.status.available'),
         seatMapLegendAvailableDesc: t('reservation.seatMap.legend.available.desc'),
-        seatMapLegendBooked: t('reservation.seatMap.legend.booked'),
+        seatMapLegendBooked: t('common.status.booked'),
         seatMapLegendBookedDesc: t('reservation.seatMap.legend.booked.desc'),
-        seatMapLegendMaintenance: t('reservation.seatMap.legend.maintenance'),
+        seatMapLegendMaintenance: t('common.status.maintenance'),
         seatMapLegendMaintenanceDesc: t('reservation.seatMap.legend.maintenance.desc'),
-        seatMapLegendSelected: t('reservation.seatMap.legend.selected'),
+        seatMapLegendSelected: t('common.status.selected'),
         seatMapLegendSelectedDesc: t('reservation.seatMap.legend.selected.desc'),
-        seatMapLegendMine: t('reservation.seatMap.legend.mine'),
+        seatMapLegendMine: t('common.status.booked'),
         seatMapLegendMineDesc: t('reservation.seatMap.legend.mine.desc'),
         seatMapInstruction: t('reservation.seatMap.instruction'),
       });

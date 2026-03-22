@@ -1,0 +1,59 @@
+<view class="seat-card" bind:tap="onCardTap">
+  <view class="seat-card__header">
+    <view class="seat-card__info">
+      <view class="seat-card__name">
+        {{seatInfo.name}}
+        <van-tag class="seat-card__status" type="{{statusTypeMap[seatInfo.status]}}" size="small">
+          {{statusTextMap[seatInfo.status]}}
+        </van-tag>
+      </view>
+      <view class="seat-card__location" wx:if="{{seatInfo.zone || seatInfo.floor}}">
+        <uni-icon name="location-o" size="24" type="vant" />
+        {{seatInfo.zone}}{{seatInfo.floor}}{{seatInfo.description}}
+      </view>
+    </view>
+  </view>
+
+  <view
+    class="seat-card__facilities"
+    wx:if="{{seatInfo.facilities && seatInfo.facilities.length > 0}}"
+  >
+    <van-tag
+      wx:for="{{seatInfo.facilities}}"
+      wx:key="*this"
+      type="default"
+      plain
+      size="medium"
+      class="seat-card__facility"
+    >
+      {{item}}
+    </van-tag>
+  </view>
+
+  <view class="seat-card__footer">
+    <view class="seat-card__description" wx:if="{{seatInfo.distance}}">
+      <uni-icon name="location-o" size="24" type="vant" />
+      {{seatInfo.distance}}
+    </view>
+
+    <view class="seat-card__actions">
+      <uni-icon
+        wx:if="{{showFavorite}}"
+        class="seat-card__favorite {{isFavorite ? 'active' : ''}}"
+        name="{{isFavorite ? 'heart' : 'heart-o'}}"
+        size="40"
+        type="vant"
+        bind:tap="onFavoriteTap"
+      />
+      <van-button
+        type="primary"
+        size="small"
+        round
+        bind:tap="onReserveTap"
+        disabled="{{buttonDisabled}}"
+      >
+        {{actionButtonText}}
+      </van-button>
+    </view>
+  </view>
+</view>

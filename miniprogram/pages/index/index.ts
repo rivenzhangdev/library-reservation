@@ -533,11 +533,10 @@ Page({
    * 查看更多活动
    */
   onViewMoreActivities() {
-    wx.showToast({
-      title: t('activity.viewMore'),
-      icon: 'none',
+    // 跳转到活动列表页面
+    wx.navigateTo({
+      url: '/pages/my-activity/my-activity',
     });
-    // TODO: 跳转到活动列表页面
   },
 
   /**
@@ -564,6 +563,70 @@ Page({
       const currentLang = app.globalData.currentLang || 'zh';
       const newLang = currentLang === 'zh' ? 'en' : 'zh';
       app.switchLanguage(newLang);
+    }
+  },
+
+  /**
+   * 搜索确认事件
+   */
+  onSearchConfirm(e: any) {
+    const keyword = e.detail;
+    if (keyword) {
+      wx.navigateTo({
+        url: `/pages/search-result/search-result?keyword=${encodeURIComponent(keyword)}`,
+      });
+    }
+  },
+
+  /**
+   * 搜索标签点击事件
+   */
+  onSearchTagTap(e: any) {
+    const tag = e.currentTarget.dataset.tag;
+    if (tag) {
+      wx.navigateTo({
+        url: `/pages/search-result/search-result?keyword=${encodeURIComponent(tag)}`,
+      });
+    }
+  },
+
+  /**
+   * 功能卡片点击事件
+   */
+  onActionCardTap(e: any) {
+    const index = e.currentTarget.dataset.index;
+    const action = this.data.actionCards[index];
+
+    if (!action) {
+      return;
+    }
+
+    // 根据功能卡片文本判断跳转
+    if (action.text === t('actions.myReservation')) {
+      // 跳转到我的预约页面
+      wx.navigateTo({
+        url: '/pages/my-reservation/my-reservation',
+      });
+    } else if (action.text === t('common.btn.confirm')) {
+      // 立即预约 - 跳转到预约页面
+      wx.navigateTo({
+        url: '/pages/reservation/reservation',
+      });
+    } else if (action.text === t('actions.renew')) {
+      // 快速续约 - 跳转到我的预约页面
+      wx.navigateTo({
+        url: '/pages/my-reservation/my-reservation',
+      });
+    } else if (action.text === t('actions.checkin')) {
+      // 扫码签到 - 跳转到我的预约页面
+      wx.navigateTo({
+        url: '/pages/my-reservation/my-reservation',
+      });
+    } else {
+      wx.showToast({
+        title: action.text,
+        icon: 'none',
+      });
     }
   },
 });

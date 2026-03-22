@@ -1,0 +1,295 @@
+.page-container {
+  min-height: 100vh;
+  padding: var(--common-spacing-lg);
+  background-color: var(--common-page-bg-color);
+}
+
+// 基本信息卡片
+.feedback-info {
+  margin-bottom: var(--common-spacing-lg);
+  padding: var(--common-spacing-2xl);
+  background-color: var(--common-white-color);
+  border-radius: var(--common-border-radius-lg);
+  box-shadow: var(--common-shadow-sm);
+}
+
+.info-header {
+  display: flex;
+  gap: var(--common-spacing-md);
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: var(--common-spacing-xl);
+}
+
+.info-title-wrapper {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: var(--common-spacing-sm);
+}
+
+.info-title {
+  color: var(--common-dark-text-color);
+  font-weight: var(--common-font-weight-semibold);
+  font-size: var(--common-font-size-2xl);
+  line-height: 1.4;
+}
+
+.info-meta {
+  display: flex;
+  gap: var(--common-spacing-sm);
+  align-items: center;
+  color: var(--common-hint-text-color);
+  font-size: var(--common-font-size-sm);
+
+  .meta-type {
+    color: var(--common-primary-color);
+  }
+
+  .meta-dot {
+    margin: 0 2rpx;
+  }
+}
+
+// 详细信息
+.info-details {
+  display: flex;
+  flex-direction: column;
+  gap: var(--common-spacing-md);
+  margin-bottom: var(--common-spacing-xl);
+  padding: var(--common-spacing-lg);
+  background-color: var(--common-gray-color);
+  border-radius: var(--common-border-radius-md);
+}
+
+.detail-row {
+  display: flex;
+  gap: var(--common-spacing-sm);
+  align-items: center;
+
+  .detail-label {
+    color: var(--common-regular-text-color);
+    font-weight: var(--common-font-weight-medium);
+    font-size: var(--common-font-size-md);
+  }
+
+  .detail-text {
+    flex: 1;
+    color: var(--common-dark-text-color);
+    font-size: var(--common-font-size-md);
+
+    &.urgency-low {
+      color: #52c41a;
+    }
+
+    &.urgency-medium {
+      color: #faad14;
+    }
+
+    &.urgency-high {
+      color: #f5222d;
+    }
+
+    &.urgency-urgent {
+      color: #722ed1;
+    }
+  }
+}
+
+// 反馈内容
+.info-content {
+  margin-bottom: var(--common-spacing-xl);
+
+  .content-label {
+    display: block;
+    margin-bottom: var(--common-spacing-md);
+    color: var(--common-dark-text-color);
+    font-weight: var(--common-font-weight-medium);
+    font-size: var(--common-font-size-lg);
+  }
+
+  .content-text {
+    display: block;
+    color: var(--common-regular-text-color);
+    font-size: var(--common-font-size-md);
+    line-height: 1.8;
+    white-space: pre-wrap;
+  }
+}
+
+// 图片展示
+.info-images {
+  display: grid;
+  gap: var(--common-spacing-md);
+
+  // 1-2 张图片：每行显示，宽度 333rpx
+  &.info-images-1,
+  &.info-images-2 {
+    grid-template-columns: repeat(auto-fill, 333rpx);
+    justify-content: flex-start;
+  }
+
+  // 3 张及以上：每行 3 张，宽度 222rpx
+  &.info-images-3 {
+    grid-template-columns: repeat(3, 222rpx);
+    justify-content: center;
+  }
+}
+
+.image-wrapper {
+  position: relative;
+  width: 100%;
+  height: 222rpx;
+}
+
+.content-image {
+  flex-shrink: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: var(--common-border-radius-md);
+
+  // 1-2 张图片时宽度 333rpx
+  &.content-image-1,
+  &.content-image-2 {
+    width: 333rpx;
+  }
+
+  // 3 张及以上时宽度 222rpx
+  &.content-image-3 {
+    width: 222rpx;
+  }
+}
+
+.content-image-mask {
+  position: absolute;
+  top: 0;
+  left: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.4);
+  border-radius: var(--common-border-radius-md);
+  cursor: pointer;
+  backdrop-filter: blur(4rpx);
+}
+
+.image-mask-text {
+  color: var(--common-white-color);
+  font-weight: var(--common-font-weight-semibold);
+  font-size: var(--common-font-size-2xl);
+}
+
+// 处理记录区域
+.process-section {
+  padding: var(--common-spacing-2xl);
+  background-color: var(--common-white-color);
+  border-radius: var(--common-border-radius-lg);
+  box-shadow: var(--common-shadow-sm);
+}
+
+.section-title {
+  margin-bottom: var(--common-spacing-xl);
+  padding-bottom: var(--common-spacing-md);
+  color: var(--common-dark-text-color);
+  font-weight: var(--common-font-weight-semibold);
+  font-size: var(--common-font-size-xl);
+  border-bottom: var(--common-border-width) solid var(--common-border-color);
+}
+
+// 处理记录项
+.process-item {
+  padding: var(--common-spacing-xl) 0;
+  border-bottom: var(--common-border-width) solid var(--common-border-color);
+
+  &:last-child {
+    border-bottom: none;
+  }
+}
+
+.process-header {
+  display: flex;
+  gap: var(--common-spacing-md);
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--common-spacing-md);
+}
+
+.process-user {
+  display: flex;
+  gap: var(--common-spacing-md);
+  align-items: center;
+}
+
+.user-avatar {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  width: 64rpx;
+  height: 64rpx;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-radius: var(--common-border-radius-pill);
+}
+
+.user-info {
+  display: flex;
+  flex-direction: column;
+  gap: var(--common-spacing-xs);
+}
+
+.user-name {
+  color: var(--common-dark-text-color);
+  font-weight: var(--common-font-weight-medium);
+  font-size: var(--common-font-size-md);
+}
+
+.user-role {
+  color: var(--common-hint-text-color);
+  font-size: var(--common-font-size-xs);
+}
+
+.process-date {
+  color: var(--common-hint-text-color);
+  font-size: var(--common-font-size-xs);
+}
+
+.process-content {
+  padding-left: calc(64rpx + var(--common-spacing-md));
+
+  .process-text {
+    display: block;
+    color: var(--common-regular-text-color);
+    font-size: var(--common-font-size-sm);
+    line-height: 1.8;
+    white-space: pre-wrap;
+  }
+}
+
+// 无处理记录
+.empty-process {
+  padding: var(--common-spacing-5xl) 0;
+  text-align: center;
+
+  .empty-process-text {
+    color: var(--common-hint-text-color);
+    font-size: var(--common-font-size-sm);
+  }
+}
+
+// 空状态
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 120rpx 0;
+
+  .empty-text {
+    margin-top: var(--common-spacing-3xl);
+    color: var(--common-hint-text-color);
+    font-size: var(--common-font-size-md);
+  }
+}

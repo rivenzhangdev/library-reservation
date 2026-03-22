@@ -1,7 +1,7 @@
 <!-- 通知页面 -->
 <page-meta>
   <!-- 导航栏 -->
-  <navigation-bar title="{{pageTitle}}" back="{{true}}" />
+  <navigation-bar title="{{pageTitle}}" back="{{false}}" />
 </page-meta>
 
 <!-- 页面容器 -->

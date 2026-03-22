@@ -38,6 +38,8 @@ export type Seat = {
   isWindow?: boolean;
   /** 所属区域 */
   zone?: string;
+  /** 已预约时间段 (仅 booked 和 mine 状态有效) */
+  bookedTimeRange?: string;
 };
 
 /**
@@ -52,6 +54,8 @@ export type SeatsSelectProperties = {
   theme: 'light' | 'dark';
   /** 是否禁用选择 */
   disabled: boolean;
+  /** 当前语言 */
+  currentLang?: 'zh' | 'en';
 };
 
 /**
@@ -66,6 +70,22 @@ export type SeatsSelectData = {
   cols: number;
   /** 网格宽度（像素） */
   gridWidth: number;
+
+  /** 多语言文本 */
+  seatMapTitle: string;
+  seatMapSubtitle: string;
+  seatMapWindow: string;
+  seatMapLegendAvailable: string;
+  seatMapLegendAvailableDesc: string;
+  seatMapLegendBooked: string;
+  seatMapLegendBookedDesc: string;
+  seatMapLegendMaintenance: string;
+  seatMapLegendMaintenanceDesc: string;
+  seatMapLegendSelected: string;
+  seatMapLegendSelectedDesc: string;
+  seatMapLegendMine: string;
+  seatMapLegendMineDesc: string;
+  seatMapInstruction: string;
 };
 
 /**

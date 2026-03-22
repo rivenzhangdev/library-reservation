@@ -33,6 +33,10 @@
     color: var(--common-white-color);
     background-color: var(--common-primary-color);
     box-shadow: 0 4rpx 12rpx rgba(var(--common-primary-color-rgb), 0.3);
+
+    .time-period-range {
+      color: var(--common-gray-color);
+    }
   }
 }
 
@@ -310,6 +314,8 @@
 /* 时间选择模块 */
 .time-selection-section {
   @include white-card;
+
+  margin-top: 0;
 }
 
 .section-subtitle {
@@ -359,6 +365,172 @@
   @include option-button;
 
   flex: 1;
+  flex-direction: column;
+  gap: var(--common-spacing-sm);
+}
+
+.time-period-label {
+  font-weight: var(--common-font-weight-medium);
+  font-size: var(--common-font-size-lg);
+}
+
+.time-period-range {
+  color: var(--common-hint-text-color);
+  font-size: var(--common-font-size-sm);
+  opacity: 0.8;
+}
+
+/* 自定义时间段入口 */
+.custom-time-toggle {
+  display: flex;
+  gap: var(--common-spacing-xs);
+  align-items: center;
+  justify-content: center;
+  margin-top: var(--common-spacing-lg);
+  padding: var(--common-spacing-lg);
+  background-color: var(--common-primary-bg-color);
+  border-radius: var(--common-border-radius-lg);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+
+  &:active {
+    transform: scale(0.98);
+    opacity: 0.7;
+  }
+
+  .custom-time-text {
+    color: var(--common-primary-color);
+    font-weight: var(--common-font-weight-medium);
+    font-size: var(--common-font-size-md);
+  }
+}
+
+/* 自定义时间段面板 */
+.custom-time-panel {
+  margin-top: var(--common-spacing-3xl);
+  padding: var(--common-spacing-4xl);
+  background-color: var(--common-primary-bg-color);
+  border-radius: var(--common-border-radius-lg);
+}
+
+.custom-time-title {
+  margin-bottom: var(--common-spacing-3xl);
+  color: var(--common-primary-color);
+  font-weight: var(--common-font-weight-bold);
+  font-size: var(--common-font-size-lg);
+  text-align: center;
+}
+
+.custom-time-inputs {
+  display: flex;
+  gap: var(--common-spacing-3xl);
+  margin-bottom: var(--common-spacing-4xl);
+}
+
+.custom-time-input {
+  flex: 1;
+}
+
+.custom-time-label {
+  margin-bottom: var(--common-spacing-lg);
+  color: var(--common-hint-text-color);
+  font-size: var(--common-font-size-sm);
+}
+
+.time-picker {
+  width: 100%;
+}
+
+.picker-display {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 88rpx;
+  padding: 0 var(--common-spacing-3xl);
+  background-color: var(--common-white-color);
+  border-radius: var(--common-border-radius-lg);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+
+  &:active {
+    background-color: var(--common-gray-color);
+  }
+
+  text {
+    color: var(--common-dark-text-color);
+    font-size: var(--common-font-size-lg);
+  }
+
+  [class*='van-icon'] {
+    flex-shrink: 0;
+    color: var(--common-hint-text-color);
+  }
+}
+
+.custom-time-confirm {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 88rpx;
+  color: var(--common-white-color);
+  font-weight: var(--common-font-weight-bold);
+  font-size: var(--common-font-size-lg);
+  background-color: var(--common-primary-color);
+  border-radius: var(--common-border-radius-lg);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+
+  &:active {
+    transform: scale(0.98);
+    opacity: 0.7;
+  }
+}
+
+/* 取消自定义时间段 */
+.cancel-custom-time {
+  display: flex;
+  gap: var(--common-spacing-xs);
+  align-items: center;
+  justify-content: center;
+  margin-top: var(--common-spacing-lg);
+  padding: var(--common-spacing-lg);
+  background-color: var(--common-danger-bg-color);
+  border-radius: var(--common-border-radius-lg);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+
+  &:active {
+    transform: scale(0.98);
+    opacity: 0.7;
+  }
+
+  .cancel-custom-text {
+    color: var(--common-danger-color);
+    font-weight: var(--common-font-weight-medium);
+    font-size: var(--common-font-size-md);
+  }
+}
+
+/* 当前预约时间显示 */
+.current-time-display {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: var(--common-spacing-3xl);
+  padding: var(--common-spacing-3xl);
+  background-color: var(--common-primary-bg-color);
+  border-radius: var(--common-border-radius-lg);
+}
+
+.current-time-label {
+  color: var(--common-hint-text-color);
+  font-size: var(--common-font-size-md);
+}
+
+.current-time-value {
+  color: var(--common-primary-color);
+  font-weight: var(--common-font-weight-bold);
+  font-size: var(--common-font-size-lg);
 }
 
 /* 时长选择 */

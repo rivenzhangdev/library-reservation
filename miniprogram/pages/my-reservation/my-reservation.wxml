@@ -1,0 +1,106 @@
+<page-meta>
+  <!-- 导航栏 -->
+  <navigation-bar title="{{navTitle}}" back="{{true}}" />
+</page-meta>
+
+<!-- 页面容器 -->
+<view class="page-container {{languageClass}}">
+  <!-- 状态筛选 -->
+  <scroll-view class="status-scroll" scroll-x enable-flex show-scrollbar="{{false}}">
+    <view class="status-list">
+      <view
+        wx:for="{{statusList}}"
+        wx:key="id"
+        class="status-item {{currentStatus === item.id ? 'active' : ''}}"
+        data-id="{{item.id}}"
+        bind:tap="onStatusTap"
+      >
+        <text class="status-text">{{item.name}}</text>
+        <text class="status-badge">{{item.count}}</text>
+      </view>
+    </view>
+  </scroll-view>
+
+  <!-- 预约记录列表 -->
+  <view class="reservation-list">
+    <common-card wx:for="{{filteredReservations}}" wx:key="id" class="reservation-item">
+      <view class="reservation-card">
+        <!-- 卡片头部 -->
+        <view class="reservation-header">
+          <view class="reservation-info">
+            <text class="reservation-name">{{item.seatName}}</text>
+            <van-tag type="{{item.tagType || 'default'}}" size="small">
+              {{item.statusName}}
+            </van-tag>
+          </view>
+        </view>
+
+        <!-- 预约详情 -->
+        <view class="reservation-detail">
+          <view class="reservation-row">
+            <text class="reservation-label">日期:</text>
+            <text class="reservation-value">{{item.date}}</text>
+          </view>
+          <view class="reservation-row">
+            <text class="reservation-label">时间:</text>
+            <text class="reservation-value">{{item.startTime}} - {{item.endTime}}</text>
+          </view>
+          <view class="reservation-row">
+            <text class="reservation-label">区域:</text>
+            <text class="reservation-value">{{item.zone}} · {{item.type}}</text>
+          </view>
+        </view>
+
+        <!-- 操作按钮 -->
+        <view class="reservation-actions">
+          <view class="reservation-actions-right">
+            <!-- 进行中：显示签到和取消 -->
+            <block wx:if="{{item.status === 'ongoing'}}">
+              <van-button
+                size="small"
+                type="primary"
+                plain
+                bind:tap="onCheckinTap"
+                data-id="{{item.id}}"
+              >
+                {{actionCheckinText}}
+              </van-button>
+              <van-button size="small" plain bind:tap="onCancelTap" data-id="{{item.id}}">
+                {{actionCancelText}}
+              </van-button>
+            </block>
+
+            <!-- 即将开始：显示续约和取消 -->
+            <block wx:if="{{item.status === 'upcoming'}}">
+              <van-button
+                size="small"
+                type="primary"
+                plain
+                bind:tap="onRenewTap"
+                data-id="{{item.id}}"
+              >
+                {{actionRenewText}}
+              </van-button>
+              <van-button size="small" plain bind:tap="onCancelTap" data-id="{{item.id}}">
+                {{actionCancelText}}
+              </van-button>
+            </block>
+
+            <!-- 其他状态：显示查看详情 -->
+            <block wx:if="{{item.status !== 'ongoing' && item.status !== 'upcoming'}}">
+              <van-button size="small" plain bind:tap="onDetailTap" data-id="{{item.id}}">
+                {{actionDetailText}}
+              </van-button>
+            </block>
+          </view>
+        </view>
+      </view>
+    </common-card>
+  </view>
+
+  <!-- 空状态 -->
+  <view wx:if="{{filteredReservations.length === 0}}" class="empty-state">
+    <uni-icon name="orders-o" size="80" color="#dcdee0" type="vant" />
+    <text class="empty-text">{{emptyHint}}</text>
+  </view>
+</view>

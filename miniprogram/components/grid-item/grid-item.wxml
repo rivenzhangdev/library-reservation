@@ -6,7 +6,7 @@
   hover-class="{{clickable ? 'grid-item-hover' : ''}}"
   hover-stay-time="150"
 >
-  <!-- 模式 1：简单图标 + 标签（info-grid-item 模式） -->
+  <!-- 模式 1：简单图标 + 标签 -->
   <block wx:if="{{mode === 'simple'}}">
     <view class="grid-item__icon" wx:if="{{icon}}">
       <uni-icon type="{{iconType}}" name="{{icon}}" size="{{iconSize}}" color="{{iconColor}}" />

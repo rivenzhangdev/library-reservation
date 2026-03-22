@@ -17,7 +17,6 @@ export default {
   'reservation.filter.seatType': '座位类型',
   'reservation.filter.facility': '设施',
   'reservation.filter.facility.power': '有插座',
-  'reservation.filter.facility.window': '靠窗',
   'reservation.filter.reset': '重置筛选条件',
 
   // 区域选项
@@ -43,6 +42,9 @@ export default {
   'reservation.time.period.morning': '上午',
   'reservation.time.period.afternoon': '下午',
   'reservation.time.period.evening': '晚上',
+  'reservation.time.period.custom': '自定义时段',
+  'reservation.time.period.selectRange': '预约时段',
+  'reservation.time.period.unknown': '未知时段',
   'reservation.time.duration.1h': '1 小时',
   'reservation.time.duration.2h': '2 小时',
   'reservation.time.duration.4h': '4 小时',
@@ -52,6 +54,11 @@ export default {
   'reservation.time.date.tomorrow': '明天',
   'reservation.time.date.dayAfter': '后天',
   'reservation.time.date.selectMore': '选择更多日期',
+  'reservation.time.custom.title': '自定义时间段',
+  'reservation.time.custom.start': '开始时间',
+  'reservation.time.custom.end': '结束时间',
+  'reservation.time.custom.confirm': '确认时间段',
+  'reservation.time.custom.cancel': '取消自定义时间段',
 
   // 预约确认
   'reservation.confirm.title': '预约确认',
@@ -69,20 +76,18 @@ export default {
   'reservation.hint.pleaseSelectDate': '请选择日期',
   'reservation.hint.pleaseSelectSeat': '请选择座位',
   'reservation.hint.reservationSuccess': '预约成功',
+  'reservation.hint.endTimeMustAfterStart': '结束时间必须晚于开始时间',
+  'reservation.hint.customTimeConfirmed': '时间段已确认',
+  'reservation.hint.customTimeCancelled': '已取消自定义时间段',
 
   // 座位选择组件
   'reservation.seatMap.title': '座位选择',
   'reservation.seatMap.subtitle': '点击选择或取消座位',
   'reservation.seatMap.window': '靠窗',
-  'reservation.seatMap.legend.available': '可用',
   'reservation.seatMap.legend.available.desc': '(可预约的座位)',
-  'reservation.seatMap.legend.booked': '已预约',
   'reservation.seatMap.legend.booked.desc': '(已被他人预约)',
-  'reservation.seatMap.legend.maintenance': '维修中',
   'reservation.seatMap.legend.maintenance.desc': '(暂时无法使用)',
-  'reservation.seatMap.legend.selected': '已选择',
   'reservation.seatMap.legend.selected.desc': '(您已选择的座位)',
-  'reservation.seatMap.legend.mine': '我的预约',
   'reservation.seatMap.legend.mine.desc': '(您已预约的座位)',
   'reservation.seatMap.instruction': '点击可用座位进行选择，再次点击取消选择',
 };

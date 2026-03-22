@@ -1,7 +1,7 @@
 <!-- 通用内容卡片组件 -->
 <view
   class="content-card {{customClass}} content-card--{{mode}}"
-  bind:tap="onTap"
+  catch:tap="onTap"
   hover-class="{{clickable && enableHover ? 'content-card-hover' : ''}}"
   hover-stay-time="150"
 >
@@ -61,11 +61,60 @@
           round
           class="content-card-detail-btn"
           disabled="{{disabled}}"
-          bind:tap="onBtnTap"
-          catch:tap="stopPropagation"
+          bindtap="onBtnTap"
         >
           {{btnText}}
         </van-button>
+        <!-- 自定义插槽内容（如使用频率） -->
+        <slot name="footer" wx:if="{{time || btnText}}"></slot>
+      </view>
+    </view>
+  </block>
+
+  <!-- Collection 模式：收藏列表项 -->
+  <block wx:if="{{mode === 'collection'}}">
+    <view class="content-card-collection">
+      <view class="content-card-collection-left">
+        <view class="content-card-collection-header">
+          <view class="content-card-collection-title">{{title}}</view>
+          <van-tag
+            type="{{status}}"
+            size="medium"
+            class="content-card-collection-status"
+            wx:if="{{statusText}}"
+          >
+            {{statusText}}
+          </van-tag>
+        </view>
+        <view class="content-card-collection-desc" wx:if="{{desc}}">
+          <uni-icon type="vant" name="location-o" size="28" color="#969799" />
+          <text>{{desc}}</text>
+        </view>
+        <view class="content-card-collection-extra" wx:if="{{extra}}">
+          <slot name="extra"></slot>
+        </view>
+      </view>
+      <view class="content-card-collection-right">
+        <view class="content-card-collection-actions">
+          <van-button
+            wx:if="{{btnText}}"
+            type="{{disabled ? 'default' : 'primary'}}"
+            size="small"
+            round
+            class="content-card-collection-btn"
+            disabled="{{disabled}}"
+            bindtap="onBtnTap"
+          >
+            {{btnText}}
+          </van-button>
+          <view
+            class="content-card-collection-favorite"
+            bind:tap="onFavoriteTap"
+            catch:tap="stopPropagation"
+          >
+            <uni-icon type="vant" name="{{favoriteIcon || 'star'}}" size="36" color="#969799" />
+          </view>
+        </view>
       </view>
     </view>
   </block>

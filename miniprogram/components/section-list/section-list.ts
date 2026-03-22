@@ -39,15 +39,21 @@ Component({
     /**
      * 处理列表项点击
      */
-    onItemTap(this: SafeComponentInstance, event: WechatMiniprogram.TouchEvent) {
-      const { index } = event.currentTarget.dataset;
-      const item = this.data.items[index];
+    onItemTap(this: SafeComponentInstance, event: WechatMiniprogram.CustomEvent) {
+      // 从 dataset 获取 action
+      const action = event.currentTarget.dataset.action;
 
-      // 触发点击事件，传递 item 和 index 给父组件
-      this.triggerEvent('itemTap', {
-        item,
-        index,
-      });
+      // 触发 itemTap 事件，只传递 action
+      this.triggerEvent(
+        'itemTap',
+        {
+          action,
+        },
+        {
+          bubbles: true,
+          composed: true,
+        }
+      );
     },
   },
 });

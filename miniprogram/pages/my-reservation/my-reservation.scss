@@ -1,0 +1,137 @@
+.my-reservation-page {
+  min-height: 100vh;
+  background-color: var(--common-background-color-light);
+}
+
+// 页面容器
+.page-container {
+  min-height: 100vh;
+  background-color: var(--common-page-bg-color);
+}
+
+.status-scroll {
+  margin: 0 0 var(--common-spacing-sm) -20rpx;
+  padding: var(--common-spacing-md) var(--common-spacing-lg);
+  background-color: var(--common-white-color);
+}
+
+.status-list {
+  display: flex;
+  gap: var(--common-spacing-md);
+  white-space: nowrap;
+}
+
+.status-item {
+  display: flex;
+  gap: var(--common-spacing-xs);
+  align-items: center;
+  padding: var(--common-spacing-sm) var(--common-spacing-lg);
+  color: var(--common-text-color-regular);
+  font-size: var(--common-font-size-lg);
+  background-color: var(--common-background-color-light);
+  border-radius: var(--common-border-radius-pill);
+  transition: all 0.3s ease;
+
+  &.active {
+    color: var(--common-white-color);
+    background-color: var(--common-primary-color);
+  }
+
+  .status-text {
+    font-weight: var(--common-font-weight-medium);
+  }
+
+  .status-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 32rpx;
+    height: 32rpx;
+    padding: 0 var(--common-spacing-xs);
+    font-size: var(--common-font-size-base);
+    background-color: rgba(255, 255, 255, 0.3);
+    border-radius: var(--common-border-radius-pill);
+  }
+}
+
+.reservation-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--common-spacing-lg);
+}
+
+.reservation-item {
+  margin-bottom: var(--common-spacing-md);
+}
+
+.reservation-card {
+  padding: var(--common-spacing-lg);
+}
+
+.reservation-header {
+  margin-bottom: var(--common-spacing-md);
+}
+
+.reservation-info {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.reservation-name {
+  flex: 1;
+  color: var(--common-text-color-primary);
+  font-weight: var(--common-font-weight-medium);
+  font-size: var(--common-font-size-lg);
+}
+
+.reservation-detail {
+  margin-bottom: var(--common-spacing-lg);
+}
+
+.reservation-row {
+  display: flex;
+  align-items: center;
+  margin-bottom: var(--common-spacing-sm);
+
+  &:last-child {
+    margin-bottom: 0;
+  }
+}
+
+.reservation-label {
+  width: 100rpx;
+  color: var(--common-text-color-secondary);
+  font-size: var(--common-font-size-lg);
+}
+
+.reservation-value {
+  flex: 1;
+  color: var(--common-text-color-regular);
+  font-size: var(--common-font-size-lg);
+}
+
+.reservation-actions {
+  display: flex;
+  gap: var(--common-spacing-md);
+  justify-content: flex-end;
+
+  &-right {
+    display: flex;
+    gap: var(--common-spacing-md);
+  }
+}
+
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 120rpx var(--common-spacing-lg);
+
+  .empty-text {
+    margin-top: var(--common-spacing-lg);
+    color: var(--common-text-color-placeholder);
+    font-size: var(--common-font-size-lg);
+  }
+}

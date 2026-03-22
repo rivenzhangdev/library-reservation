@@ -1,0 +1,62 @@
+<!-- 搜索结果页面 -->
+<page-meta>
+  <!-- 导航栏 -->
+  <navigation-bar title="{{navTitle}}" back="{{true}}" />
+</page-meta>
+
+<!-- 页面容器 -->
+<view class="page-container {{languageClass}}">
+  <!-- 搜索栏 -->
+  <van-search
+    value="{{searchValue}}"
+    shape="round"
+    bind:change="onSearchChange"
+    bind:search="onSearchConfirm"
+    bind:cancel="onSearchCancel"
+    placeholder="{{searchingHint}}"
+  />
+
+  <!-- 结果统计 -->
+  <view class="result-summary">
+    <text class="result-title">找到 {{resultCount}} 个结果</text>
+    <van-tag type="primary" size="medium">{{hintText}}</van-tag>
+  </view>
+
+  <!-- 状态筛选 - 横向滚动标签 -->
+  <scroll-view class="status-scroll" scroll-x enable-flex show-scrollbar="{{false}}">
+    <view class="status-list">
+      <view
+        wx:for="{{statusList}}"
+        wx:key="id"
+        class="status-item {{currentStatus === item.id ? 'active' : ''}}"
+        data-id="{{item.id}}"
+        bind:tap="onStatusTap"
+      >
+        {{item.name}}
+      </view>
+    </view>
+  </scroll-view>
+
+  <!-- 搜索结果列表 -->
+  <view class="result-list">
+    <seat-card
+      wx:for="{{searchResults}}"
+      wx:key="id"
+      class="result-item"
+      seat-info="{{item}}"
+      show-favorite="{{true}}"
+      is-favorite="{{false}}"
+      action-button-text="{{actionButtonText}}"
+      bind:reserve="onReserveTap"
+      bind:favorite="onFavoriteTap"
+      bind:detail="onDetailTap"
+    />
+  </view>
+
+  <!-- 空状态 - 使用 van-empty 组件 -->
+  <van-empty
+    wx:if="{{resultCount === 0 && searchValue}}"
+    image="search"
+    description="{{noResultsHint}}"
+  />
+</view>

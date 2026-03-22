@@ -1,5 +1,4 @@
 {
-  "navigationBarTitleText": "通知",
   "usingComponents": {
     "van-tabs": "@vant/weapp/tabs/index",
     "van-tab": "@vant/weapp/tab/index",

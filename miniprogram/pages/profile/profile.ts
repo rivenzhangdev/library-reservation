@@ -283,14 +283,17 @@ Page({
    * 处理模块项点击
    */
   onSectionItemTap(event: WechatMiniprogram.CustomEvent) {
-    const { item } = event.detail;
-    if (item && item.action) {
-      // 动态调用对应的方法
-      const action = item.action as string;
-      const method = (this as any)[action];
-      if (typeof method === 'function') {
-        method();
-      }
+    const { action } = event.detail;
+
+    // 如果没有 action，直接返回
+    if (!action) {
+      return;
+    }
+
+    // 动态调用对应的方法
+    const method = (this as any)[action];
+    if (typeof method === 'function') {
+      method();
     }
   },
 
@@ -307,13 +310,22 @@ Page({
   },
 
   /**
-   * 跳转到我的预约
+   * 跳转到个人信息
    */
-  onMyReservationTap() {
-    // TODO: 跳转到我的预约页面
+  onPersonalInfoTap() {
+    // TODO: 跳转到个人信息页面
     wx.showToast({
       title: '敬请期待',
       icon: 'none',
+    });
+  },
+
+  /**
+   * 跳转到我的预约
+   */
+  onMyReservationTap() {
+    wx.navigateTo({
+      url: '/pages/my-reservation/my-reservation',
     });
   },
 
@@ -321,10 +333,8 @@ Page({
    * 跳转到我的收藏
    */
   onMyCollectionTap() {
-    // TODO: 跳转到收藏页面
-    wx.showToast({
-      title: '敬请期待',
-      icon: 'none',
+    wx.navigateTo({
+      url: '/pages/my-collection/my-collection',
     });
   },
 
@@ -332,10 +342,17 @@ Page({
    * 跳转到我的活动
    */
   onMyActivityTap() {
-    // TODO: 跳转到活动页面
-    wx.showToast({
-      title: '敬请期待',
-      icon: 'none',
+    wx.navigateTo({
+      url: '/pages/my-activity/my-activity',
+      success: () => {},
+      fail: (err) => {
+        console.error('跳转失败:', err);
+        wx.showModal({
+          title: '提示',
+          content: '页面跳转失败，请重试',
+          showCancel: false,
+        });
+      },
     });
   },
 
@@ -362,17 +379,6 @@ Page({
   },
 
   /**
-   * 跳转到个人信息
-   */
-  onPersonalInfoTap() {
-    // TODO: 跳转到个人信息页面
-    wx.showToast({
-      title: '敬请期待',
-      icon: 'none',
-    });
-  },
-
-  /**
    * 跳转到信用中心
    */
   onCreditCenterTap() {
@@ -387,10 +393,23 @@ Page({
    * 跳转到问题反馈
    */
   onFeedbackTap() {
-    // TODO: 跳转到问题反馈页面
-    wx.showToast({
-      title: '敬请期待',
-      icon: 'none',
+    wx.navigateTo({
+      url: '/pages/feedback/feedback',
+      success: () => {
+        wx.showToast({
+          title: '打开问题反馈',
+          icon: 'none',
+          duration: 1500,
+        });
+      },
+      fail: (err) => {
+        console.error('跳转失败:', err);
+        wx.showModal({
+          title: '提示',
+          content: '页面跳转失败，请重试',
+          showCancel: false,
+        });
+      },
     });
   },
 

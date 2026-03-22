@@ -6,7 +6,7 @@
 <view class="page-container {{languageClass}}">
   <!-- 楼层选择区域 -->
   <view class="floor-section">
-    <view class="section-title">{{t('reservation.floor.select')}}</view>
+    <view class="section-title">{{floorSelectText}}</view>
     <scroll-view class="floor-tags" scroll-x enable-flex>
       <view
         wx:for="{{floors}}"
@@ -20,21 +20,125 @@
     </scroll-view>
   </view>
 
-  <!-- 筛选和搜索栏 -->
+  <!-- 时间选择模块（移到最上方） -->
+  <view class="time-selection-section">
+    <view class="section-title">{{timeSelectText}}</view>
+
+    <!-- 日期选择 -->
+    <view class="date-picker">
+      <van-cell-group>
+        <van-field
+          readonly
+          model:value="{{selectedDate}}"
+          placeholder="{{t('reservation.time.date.placeholder')}}"
+          bind:click="onDateClick"
+          is-link
+          right-icon="calendar-o"
+        />
+      </van-cell-group>
+    </view>
+
+    <!-- 时段选择 -->
+    <view class="time-period-section">
+      <view class="section-subtitle">{{timePeriodText}}</view>
+      <view class="time-period-options">
+        <block wx:for="{{timePeriods}}" wx:key="value">
+          <view
+            class="time-period-option {{currentTimePeriod === item.value ? 'active' : ''}}"
+            bind:tap="onTimePeriodTap"
+            data-value="{{item.value}}"
+          >
+            <view class="time-period-label">{{item.label}}</view>
+            <view class="time-period-range">{{item.start}} - {{item.end}}</view>
+          </view>
+        </block>
+      </view>
+
+      <!-- 自定义时间段入口 -->
+      <view
+        class="custom-time-toggle"
+        wx:if="{{!showCustomTime && currentTimePeriod !== 'custom'}}"
+        bind:tap="toggleCustomTime"
+      >
+        <uni-icon type="vant" name="edit" size="24" color="var(--common-primary-color)" />
+        <text class="custom-time-text">{{customTimeConfirmText}}</text>
+      </view>
+
+      <!-- 自定义时间段面板 -->
+      <view class="custom-time-panel" wx:if="{{showCustomTime}}">
+        <view class="custom-time-inputs">
+          <view class="custom-time-input">
+            <view class="custom-time-label">{{customTimeStartText}}</view>
+            <picker
+              mode="time"
+              value="{{startTime}}"
+              bind:change="onStartTimeChange"
+              class="time-picker"
+            >
+              <view class="picker-display">
+                <text>{{startTime}}</text>
+                <uni-icon type="vant" name="clock-o" size="24" />
+              </view>
+            </picker>
+          </view>
+
+          <view class="custom-time-input">
+            <view class="custom-time-label">{{customTimeEndText}}</view>
+            <picker
+              mode="time"
+              value="{{endTime}}"
+              bind:change="onEndTimeChange"
+              class="time-picker"
+            >
+              <view class="picker-display">
+                <text>{{endTime}}</text>
+                <uni-icon type="vant" name="clock-o" size="24" />
+              </view>
+            </picker>
+          </view>
+        </view>
+
+        <view class="custom-time-confirm" bind:tap="onConfirmCustomTime">
+          {{customTimeConfirmText}}
+        </view>
+      </view>
+
+      <!-- 取消自定义时间段 -->
+      <view class="cancel-custom-time" wx:if="{{showCustomTime}}" bind:tap="toggleCustomTime">
+        <uni-icon type="vant" name="delete-o" size="24" />
+        <text class="cancel-custom-text">{{customTimeCancelText}}</text>
+      </view>
+    </view>
+
+    <!-- 时长选择 -->
+    <view class="duration-section">
+      <view class="section-subtitle">{{timeDurationText}}</view>
+      <view class="duration-options">
+        <block wx:for="{{durations}}" wx:key="value">
+          <view
+            class="duration-option {{currentDuration === item.value ? 'active' : ''}}"
+            bind:tap="onDurationTap"
+            data-value="{{item.value}}"
+          >
+            {{item.label}}
+          </view>
+        </block>
+      </view>
+    </view>
+
+    <!-- 当前预约时间显示 -->
+    <view class="current-time-display">
+      <text class="current-time-label">{{timeRangeLabelText}}</text>
+      <text class="current-time-value">{{customTimePeriodText}}</text>
+    </view>
+  </view>
+
+  <!-- 筛选按钮 -->
   <view class="filter-bar">
     <view class="filter-left">
       <van-button icon="filter-o" size="small" class="filter-button" bind:tap="onFilterTap">
-        {{t('reservation.filter')}}
+        {{filterText}}
       </van-button>
-    </view>
-    <view class="filter-right">
-      <van-search
-        value="{{searchValue}}"
-        placeholder="{{t('reservation.search.placeholder')}}"
-        shape="round"
-        bind:change="onSearchChange"
-        class="search-box"
-      />
     </view>
   </view>
 
@@ -106,76 +210,26 @@
       bind:error="onSeatError"
     />
 
-    <!-- 时间选择模块 -->
-    <view class="time-selection-section">
-      <view class="section-title">{{t('reservation.time.select')}}</view>
-
-      <!-- 日期选择 -->
-      <view class="date-picker">
-        <van-cell-group>
-          <van-field
-            readonly
-            model:value="{{selectedDate}}"
-            placeholder="{{t('reservation.time.date.placeholder')}}"
-            bind:click="onDateClick"
-            is-link
-            right-icon="calendar-o"
-          />
-        </van-cell-group>
-      </view>
-
-      <!-- 时段选择 -->
-      <view class="time-period-section">
-        <view class="section-subtitle">{{t('reservation.time.period')}}</view>
-        <view class="time-period-options">
-          <block wx:for="{{timePeriods}}" wx:key="value">
-            <view
-              class="time-period-option {{currentTimePeriod === item.value ? 'active' : ''}}"
-              bind:tap="onTimePeriodTap"
-              data-value="{{item.value}}"
-            >
-              {{item.label}}
-            </view>
-          </block>
-        </view>
-      </view>
-
-      <!-- 时长选择 -->
-      <view class="duration-section">
-        <view class="section-subtitle">{{t('reservation.time.duration')}}</view>
-        <view class="duration-options">
-          <block wx:for="{{durations}}" wx:key="value">
-            <view
-              class="duration-option {{currentDuration === item.value ? 'active' : ''}}"
-              bind:tap="onDurationTap"
-              data-value="{{item.value}}"
-            >
-              {{item.label}}
-            </view>
-          </block>
-        </view>
-      </view>
-    </view>
-
     <!-- 预约确认模块 -->
-    <view class="reservation-confirm-section" wx:if="{{selectedSeatIds.length > 0}}">
+    <view
+      class="reservation-confirm-section"
+      wx:if="{{selectedSeatIds.length > 0 || currentTimePeriod === 'custom'}}"
+    >
       <view class="confirm-card">
-        <view class="confirm-title">{{t('reservation.confirm.title')}}</view>
+        <view class="confirm-title">{{confirmTitleText}}</view>
 
         <!-- 确认信息列表 -->
         <view class="confirm-info-list">
           <block wx:for="{{reservationInfoItems}}" wx:key="label">
-            <view class="confirm-info-item">
+            <view class="confirm-info-item" wx:if="{{item.label !== t('reservation.confirm.fee')}}">
               <text class="info-label">{{item.label}}</text>
-              <text class="info-value {{item.highlight ? 'info-fee' : ''}}">{{item.value}}</text>
+              <text class="info-value">{{item.value}}</text>
             </view>
           </block>
         </view>
 
         <!-- 确认按钮 -->
-        <view class="confirm-button" bind:tap="onConfirmReservation"
-          >{{t('reservation.confirm.button')}}</view
-        >
+        <view class="confirm-button" bind:tap="onConfirmReservation">{{confirmButtonText}}</view>
       </view>
     </view>
   </view>

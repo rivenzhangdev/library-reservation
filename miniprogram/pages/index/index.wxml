@@ -19,10 +19,17 @@
       value="{{ value }}"
       shape="round"
       placeholder="{{searchPlaceholder}}"
+      bind:search="onSearchConfirm"
     />
     <!-- 搜索标签 -->
     <scroll-view class="search-tag" scroll-x enable-flex>
-      <view class="search-tag-item" wx:for="{{searchTags}}" wx:key="*this">
+      <view
+        class="search-tag-item"
+        wx:for="{{searchTags}}"
+        wx:key="*this"
+        bind:tap="onSearchTagTap"
+        data-tag="{{item}}"
+      >
         <uni-icon type="vant" name="fire-o" size="28" color="#409eff" />
         <text>{{item}}</text>
       </view>
@@ -46,7 +53,13 @@
 
   <!-- 功能卡片区域 -->
   <view class="action-area">
-    <view class="action-card" wx:for="{{actionCards}}" wx:key="text">
+    <view
+      class="action-card"
+      wx:for="{{actionCards}}"
+      wx:key="text"
+      bind:tap="onActionCardTap"
+      data-index="{{index}}"
+    >
       <uni-icon
         type="{{item.icon === 'home' ? 'iconfont' : 'vant'}}"
         name="{{item.icon}}"

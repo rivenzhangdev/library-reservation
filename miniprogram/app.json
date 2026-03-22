@@ -3,7 +3,13 @@
     "pages/index/index",
     "pages/reservation/reservation",
     "pages/notification/notification",
-    "pages/profile/profile"
+    "pages/profile/profile",
+    "pages/search-result/search-result",
+    "pages/my-reservation/my-reservation",
+    "pages/my-collection/my-collection",
+    "pages/my-activity/my-activity",
+    "pages/feedback/feedback",
+    "pages/feedback-detail/feedback-detail"
   ],
   "window": {
     "navigationBarTextStyle": "black",

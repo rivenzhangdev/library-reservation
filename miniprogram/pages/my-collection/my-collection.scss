@@ -1,0 +1,154 @@
+.page-container {
+  min-height: 100vh;
+  padding-bottom: var(--common-spacing-xl);
+  background-color: #f7f8fa;
+}
+
+/* 区块 */
+.section {
+  margin-top: var(--common-spacing-xl);
+  padding: 0 var(--common-spacing-lg);
+}
+
+.section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--common-spacing-lg);
+}
+
+.section-title {
+  color: var(--common-dark-text-color);
+  font-weight: var(--common-font-weight-medium);
+  font-size: var(--common-font-size-lg);
+}
+
+.section-count {
+  color: #969799;
+  font-size: var(--common-font-size-sm);
+}
+
+/* 卡片容器 */
+.cards-container {
+  display: flex;
+  flex-direction: column;
+  gap: var(--common-spacing-lg);
+}
+
+/* 收藏卡片通用样式 */
+.collection-card {
+  display: flex;
+  justify-content: space-between;
+  padding: var(--common-spacing-xl);
+  background-color: #fff;
+  border-radius: var(--common-border-radius-lg);
+  box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.05);
+
+  &-left {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    gap: var(--common-spacing-md);
+    margin-right: var(--common-spacing-lg);
+  }
+
+  &-header {
+    display: flex;
+    gap: var(--common-spacing-md);
+    align-items: center;
+    justify-content: flex-start;
+  }
+
+  &-title {
+    color: var(--common-dark-text-color);
+    font-weight: var(--common-font-weight-medium);
+    font-size: var(--common-font-size-base);
+  }
+
+  &-desc,
+  &-time,
+  &-frequency {
+    display: flex;
+    gap: var(--common-spacing-xs);
+    align-items: center;
+    color: #646566;
+    font-size: var(--common-font-size-sm);
+
+    text {
+      white-space: nowrap;
+    }
+  }
+
+  &-facilities {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--common-spacing-sm);
+    margin-top: var(--common-spacing-xs);
+  }
+
+  &-right {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    justify-content: space-between;
+  }
+
+  &-actions {
+    display: flex;
+    flex-direction: column;
+    gap: var(--common-spacing-md);
+    align-items: center;
+  }
+}
+
+.facility-tag {
+  flex-shrink: 0;
+}
+
+.action-btn {
+  min-width: 160rpx;
+}
+
+.unfavorite-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--common-spacing-sm);
+  border-radius: 50%;
+  transition: background-color 0.2s;
+
+  &:active {
+    background-color: #f5f5f5;
+  }
+}
+
+/* 时段卡片特定样式 */
+.time-card {
+  .collection-card-left {
+    gap: var(--common-spacing-sm);
+  }
+
+  .collection-card-title {
+    font-size: var(--common-font-size-base) !important;
+  }
+
+  .collection-card-time,
+  .collection-card-frequency {
+    font-size: var(--common-font-size-sm) !important;
+  }
+}
+
+/* 空状态 */
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: var(--common-spacing-5xl) 0;
+}
+
+.empty-text {
+  margin-top: var(--common-spacing-lg);
+  color: var(--common-hint-text-color);
+  font-size: var(--common-font-size-sm);
+}

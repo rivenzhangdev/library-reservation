@@ -22,11 +22,67 @@
     "miniprogram": {
       "list": [
         {
-          "name": "pages/reservation/reservation",
-          "pathName": "pages/reservation/reservation",
+          "name": "pages/feedback/feedback",
+          "pathName": "pages/feedback/feedback",
           "query": "",
           "scene": null,
           "launchMode": "default"
+        },
+        {
+          "name": "pages/feedback/feedback",
+          "pathName": "pages/feedback/feedback",
+          "query": "",
+          "launchMode": "default",
+          "scene": null
+        },
+        {
+          "name": "pages/my-activity/my-activity",
+          "pathName": "pages/my-activity/my-activity",
+          "query": "",
+          "launchMode": "default",
+          "scene": null
+        },
+        {
+          "name": "pages/my-collection/my-collection",
+          "pathName": "pages/my-collection/my-collection",
+          "query": "",
+          "launchMode": "default",
+          "scene": null
+        },
+        {
+          "name": "pages/my-reservation/my-reservation",
+          "pathName": "pages/my-reservation/my-reservation",
+          "query": "",
+          "launchMode": "default",
+          "scene": null
+        },
+        {
+          "name": "pages/my-reservation/my-reservation",
+          "pathName": "pages/my-reservation/my-reservation",
+          "query": "",
+          "launchMode": "default",
+          "scene": null
+        },
+        {
+          "name": "pages/search-result/search-result",
+          "pathName": "pages/search-result/search-result",
+          "query": "",
+          "launchMode": "default",
+          "scene": null
+        },
+        {
+          "name": "pages/index/index",
+          "pathName": "pages/index/index",
+          "query": "",
+          "launchMode": "default",
+          "scene": null
+        },
+        {
+          "name": "pages/reservation/reservation",
+          "pathName": "pages/reservation/reservation",
+          "query": "",
+          "launchMode": "default",
+          "scene": null
         },
         {
           "name": "pages/notification/notification",

@@ -5,18 +5,23 @@
 
   <!-- 列表内容 -->
   <view class="section-list-content">
-    <content-card
+    <view
       wx:for="{{items}}"
-      wx:key="id"
-      mode="list"
-      icon="{{item.iconName || ''}}"
-      iconColor="{{item.iconColor}}"
-      iconBgColor="{{item.iconBgColor}}"
-      title="{{item.label}}"
-      badgeCount="{{item.badgeCount || 0}}"
-      clickable="{{item.clickable !== false}}"
-      enableHover="{{enableHover}}"
+      wx:key="index"
+      class="section-list-item"
+      data-action="{{item.action}}"
       bind:tap="onItemTap"
-    />
+    >
+      <content-card
+        mode="list"
+        icon="{{item.iconName || ''}}"
+        iconColor="{{item.iconColor}}"
+        iconBgColor="{{item.iconBgColor}}"
+        title="{{item.label}}"
+        badgeCount="{{item.badgeCount || 0}}"
+        clickable="false"
+        enableHover="false"
+      />
+    </view>
   </view>
 </view>

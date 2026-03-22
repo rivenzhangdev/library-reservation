@@ -1,0 +1,61 @@
+.status-filter-container {
+  margin-bottom: var(--common-spacing-lg);
+  padding: var(--common-spacing-lg) var(--common-spacing-2xl);
+  background-color: var(--common-white-color);
+}
+
+// 可滚动模式
+.status-scroll {
+  width: 100%;
+}
+
+.status-list {
+  display: flex;
+  flex-wrap: nowrap;
+  gap: var(--common-spacing-2xl);
+  align-items: center;
+  padding-right: var(--common-spacing-2xl); // 确保末尾有足够空间
+}
+
+// 静态模式 (不可滚动)
+.status-list-static {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--common-spacing-2xl);
+  align-items: center;
+}
+
+// 状态项
+.status-item {
+  position: relative;
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  padding: var(--common-spacing-md) var(--common-spacing-3xl);
+  white-space: nowrap;
+  background-color: var(--common-gray-color);
+  border-radius: var(--common-border-radius-pill);
+  cursor: pointer;
+  transition: all var(--transition-normal);
+
+  &.active {
+    background-color: var(--common-info-bg-color);
+
+    .status-text {
+      color: var(--common-primary-color);
+      font-weight: var(--common-font-weight-semibold);
+    }
+  }
+
+  .status-text {
+    color: var(--common-regular-text-color);
+    font-size: var(--common-font-size-md);
+  }
+
+  // 数量徽章
+  .count-badge {
+    margin-left: var(--common-spacing-xs);
+    transform: scale(0.9);
+  }
+}

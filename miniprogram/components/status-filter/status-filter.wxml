@@ -1,0 +1,50 @@
+<view class="status-filter-container {{languageClass}}">
+  <scroll-view
+    wx:if="{{isScrollable}}"
+    class="status-scroll"
+    scroll-x="{{true}}"
+    scroll-y="{{false}}"
+    enable-flex
+    show-scrollbar="{{false}}"
+  >
+    <view class="status-list">
+      <view
+        wx:for="{{internalStatusList}}"
+        wx:key="id"
+        class="status-item {{item.id === internalCurrentStatus ? 'active' : ''}}"
+        catch:tap="onStatusTap"
+        data-id="{{item.id}}"
+      >
+        <text class="status-text">{{item.name}}</text>
+        <van-tag
+          wx:if="{{showCountBadge && item.count !== undefined}}"
+          class="count-badge"
+          type="primary"
+          size="mini"
+        >
+          {{item.count}}
+        </van-tag>
+      </view>
+    </view>
+  </scroll-view>
+
+  <view wx:else class="status-list-static">
+    <view
+      wx:for="{{internalStatusList}}"
+      wx:key="id"
+      class="status-item {{item.id === internalCurrentStatus ? 'active' : ''}}"
+      catch:tap="onStatusTap"
+      data-id="{{item.id}}"
+    >
+      <text class="status-text">{{item.name}}</text>
+      <van-tag
+        wx:if="{{showCountBadge && item.count !== undefined}}"
+        class="count-badge"
+        type="primary"
+        size="mini"
+      >
+        {{item.count}}
+      </van-tag>
+    </view>
+  </view>
+</view>

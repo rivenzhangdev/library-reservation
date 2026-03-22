@@ -130,6 +130,65 @@ Component({
       type: Boolean,
       value: true,
     },
+    // 额外添加用于按钮传递的数据属性
+    btnDataId: {
+      type: String,
+      value: '',
+    },
+    btnDataName: {
+      type: String,
+      value: '',
+    },
+    btnDataStartTime: {
+      type: String,
+      value: '',
+    },
+    btnDataEndTime: {
+      type: String,
+      value: '',
+    },
+    btnDataUsageCount: {
+      type: Number,
+      value: 0,
+    },
+    // 座位相关的数据属性
+    btnDataSeatName: {
+      type: String,
+      value: '',
+    },
+    btnDataSeatId: {
+      type: String,
+      value: '',
+    },
+    btnDataZone: {
+      type: String,
+      value: '',
+    },
+    btnDataFloor: {
+      type: String,
+      value: '',
+    },
+    btnDataType: {
+      type: String,
+      value: '',
+    },
+    btnDataFacilities: {
+      type: Array,
+      value: [],
+    },
+    btnDataStatus: {
+      type: String,
+      value: '',
+    },
+    // 收藏模式相关属性
+    favoriteIcon: {
+      type: String,
+      value: '',
+    },
+    isFavorite: {
+      type: Boolean,
+      value: true,
+    },
   },
 
   /**
@@ -153,16 +212,85 @@ Component({
      * 卡片点击事件
      */
     onTap(this: SafeComponentInstance, event: WechatMiniprogram.TouchEvent) {
-      this.triggerEvent('tap', event);
+      console.log('卡片被点击，事件类型:', event.type);
+      // 触发 tap 事件，并传递 item 数据，启用事件冒泡
+      this.triggerEvent(
+        'tap',
+        {
+          item: {
+            iconName: this.data.icon,
+            iconColor: this.data.iconColor,
+            iconBgColor: this.data.iconBgColor,
+            label: this.data.title,
+            badgeCount: this.data.badgeCount,
+            clickable: this.data.clickable,
+          },
+        },
+        {
+          bubbles: true,
+          composed: true,
+        }
+      );
     },
 
     /**
      * 按钮点击事件
      */
     onBtnTap(this: SafeComponentInstance, event: WechatMiniprogram.TouchEvent) {
+      console.log('===== content-card onBtnTap 被调用 =====');
+      console.log('this.data:', this.data);
+
       if (!this.data.disabled) {
-        this.triggerEvent('btnTap', event);
+        // 阻止事件冒泡到父容器
+        (event as any).stopPropagation?.();
+
+        // 从组件的 data 中获取数据（通过 properties 传递）
+        // 支持时段和座位两种数据
+        const dataset: any = {
+          id: this.data.btnDataId,
+          name: this.data.btnDataName,
+          startTime: this.data.btnDataStartTime,
+          endTime: this.data.btnDataEndTime,
+          usageCount: this.data.btnDataUsageCount,
+          // 座位相关数据
+          seatName: this.data.btnDataSeatName,
+          seatId: this.data.btnDataSeatId,
+          zone: this.data.btnDataZone,
+          floor: this.data.btnDataFloor,
+          type: this.data.btnDataType,
+          facilities: this.data.btnDataFacilities,
+          status: this.data.btnDataStatus,
+        };
+
+        console.log('从 this.data 获取的 dataset:', dataset);
+        console.log('准备触发 btn-tap 事件');
+
+        // 触发 btn-tap 事件，并传递 dataset 数据
+        this.triggerEvent('btnTap', {
+          dataset: dataset,
+        });
+
+        console.log('btn-tap 事件已触发');
+      } else {
+        console.log('按钮被禁用，不触发事件');
       }
+    },
+
+    /**
+     * 收藏按钮点击事件
+     */
+    onFavoriteTap(this: SafeComponentInstance, event: WechatMiniprogram.TouchEvent) {
+      console.log('===== content-card onFavoriteTap 被调用 =====');
+
+      // 阻止事件冒泡到父容器
+      (event as any).stopPropagation?.();
+
+      // 触发 favorite-tap 事件
+      this.triggerEvent('favoriteTap', {
+        isFavorite: this.data.isFavorite,
+      });
+
+      console.log('favorite-tap 事件已触发');
     },
 
     /**

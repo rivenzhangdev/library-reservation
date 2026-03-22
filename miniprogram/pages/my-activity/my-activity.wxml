@@ -1,0 +1,82 @@
+<page-meta>
+  <!-- 导航栏 -->
+  <navigation-bar title="{{navTitle}}" back="{{true}}" />
+</page-meta>
+
+<!-- 页面容器 -->
+<view class="page-container {{languageClass}}">
+  <!-- 状态筛选 -->
+  <status-filter
+    status-list="{{statusList}}"
+    current-status="{{currentStatus}}"
+    bind:status-change="onStatusChange"
+  />
+
+  <!-- 活动列表 -->
+  <view class="activity-list">
+    <view wx:for="{{filteredActivities}}" wx:key="id" class="activity-item">
+      <!-- 活动图片 -->
+      <view class="activity-image-wrapper">
+        <image class="activity-image" src="{{item.image}}" mode="aspectFill" />
+
+        <!-- 标签 -->
+        <view
+          wx:for="{{item.tags}}"
+          wx:key="index"
+          wx:for-item="tag"
+          class="activity-tag tag-{{tag.position}}"
+        >
+          <van-tag type="{{tag.type || 'default'}}" size="small"> {{tag.text}} </van-tag>
+        </view>
+      </view>
+
+      <!-- 活动内容 -->
+      <view class="activity-content">
+        <!-- 活动标题 -->
+        <view class="activity-title"> {{item.title}} </view>
+
+        <!-- 活动信息 - 横向排列 -->
+        <view class="activity-info-row">
+          <view class="info-item">
+            <text class="info-icon">📅</text>
+            <text class="info-text">{{item.startDate}} - {{item.endDate}}</text>
+          </view>
+          <view class="info-item">
+            <text class="info-icon">📍</text>
+            <text class="info-text">{{item.location}}</text>
+          </view>
+          <view class="info-item">
+            <text class="info-icon">👥</text>
+            <text class="info-text">{{item.participants}}/{{item.maxParticipants}} 人已报名</text>
+          </view>
+        </view>
+
+        <!-- 活动描述 -->
+        <view class="activity-description"> {{item.description}} </view>
+
+        <!-- 操作按钮 -->
+        <view class="activity-actions">
+          <block wx:for="{{item.buttons}}" wx:key="action" wx:for-item="btn">
+            <van-button
+              class="action-btn {{btn.type}}"
+              size="small"
+              plain="{{btn.type === ''}}"
+              type="{{btn.type === 'primary' ? 'primary' : 'default'}}"
+              bind:tap="{{btn.action}}"
+              data-id="{{item.id}}"
+              custom-style="width: 100%"
+            >
+              {{btn.text}}
+            </van-button>
+          </block>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 空状态 -->
+  <view wx:if="{{filteredActivities.length === 0}}" class="empty-state">
+    <uni-icon name="orders-o" size="80" color="#dcdee0" type="vant" />
+    <text class="empty-text">{{emptyHint}}</text>
+  </view>
+</view>
