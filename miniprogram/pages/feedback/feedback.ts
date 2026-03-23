@@ -49,10 +49,10 @@ Page({
 
     // 紧急程度
     urgencyLevels: [
-      { id: 'low', name: '低', icon: '🌱', color: '#52c41a' },
-      { id: 'medium', name: '中', icon: '⚠️', color: '#faad14' },
-      { id: 'high', name: '高', icon: '🔥', color: '#f5222d' },
-      { id: 'urgent', name: '紧急', icon: '🚨', color: '#722ed1' },
+      { id: 'low', name: '低', icon: 'tongzhi', color: '#52c41a' }, // 🌱 -> 通知图标
+      { id: 'medium', name: '中', icon: 'tongzhi', color: '#faad14' }, // ⚠️ -> 通知图标
+      { id: 'high', name: '高', icon: 'tongzhi', color: '#f5222d' }, // 🔥 -> 通知图标
+      { id: 'urgent', name: '紧急', icon: 'tongzhi', color: '#722ed1' }, // 🚨 -> 通知图标
     ] as UrgencyLevel[],
 
     // 选中的类型

@@ -13,13 +13,18 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: var(--common-spacing-lg) var(--common-spacing-md);
+  padding: var(--common-spacing-lg);
   background-color: var(--common-white-color);
 
   .result-title {
     color: var(--common-text-color-primary);
     font-weight: var(--common-font-weight-medium);
-    font-size: var(--common-font-size-lg);
+    font-size: var(--common-font-size-xl); // 调大一号：lg -> xl
+  }
+
+  .result-hint {
+    color: var(--common-text-color-secondary);
+    font-size: var(--common-font-size-md); // 调大一号：sm -> md
   }
 }
 
@@ -41,7 +46,7 @@
   flex-shrink: 0;
   padding: var(--common-spacing-sm) var(--common-spacing-xl);
   color: var(--common-text-color-regular);
-  font-size: var(--common-font-size-base);
+  font-size: var(--common-font-size-lg);
   white-space: nowrap;
   background-color: var(--common-background-color-light);
   border-radius: var(--common-border-radius-pill);

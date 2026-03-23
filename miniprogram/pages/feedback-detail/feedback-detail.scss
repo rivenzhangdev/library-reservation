@@ -31,7 +31,7 @@
 .info-title {
   color: var(--common-dark-text-color);
   font-weight: var(--common-font-weight-semibold);
-  font-size: var(--common-font-size-2xl);
+  font-size: var(--common-font-size-3xl);
   line-height: 1.4;
 }
 
@@ -40,7 +40,7 @@
   gap: var(--common-spacing-sm);
   align-items: center;
   color: var(--common-hint-text-color);
-  font-size: var(--common-font-size-sm);
+  font-size: var(--common-font-size-md);
 
   .meta-type {
     color: var(--common-primary-color);
@@ -70,13 +70,13 @@
   .detail-label {
     color: var(--common-regular-text-color);
     font-weight: var(--common-font-weight-medium);
-    font-size: var(--common-font-size-md);
+    font-size: var(--common-font-size-lg);
   }
 
   .detail-text {
     flex: 1;
     color: var(--common-dark-text-color);
-    font-size: var(--common-font-size-md);
+    font-size: var(--common-font-size-lg);
 
     &.urgency-low {
       color: #52c41a;
@@ -105,13 +105,13 @@
     margin-bottom: var(--common-spacing-md);
     color: var(--common-dark-text-color);
     font-weight: var(--common-font-weight-medium);
-    font-size: var(--common-font-size-lg);
+    font-size: var(--common-font-size-xl);
   }
 
   .content-text {
     display: block;
     color: var(--common-regular-text-color);
-    font-size: var(--common-font-size-md);
+    font-size: var(--common-font-size-lg);
     line-height: 1.8;
     white-space: pre-wrap;
   }
@@ -179,7 +179,7 @@
 .image-mask-text {
   color: var(--common-white-color);
   font-weight: var(--common-font-weight-semibold);
-  font-size: var(--common-font-size-2xl);
+  font-size: var(--common-font-size-3xl);
 }
 
 // 处理记录区域
@@ -195,7 +195,7 @@
   padding-bottom: var(--common-spacing-md);
   color: var(--common-dark-text-color);
   font-weight: var(--common-font-weight-semibold);
-  font-size: var(--common-font-size-xl);
+  font-size: var(--common-font-size-2xl);
   border-bottom: var(--common-border-width) solid var(--common-border-color);
 }
 
@@ -243,17 +243,17 @@
 .user-name {
   color: var(--common-dark-text-color);
   font-weight: var(--common-font-weight-medium);
-  font-size: var(--common-font-size-md);
+  font-size: var(--common-font-size-lg);
 }
 
 .user-role {
   color: var(--common-hint-text-color);
-  font-size: var(--common-font-size-xs);
+  font-size: var(--common-font-size-sm);
 }
 
 .process-date {
   color: var(--common-hint-text-color);
-  font-size: var(--common-font-size-xs);
+  font-size: var(--common-font-size-sm);
 }
 
 .process-content {
@@ -262,7 +262,7 @@
   .process-text {
     display: block;
     color: var(--common-regular-text-color);
-    font-size: var(--common-font-size-sm);
+    font-size: var(--common-font-size-md);
     line-height: 1.8;
     white-space: pre-wrap;
   }
@@ -275,7 +275,7 @@
 
   .empty-process-text {
     color: var(--common-hint-text-color);
-    font-size: var(--common-font-size-sm);
+    font-size: var(--common-font-size-md);
   }
 }
 
@@ -290,6 +290,6 @@
   .empty-text {
     margin-top: var(--common-spacing-3xl);
     color: var(--common-hint-text-color);
-    font-size: var(--common-font-size-md);
+    font-size: var(--common-font-size-lg);
   }
 }

@@ -61,7 +61,7 @@
   margin-bottom: var(--common-spacing-xl);
   color: var(--common-dark-text-color);
   font-weight: var(--common-font-weight-medium);
-  font-size: var(--common-font-size-lg);
+  font-size: var(--common-font-size-xl);
 
   .required {
     color: var(--common-danger-color);
@@ -104,7 +104,7 @@
 
   .type-text {
     color: var(--common-regular-text-color);
-    font-size: var(--common-font-size-md);
+    font-size: var(--common-font-size-lg); // 调大一号：md -> lg
     text-align: center;
   }
 }
@@ -122,19 +122,15 @@
   gap: var(--common-spacing-xs);
   align-items: center;
   padding: var(--common-spacing-lg) var(--common-spacing-md);
+  font-size: var(--common-font-size-lg);
   background-color: var(--common-gray-color);
   border: var(--common-border-width) solid transparent;
   border-radius: var(--common-border-radius-md);
   cursor: pointer;
-  transition: all var(--transition-normal);
 
   &.active {
     background-color: var(--common-info-bg-color);
     border-color: var(--common-primary-color);
-
-    .urgency-icon {
-      font-size: var(--common-font-size-2xl);
-    }
 
     .urgency-text {
       color: var(--common-primary-color);
@@ -142,14 +138,14 @@
     }
   }
 
-  .urgency-icon {
+  .uni-icon {
     font-size: var(--common-font-size-xl);
     transition: all var(--transition-normal);
   }
 
   .urgency-text {
     color: var(--common-regular-text-color);
-    font-size: var(--common-font-size-xs);
+    font-size: var(--common-font-size-md); // 调大一号：xs -> md
     transition: all var(--transition-normal);
   }
 }
@@ -214,13 +210,13 @@
   .upload-text {
     margin-top: var(--common-spacing-md);
     color: var(--common-hint-text-color);
-    font-size: var(--common-font-size-sm);
+    font-size: var(--common-font-size-md); // 调大一号：sm -> md
   }
 
   .upload-count {
     margin-top: var(--common-spacing-xs);
     color: var(--common-hint-text-color);
-    font-size: var(--common-font-size-xs);
+    font-size: var(--common-font-size-sm); // 保持 sm
   }
 }
 
@@ -269,7 +265,7 @@
   flex: 1;
   color: var(--common-dark-text-color);
   font-weight: var(--common-font-weight-medium);
-  font-size: var(--common-font-size-lg);
+  font-size: var(--common-font-size-xl); // 调大一号：lg -> xl
   line-height: 1.4;
 }
 
@@ -278,7 +274,7 @@
   gap: var(--common-spacing-sm);
   align-items: center;
   color: var(--common-hint-text-color);
-  font-size: var(--common-font-size-xs);
+  font-size: var(--common-font-size-md); // 调大一号：xs -> md
 
   .meta-type {
     color: var(--common-primary-color);
@@ -308,13 +304,13 @@
     flex-shrink: 0;
     color: var(--common-regular-text-color);
     font-weight: var(--common-font-weight-medium);
-    font-size: var(--common-font-size-sm);
+    font-size: var(--common-font-size-md); // 调大一号：sm -> md
   }
 
   .detail-text {
     flex: 1;
     color: var(--common-dark-text-color);
-    font-size: var(--common-font-size-sm);
+    font-size: var(--common-font-size-md); // 调大一号：sm -> md
 
     &.urgency-low {
       color: #52c41a;
@@ -345,6 +341,6 @@
   .empty-text {
     margin-top: var(--common-spacing-3xl);
     color: var(--common-hint-text-color);
-    font-size: var(--common-font-size-md);
+    font-size: var(--common-font-size-lg); // 调大一号：md -> lg
   }
 }

@@ -108,7 +108,7 @@
     justify-content: center;
     padding: var(--common-spacing-lg) 0;
     color: var(--common-white-color);
-    font-size: var(--common-font-size-sm);
+    font-size: var(--common-font-size-md); // 调大一号：sm -> md
     background-color: var(--common-primary-color);
     border: none;
     border-radius: var(--common-border-radius-md);

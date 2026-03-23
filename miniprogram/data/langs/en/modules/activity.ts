@@ -6,11 +6,8 @@ export default {
   // Search
   'activity.search.placeholder': 'Search activities',
 
-  // Status
-  'activity.status.all': 'All',
+  // Status - Activity-specific statuses
   'activity.status.registered': 'Registered',
-  'activity.status.ongoing': 'Ongoing',
-  'activity.status.upcoming': 'Upcoming',
   'activity.status.ended': 'Ended',
 
   // Buttons

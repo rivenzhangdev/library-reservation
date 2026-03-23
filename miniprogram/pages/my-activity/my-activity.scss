@@ -47,7 +47,7 @@
 
   .status-text {
     color: var(--common-regular-text-color);
-    font-size: var(--common-font-size-lg);
+    font-size: var(--common-font-size-xl);
   }
 }
 
@@ -94,7 +94,7 @@
   margin-bottom: var(--common-spacing-lg);
   color: var(--common-dark-text-color);
   font-weight: var(--common-font-weight-semibold);
-  font-size: var(--common-font-size-2xl);
+  font-size: var(--common-font-size-3xl);
   line-height: 1.4;
 }
 
@@ -117,12 +117,12 @@
   flex-shrink: 0;
   align-items: center;
   color: var(--common-regular-text-color);
-  font-size: var(--common-font-size-sm);
+  font-size: var(--common-font-size-md);
 }
 
 .info-icon {
   margin-right: var(--common-spacing-xs);
-  font-size: var(--common-font-size-md);
+  font-size: var(--common-font-size-lg);
 }
 
 // 活动描述
@@ -131,7 +131,7 @@
   margin-bottom: var(--common-spacing-2xl);
   overflow: hidden;
   color: var(--common-regular-text-color);
-  font-size: var(--common-font-size-md);
+  font-size: var(--common-font-size-lg);
   line-height: 1.6;
   -webkit-box-orient: vertical;
   -webkit-line-clamp: 2;
@@ -164,6 +164,6 @@
   .empty-text {
     margin-top: var(--common-spacing-3xl);
     color: var(--common-hint-text-color);
-    font-size: var(--common-font-size-md);
+    font-size: var(--common-font-size-lg);
   }
 }

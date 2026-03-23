@@ -98,10 +98,10 @@ Page({
       checkInText: t('activity.btn.checkIn') || '去打卡',
       registerText: t('activity.btn.register') || '立即报名',
       statusList: [
-        { id: 'all', name: t('activity.status.all') || '全部' },
+        { id: 'all', name: t('common.status.all') || '全部' },
         { id: 'registered', name: t('activity.status.registered') || '已报名' },
-        { id: 'ongoing', name: t('activity.status.ongoing') || '进行中' },
-        { id: 'upcoming', name: t('activity.status.upcoming') || '即将开始' },
+        { id: 'ongoing', name: t('common.status.ongoing') || '进行中' },
+        { id: 'upcoming', name: t('common.status.upcoming') || '即将开始' },
         { id: 'ended', name: t('activity.status.ended') || '已结束' },
       ],
     });

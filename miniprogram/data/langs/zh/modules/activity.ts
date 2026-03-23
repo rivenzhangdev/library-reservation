@@ -6,11 +6,8 @@ export default {
   // 搜索
   'activity.search.placeholder': '搜索活动',
 
-  // 状态
-  'activity.status.all': '全部',
+  // 状态 - 活动专属状态
   'activity.status.registered': '已报名',
-  'activity.status.ongoing': '进行中',
-  'activity.status.upcoming': '即将开始',
   'activity.status.ended': '已结束',
 
   // 按钮

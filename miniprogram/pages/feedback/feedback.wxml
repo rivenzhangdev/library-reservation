@@ -88,7 +88,7 @@
           bind:tap="onUrgencyTap"
           data-id="{{item.id}}"
         >
-          <text class="urgency-icon">{{item.icon}}</text>
+          <uni-icon type="iconfont" name="{{item.icon}}" size="30" color="{{item.color}}" />
           <text class="urgency-text">{{item.name}}</text>
         </view>
       </view>

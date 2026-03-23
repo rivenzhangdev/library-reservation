@@ -20,12 +20,12 @@
 .section-title {
   color: var(--common-dark-text-color);
   font-weight: var(--common-font-weight-medium);
-  font-size: var(--common-font-size-lg);
+  font-size: var(--common-font-size-xl);
 }
 
 .section-count {
   color: #969799;
-  font-size: var(--common-font-size-sm);
+  font-size: var(--common-font-size-md);
 }
 
 /* 卡片容器 */
@@ -62,7 +62,7 @@
   &-title {
     color: var(--common-dark-text-color);
     font-weight: var(--common-font-weight-medium);
-    font-size: var(--common-font-size-base);
+    font-size: var(--common-font-size-lg); // 调大一号：base -> lg
   }
 
   &-desc,
@@ -72,7 +72,7 @@
     gap: var(--common-spacing-xs);
     align-items: center;
     color: #646566;
-    font-size: var(--common-font-size-sm);
+    font-size: var(--common-font-size-md); // 调大一号：sm -> md
 
     text {
       white-space: nowrap;
@@ -129,12 +129,12 @@
   }
 
   .collection-card-title {
-    font-size: var(--common-font-size-base) !important;
+    font-size: var(--common-font-size-lg) !important; // 调大一号：base -> lg
   }
 
   .collection-card-time,
   .collection-card-frequency {
-    font-size: var(--common-font-size-sm) !important;
+    font-size: var(--common-font-size-md) !important; // 调大一号：sm -> md
   }
 }
 
@@ -150,5 +150,5 @@
 .empty-text {
   margin-top: var(--common-spacing-lg);
   color: var(--common-hint-text-color);
-  font-size: var(--common-font-size-sm);
+  font-size: var(--common-font-size-lg); // 调大一号：sm -> lg
 }
