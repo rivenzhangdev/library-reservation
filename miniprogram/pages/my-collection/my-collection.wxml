@@ -3,11 +3,10 @@
 </page-meta>
 
 <view class="page-container">
-  <!-- 常用座位区域 -->
   <view class="section">
     <view class="section-header">
       <view class="section-title">{{favoriteSeatsTitle}}</view>
-      <view class="section-count">{{favoriteSeatsCount}} 个</view>
+      <view class="section-count">{{favoriteSeatsCount}} {{t('common.number.items')}}</view>
     </view>
 
     <view class="cards-container" wx:if="{{favoriteSeats.length > 0}}">
@@ -15,14 +14,13 @@
         wx:for="{{favoriteSeats}}"
         wx:key="id"
         class="collection-card"
+        bind:tap="onSeatCardTap"
         data-id="{{item.id}}"
         data-seat-name="{{item.seatName}}"
-        data-seat-id="{{item.seatId}}"
         data-zone="{{item.zone}}"
         data-floor="{{item.floor}}"
         data-type="{{item.type}}"
-        data-facilities="{{item.facilities}}"
-        data-status="{{item.status}}"
+        data-facilities="{{item.facilities.join(',')}}"
       >
         <view class="collection-card-left">
           <view class="collection-card-header">
@@ -31,13 +29,12 @@
               type="{{item.status === 'available' ? 'success' : (item.status === 'booked' ? 'primary' : 'default')}}"
               size="medium"
             >
-              {{item.status === 'available' ? '可用' : (item.status === 'booked' ? '已预约' :
-              '维修中')}}
+              {{item.statusText}}
             </van-tag>
           </view>
           <view class="collection-card-desc">
             <uni-icon name="location-o" size="28" type="vant" color="#969799" />
-            <text>{{item.zone}} · {{item.type}}</text>
+            <text>{{item.zone}} / {{item.type}}</text>
           </view>
           <view class="collection-card-facilities">
             <van-tag
@@ -55,7 +52,6 @@
         <view class="collection-card-right">
           <view class="collection-card-actions">
             <van-button
-              wx:if="{{item.status === 'available'}}"
               type="primary"
               size="small"
               round
@@ -63,24 +59,14 @@
               bind:tap="onQuickReserveSeat"
               data-id="{{item.id}}"
               data-seat-name="{{item.seatName}}"
-              data-seat-id="{{item.seatId}}"
               data-zone="{{item.zone}}"
               data-floor="{{item.floor}}"
               data-type="{{item.type}}"
-              data-facilities="{{item.facilities}}"
-              data-status="{{item.status}}"
+              data-facilities="{{item.facilities.join(',')}}"
             >
               {{quickReserveText}}
             </van-button>
-            <van-button wx:else type="default" size="small" round class="action-btn" disabled>
-              {{quickReserveText}}
-            </van-button>
-            <view
-              class="unfavorite-btn"
-              bind:tap="onUnfavoriteSeat"
-              data-id="{{item.id}}"
-              data-name="{{item.seatName}}"
-            >
+            <view class="unfavorite-btn" catch:tap="onUnfavoriteSeat" data-id="{{item.id}}">
               <uni-icon name="star" size="36" type="vant" color="#969799" />
             </view>
           </view>
@@ -88,18 +74,16 @@
       </view>
     </view>
 
-    <!-- 空状态 -->
     <view class="empty-state" wx:else>
       <uni-icon name="star-o" size="120" type="vant" color="#dcdee0" />
       <view class="empty-text">{{emptySeatHint}}</view>
     </view>
   </view>
 
-  <!-- 常用时段区域 -->
   <view class="section">
     <view class="section-header">
       <view class="section-title">{{favoriteTimeSlotsTitle}}</view>
-      <view class="section-count">{{totalCount}} 个</view>
+      <view class="section-count">{{totalCount}} {{t('common.number.items')}}</view>
     </view>
 
     <view class="cards-container" wx:if="{{favoriteTimeSlots.length > 0}}">
@@ -121,7 +105,7 @@
           </view>
           <view class="collection-card-frequency">
             <uni-icon name="chart-trending-o" size="28" type="vant" color="#969799" />
-            <text>{{frequencyLabel}}: {{item.usageCount}} 次</text>
+            <text>{{frequencyLabel}}: {{item.usageCount}} {{t('common.number.times')}}</text>
           </view>
         </view>
         <view class="collection-card-right">
@@ -140,20 +124,11 @@
             >
               {{selectText}}
             </van-button>
-            <view
-              class="unfavorite-btn"
-              bind:tap="onUnfavoriteTimeSlot"
-              data-id="{{item.id}}"
-              data-name="{{item.name}}"
-            >
-              <uni-icon name="star" size="36" type="vant" color="#969799" />
-            </view>
           </view>
         </view>
       </view>
     </view>
 
-    <!-- 空状态 -->
     <view class="empty-state" wx:else>
       <uni-icon name="star-o" size="120" type="vant" color="#dcdee0" />
       <view class="empty-text">{{emptyTimeSlotHint}}</view>

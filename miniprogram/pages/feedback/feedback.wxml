@@ -1,33 +1,29 @@
-<page-meta>
+﻿<page-meta>
   <navigation-bar title="{{navTitle}}" back="{{true}}" />
 </page-meta>
 
-<!-- 页面容器 -->
 <view class="page-container {{languageClass}}">
-  <!-- Tab 切换 -->
   <view class="tab-container">
     <view
       class="tab-item {{currentTab === 'submit' ? 'active' : ''}}"
       bind:tap="onTabTap"
       data-tab="submit"
     >
-      <text class="tab-text">提交反馈</text>
+      <text class="tab-text">{{submitTabText}}</text>
     </view>
     <view
       class="tab-item {{currentTab === 'records' ? 'active' : ''}}"
       bind:tap="onTabTap"
       data-tab="records"
     >
-      <text class="tab-text">我的反馈记录</text>
+      <text class="tab-text">{{recordsTabText}}</text>
     </view>
   </view>
 
-  <!-- 提交反馈 -->
   <view wx:if="{{currentTab === 'submit'}}" class="submit-feedback">
-    <!-- 反馈类型 -->
     <view class="form-section">
       <view class="section-title">
-        <text>反馈类型</text>
+        <text>{{typeTitle}}</text>
         <text class="required">*</text>
       </view>
       <view class="feedback-types">
@@ -43,31 +39,29 @@
       </view>
     </view>
 
-    <!-- 问题标题 -->
     <view class="form-section">
       <view class="section-title">
-        <text>问题标题</text>
+        <text>{{titleLabel}}</text>
         <text class="required">*</text>
       </view>
       <van-field
         value="{{title}}"
-        placeholder="请简要描述您的问题或建议"
+        placeholder="{{titlePlaceholder}}"
         maxlength="50"
         clearable
         bind:change="onTitleChange"
       />
     </view>
 
-    <!-- 详细描述 -->
     <view class="form-section">
       <view class="section-title">
-        <text>详细描述</text>
+        <text>{{descriptionLabel}}</text>
         <text class="required">*</text>
       </view>
       <van-field
         value="{{description}}"
         type="textarea"
-        placeholder="请详细描述您遇到的问题或建议..."
+        placeholder="{{descriptionPlaceholder}}"
         maxlength="500"
         rows="5"
         show-word-limit
@@ -75,10 +69,9 @@
       />
     </view>
 
-    <!-- 紧急程度 -->
     <view class="form-section">
       <view class="section-title">
-        <text>紧急程度</text>
+        <text>{{urgencyLabel}}</text>
       </view>
       <view class="urgency-levels">
         <view
@@ -88,20 +81,27 @@
           bind:tap="onUrgencyTap"
           data-id="{{item.id}}"
         >
-          <uni-icon type="iconfont" name="{{item.icon}}" size="30" color="{{item.color}}" />
+          <uni-icon type="vant" name="{{item.icon}}" size="30" color="{{item.color}}" />
           <text class="urgency-text">{{item.name}}</text>
         </view>
       </view>
     </view>
 
-    <!-- 图片上传 -->
     <view class="form-section">
       <view class="section-title">
-        <text>图片上传</text>
-        <text class="optional">(选填)</text>
+        <text>{{imageLabel}}</text>
+        <text class="optional">{{imageOptionalText}}</text>
       </view>
       <view class="image-upload-area">
-        <view class="image-list">
+        <scroll-view class="image-upload-row" scroll-x="true" show-scrollbar="false">
+          <view
+            wx:if="{{uploadedImages.length < maxImageCount}}"
+            class="image-upload-btn"
+            bind:tap="onImageUpload"
+          >
+            <uni-icon type="vant" name="photograph" size="40" color="#999" />
+            <text class="upload-text">{{imageUploadText}}</text>
+          </view>
           <view
             wx:for="{{uploadedImages}}"
             wx:key="index"
@@ -114,41 +114,32 @@
               <uni-icon type="vant" name="close" size="24" color="#fff" />
             </view>
           </view>
-        </view>
-        <view
-          wx:if="{{uploadedImages.length < maxImageCount}}"
-          class="image-upload-btn"
-          bind:tap="onImageUpload"
-        >
-          <uni-icon type="vant" name="photograph" size="40" color="#999" />
-          <text class="upload-text">上传照片</text>
-          <text class="upload-count">{{uploadedImages.length}}/{{maxImageCount}}</text>
-        </view>
+        </scroll-view>
+        <text class="upload-count">{{uploadedImages.length}}/{{maxImageCount}}</text>
       </view>
     </view>
 
-    <!-- 联系方式 (可选) -->
     <view class="form-section">
       <view class="section-title">
-        <text>联系方式</text>
-        <text class="optional">(选填)</text>
+        <text>{{contactLabel}}</text>
+        <text class="optional">{{contactOptionalText}}</text>
       </view>
       <van-field
         value="{{contact}}"
-        placeholder="您的手机号或微信号 (方便我们联系您)"
+        placeholder="{{contactPlaceholder}}"
         maxlength="50"
         clearable
         bind:change="onContactChange"
       />
     </view>
 
-    <!-- 提交按钮 -->
     <view class="submit-actions">
-      <van-button type="primary" block round bind:click="onSubmitTap"> 提交反馈 </van-button>
+      <van-button type="primary" block round bind:click="onSubmitTap">
+        {{submitButtonText}}
+      </van-button>
     </view>
   </view>
 
-  <!-- 我的反馈记录 -->
   <view wx:if="{{currentTab === 'records'}}" class="feedback-records">
     <view wx:if="{{feedbackRecords.length > 0}}">
       <view
@@ -174,30 +165,27 @@
         <view class="record-details">
           <view class="detail-row">
             <uni-icon type="vant" name="label-o" size="24" color="#999" />
-            <text class="detail-label">类型：</text>
+            <text class="detail-label">{{detailTypeText}}：</text>
             <text class="detail-text">{{item.typeName}}</text>
           </view>
           <view class="detail-row">
             <uni-icon type="vant" name="clock-o" size="24" color="#999" />
-            <text class="detail-label">提交时间：</text>
+            <text class="detail-label">{{detailSubmitTimeText}}：</text>
             <text class="detail-text">{{item.createTime}}</text>
           </view>
           <view class="detail-row">
             <uni-icon type="vant" name="flag-o" size="24" color="#999" />
-            <text class="detail-label">紧急程度：</text>
-            <text class="detail-text urgency-{{item.urgencyStyle}}">{{item.urgencyName}}</text>
+            <text class="detail-label">{{detailUrgencyText}}：</text>
+            <text class="detail-text urgency-{{item.urgencyStyle}}"
+              >{{item.urgencyName || '-'}}</text
+            >
           </view>
         </view>
       </view>
     </view>
 
-    <!-- 空状态 -->
     <view wx:else class="empty-state">
-      <text class="empty-text">暂无反馈记录</text>
+      <text class="empty-text">{{emptyText}}</text>
     </view>
   </view>
-
-  <!-- 弹窗组件 -->
-  <van-dialog id="van-dialog" />
-  <van-toast id="van-toast" />
 </view>

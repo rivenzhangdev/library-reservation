@@ -1,459 +1,425 @@
+﻿import { getCredit, getProfile } from '../../apis/user';
+import { getUserInfo, isLogin, setUserInfo } from '../../utils/auth';
 import { t } from '../../utils/i18n';
 
-interface IProfileData {
-  currentLang: string;
+interface ProfileMenuItem {
+  label: string;
+  iconName: string;
+  iconColor: string;
+  iconBgColor: string;
+  badgeCount?: number;
+  clickable?: boolean;
+  action: string;
+}
+
+interface ProfilePageData {
+  currentLang: 'zh' | 'en';
   pageTitle: string;
   sectionTitle: string;
   centerTitle: string;
   settingsTitle: string;
+  isLoggedIn: boolean;
   userName: string;
+  userAccountLabel: string;
+  userAccount: string;
   studentId: string;
   phone: string;
   creditScore: string;
   balance: string;
-  serviceItems: any[];
-  centerItems: any[];
-  settingsItems: any[];
+  serviceItems: ProfileMenuItem[];
+  centerItems: ProfileMenuItem[];
+  settingsItems: ProfileMenuItem[];
   langSwitchLabel: string;
   langSwitchDesc: string;
+  loginTip: string;
+  loginActionText: string;
+  avatarUrl?: string;
+}
+
+function normalizeUser(user: any) {
+  if (!user) return null;
+
+  return {
+    ...user,
+    id: user.id || user._id,
+    username: user.username || '',
+    nickName: user.nickName || user.name || '',
+    name: user.name || user.nickName || user.username || '',
+    avatar: user.avatar || user.avatarUrl || '',
+    avatarUrl: user.avatarUrl || user.avatar || '',
+    studentId: user.studentId || '',
+    phone: user.phone || '',
+  };
+}
+
+function getDisplayName(user: any) {
+  if (!user) return t('profile.user.guest');
+
+  const studentId = String(user.studentId || '').trim();
+  const preferredName = user.nickName || user.name || '';
+
+  if (!studentId) {
+    return preferredName || user.username || t('profile.user.guest');
+  }
+
+  return preferredName || user.username || t('profile.user.guest');
 }
 
 Page({
-  /**
-   * 页面的初始数据
-   */
   data: {
     currentLang: 'zh',
-    // 多语言文案 - 初始值设为空字符串，在 onLoad 中初始化
     pageTitle: '',
     sectionTitle: '',
     centerTitle: '',
     settingsTitle: '',
-    // 用户信息
+    isLoggedIn: false,
     userName: '',
+    userAccountLabel: '',
+    userAccount: '',
+    avatarUrl: '',
     studentId: '',
     phone: '',
     creditScore: '',
     balance: '',
-    // 我的服务模块数据
     serviceItems: [],
-    // 个人中心模块数据
     centerItems: [],
-    // 系统设置模块数据
     settingsItems: [],
-    // 语言切换按钮文案
     langSwitchLabel: '',
-    langSwitchDesc: '切换到英文',
-  } as IProfileData,
+    langSwitchDesc: '',
+    loginTip: '',
+    loginActionText: '',
+  } as ProfilePageData,
 
-  /**
-   * 生命周期函数--监听页面加载
-   */
   onLoad() {
-    this.initPageData();
     this.updateLanguage();
+    this.loadUserProfile();
   },
 
-  /**
-   * 初始化页面数据
-   */
-  initPageData() {
-    this.setData({
-      pageTitle: t('profile.pageTitle'),
-      sectionTitle: t('profile.sectionTitle'),
-      centerTitle: t('profile.centerTitle'),
-      settingsTitle: t('profile.settingsTitle'),
-      userName: t('profile.user.name'),
-      studentId: t('profile.user.studentId'),
-      phone: t('profile.user.phone'),
-      creditScore: t('profile.user.creditScore'),
-      balance: t('profile.user.balance'),
-      langSwitchLabel: t('common.lang.en'),
-      // 我的服务模块
+  onShow() {
+    this.updateLanguage();
+    this.loadUserProfile();
+    this.maybePromptLogin();
+  },
+
+  buildMenus() {
+    return {
       serviceItems: [
         {
           label: t('profile.service.myReservation'),
           iconName: 'calendar-o',
-          iconColor: '#409eff',
-          iconBgColor: '#e8f4ff',
-          badgeCount: 2,
+          iconColor: '#2563eb',
+          iconBgColor: '#dbeafe',
+          badgeCount: 0,
           action: 'onMyReservationTap',
         },
         {
           label: t('profile.service.myCollection'),
           iconName: 'star-o',
-          iconColor: '#e6a23c',
-          iconBgColor: '#fff0f0',
+          iconColor: '#d97706',
+          iconBgColor: '#fef3c7',
           action: 'onMyCollectionTap',
         },
         {
           label: t('profile.service.myActivity'),
           iconName: 'todo-list-o',
-          iconColor: '#e74c3c',
-          iconBgColor: '#fff7e8',
-          badgeCount: 1,
+          iconColor: '#dc2626',
+          iconBgColor: '#fee2e2',
           action: 'onMyActivityTap',
         },
       ],
-      // 个人中心模块
       centerItems: [
         {
           label: t('profile.center.personalInfo'),
           iconName: 'user-o',
-          iconColor: '#722ed1',
-          iconBgColor: '#f9f0ff',
+          iconColor: '#7c3aed',
+          iconBgColor: '#f3e8ff',
           action: 'onPersonalInfoTap',
         },
         {
           label: t('profile.center.creditCenter'),
           iconName: 'star',
-          iconColor: '#faad14',
-          iconBgColor: '#fff7e6',
+          iconColor: '#ca8a04',
+          iconBgColor: '#fef9c3',
           action: 'onCreditCenterTap',
         },
         {
           label: t('profile.center.feedback'),
           iconName: 'comment-o',
-          iconColor: '#1890ff',
-          iconBgColor: '#e6f7ff',
-          badgeCount: 1,
+          iconColor: '#0284c7',
+          iconBgColor: '#e0f2fe',
           action: 'onFeedbackTap',
         },
       ],
-      // 系统设置模块
       settingsItems: [
         {
           label: t('profile.settings.notification'),
           iconName: 'bell',
-          iconColor: '#1890ff',
-          iconBgColor: '#e6f7ff',
+          iconColor: '#2563eb',
+          iconBgColor: '#dbeafe',
           action: 'onNotificationTap',
         },
         {
           label: t('profile.settings.privacy'),
           iconName: 'shield-o',
-          iconColor: '#52c41a',
-          iconBgColor: '#f6ffed',
+          iconColor: '#16a34a',
+          iconBgColor: '#dcfce7',
           action: 'onPrivacyTap',
         },
         {
           label: t('profile.settings.help'),
           iconName: 'question-o',
-          iconColor: '#fa8c16',
-          iconBgColor: '#fff7e6',
+          iconColor: '#ea580c',
+          iconBgColor: '#ffedd5',
           action: 'onHelpTap',
         },
         {
           label: t('profile.settings.about'),
           iconName: 'info-o',
-          iconColor: '#13c2c2',
-          iconBgColor: '#e6fffb',
+          iconColor: '#0891b2',
+          iconBgColor: '#cffafe',
           action: 'onAboutTap',
         },
       ],
+    };
+  },
+
+  updateLanguage() {
+    const app = getApp<IAppOption>();
+    const currentLang = app.globalData.currentLang || 'zh';
+    const isZh = currentLang === 'zh';
+    const { serviceItems, centerItems, settingsItems } = this.buildMenus();
+
+    this.setData({
+      currentLang,
+      pageTitle: t('profile.pageTitle'),
+      sectionTitle: t('profile.sectionTitle'),
+      centerTitle: t('profile.centerTitle'),
+      settingsTitle: t('profile.settingsTitle'),
+      langSwitchLabel: isZh ? t('common.lang.en') : t('common.lang.zh'),
+      langSwitchDesc: isZh ? 'Switch to English' : '切换到中文',
+      userAccountLabel: t('profile.user.wechatAccount'),
+      loginTip: t('profile.login.tip'),
+      loginActionText: t('profile.login.action'),
+      serviceItems,
+      centerItems,
+      settingsItems,
     });
   },
 
-  /**
-   * 生命周期函数--监听页面显示
-   */
-  onShow() {
-    this.updateLanguage();
+  applyUserState(user: any) {
+    const normalized = normalizeUser(user);
+    if (!normalized) return;
+
+    this.setData({
+      isLoggedIn: true,
+      userName: getDisplayName(normalized),
+      userAccount: normalized.username || normalized.nickName || '',
+      avatarUrl: normalized.avatarUrl || '',
+      studentId: normalized.studentId || t('profile.user.unbound'),
+      phone: normalized.phone || t('profile.user.unbound'),
+    });
   },
 
-  /**
-   * 更新页面语言
-   */
-  updateLanguage() {
-    const app = getApp<IAppOption>();
-    if (app && app.globalData) {
-      const currentLang = app.globalData.currentLang || 'zh';
-      const isZh = currentLang === 'zh';
-
+  loadUserProfile() {
+    if (!isLogin()) {
       this.setData({
-        currentLang,
-        pageTitle: t('profile.pageTitle'),
-        sectionTitle: t('profile.sectionTitle'),
-        centerTitle: t('profile.centerTitle'),
-        settingsTitle: t('profile.settingsTitle'),
-        userName: t('profile.user.name'),
-        studentId: t('profile.user.studentId'),
-        phone: t('profile.user.phone'),
-        creditScore: t('profile.user.creditScore'),
-        balance: t('profile.user.balance'),
-        langSwitchLabel: isZh ? t('common.lang.en') : t('common.lang.zh'),
-        langSwitchDesc: isZh ? '切换到英文' : 'Switch to Chinese',
-        // 我的服务模块
-        serviceItems: [
-          {
-            label: t('profile.service.myReservation'),
-            iconName: 'calendar-o',
-            iconColor: '#409eff',
-            iconBgColor: '#e8f4ff',
-            badgeCount: 2,
-            clickable: true,
-            action: 'onMyReservationTap',
-          },
-          {
-            label: t('profile.service.myCollection'),
-            iconName: 'star-o',
-            iconColor: '#e6a23c',
-            iconBgColor: '#fff0f0',
-            clickable: true,
-            action: 'onMyCollectionTap',
-          },
-          {
-            label: t('profile.service.myActivity'),
-            iconName: 'todo-list-o',
-            iconColor: '#e74c3c',
-            iconBgColor: '#fff7e8',
-            badgeCount: 1,
-            clickable: true,
-            action: 'onMyActivityTap',
-          },
-        ],
-        // 个人中心模块
-        centerItems: [
-          {
-            label: t('profile.center.personalInfo'),
-            iconName: 'user-o',
-            iconColor: '#722ed1',
-            iconBgColor: '#f9f0ff',
-            clickable: true,
-            action: 'onPersonalInfoTap',
-          },
-          {
-            label: t('profile.center.creditCenter'),
-            iconName: 'star',
-            iconColor: '#faad14',
-            iconBgColor: '#fff7e6',
-            clickable: true,
-            action: 'onCreditCenterTap',
-          },
-          {
-            label: t('profile.center.feedback'),
-            iconName: 'comment-o',
-            iconColor: '#1890ff',
-            iconBgColor: '#e6f7ff',
-            badgeCount: 1,
-            clickable: true,
-            action: 'onFeedbackTap',
-          },
-        ],
-        // 系统设置模块
-        settingsItems: [
-          {
-            label: t('profile.settings.notification'),
-            iconName: 'bell',
-            iconColor: '#1890ff',
-            iconBgColor: '#e6f7ff',
-            clickable: true,
-            action: 'onNotificationTap',
-          },
-          {
-            label: t('profile.settings.privacy'),
-            iconName: 'shield-o',
-            iconColor: '#52c414a',
-            iconBgColor: '#f6ffed',
-            clickable: true,
-            action: 'onPrivacyTap',
-          },
-          {
-            label: t('profile.settings.help'),
-            iconName: 'question-o',
-            iconColor: '#fa8c16',
-            iconBgColor: '#fff7e6',
-            clickable: true,
-            action: 'onHelpTap',
-          },
-          {
-            label: t('profile.settings.about'),
-            iconName: 'info-o',
-            iconColor: '#13c2c2',
-            iconBgColor: '#e6fffb',
-            clickable: true,
-            action: 'onAboutTap',
-          },
-        ],
+        isLoggedIn: false,
+        userName: t('profile.user.guest'),
+        userAccount: '',
+        avatarUrl: '',
+        studentId: t('profile.user.unbound'),
+        phone: t('profile.user.unbound'),
+        creditScore: t('profile.user.unbound'),
       });
-    }
-  },
-
-  /**
-   * 处理模块项点击
-   */
-  onSectionItemTap(event: WechatMiniprogram.CustomEvent) {
-    const { action } = event.detail;
-
-    // 如果没有 action，直接返回
-    if (!action) {
       return;
     }
 
-    // 动态调用对应的方法
+    const cachedUser = normalizeUser(getUserInfo());
+    if (cachedUser) {
+      this.applyUserState(cachedUser);
+    }
+
+    getProfile()
+      .then((res) => {
+        const user = normalizeUser(res.data);
+        if (!user) return;
+
+        const nextUserInfo = {
+          ...(getUserInfo() || {}),
+          ...user,
+        };
+        setUserInfo(nextUserInfo);
+        this.applyUserState(nextUserInfo);
+      })
+      .catch(() => {});
+
+    getCredit()
+      .then((res) => {
+        const creditData = res.data as any;
+        this.setData({
+          creditScore: String(creditData?.creditScore ?? creditData?.score ?? 100),
+        });
+      })
+      .catch(() => {});
+  },
+
+  maybePromptLogin() {
+    if (isLogin() || (this as any).__loginPrompted) return;
+    (this as any).__loginPrompted = true;
+
+    wx.showModal({
+      title: t('profile.login.noticeTitle'),
+      content: t('profile.login.noticeContent'),
+      showCancel: false,
+      confirmText: t('profile.login.action'),
+      success: (res) => {
+        if (res.confirm) {
+          this.onLoginTap();
+        }
+      },
+    });
+  },
+
+  onLoginTap() {
+    const app = getApp<IAppOption>() as any;
+    wx.getUserProfile({
+      desc:
+        this.data.currentLang === 'zh'
+          ? '用于完善头像、昵称和个人资料展示'
+          : 'Used to complete your avatar, nickname and profile display',
+      success: async (profileRes) => {
+        try {
+          await app.doWxLogin?.(profileRes.userInfo || {});
+          this.setData({ isLoggedIn: true });
+          this.loadUserProfile();
+          wx.showToast({
+            title: t('profile.login.success'),
+            icon: 'success',
+          });
+        } catch (error) {
+          console.error('profile login failed', error);
+          wx.showToast({
+            title: t('profile.login.failed'),
+            icon: 'none',
+          });
+        }
+      },
+    });
+  },
+
+  onSectionItemTap(event: WechatMiniprogram.CustomEvent) {
+    const { action } = event.detail;
     const method = (this as any)[action];
     if (typeof method === 'function') {
       method();
     }
   },
 
-  /**
-   * 切换到语言设置
-   */
   onLanguageSwitch() {
     const app = getApp<IAppOption>();
-    if (app && app.switchLanguage) {
-      const currentLang = app.globalData.currentLang || 'zh';
-      const newLang = currentLang === 'zh' ? 'en' : 'zh';
-      app.switchLanguage(newLang);
-    }
+    if (!app.switchLanguage) return;
+
+    const nextLang = app.globalData.currentLang === 'zh' ? 'en' : 'zh';
+    app.switchLanguage(nextLang);
   },
 
-  /**
-   * 跳转到个人信息
-   */
+  ensureLoggedIn() {
+    if (isLogin()) return true;
+
+    wx.showModal({
+      title: t('profile.login.noticeTitle'),
+      content: t('profile.login.noticeContent'),
+      confirmText: t('profile.login.action'),
+    });
+
+    return false;
+  },
+
   onPersonalInfoTap() {
-    // TODO: 跳转到个人信息页面
-    wx.showToast({
-      title: '敬请期待',
-      icon: 'none',
+    if (!this.ensureLoggedIn()) return;
+    wx.navigateTo({
+      url: '/pages/personal-info/personal-info',
     });
   },
 
-  /**
-   * 跳转到我的预约
-   */
   onMyReservationTap() {
+    if (!this.ensureLoggedIn()) return;
     wx.navigateTo({
       url: '/pages/my-reservation/my-reservation',
     });
   },
 
-  /**
-   * 跳转到我的收藏
-   */
   onMyCollectionTap() {
+    if (!this.ensureLoggedIn()) return;
     wx.navigateTo({
       url: '/pages/my-collection/my-collection',
     });
   },
 
-  /**
-   * 跳转到我的活动
-   */
   onMyActivityTap() {
+    if (!this.ensureLoggedIn()) return;
     wx.navigateTo({
       url: '/pages/my-activity/my-activity',
-      success: () => {},
-      fail: (err) => {
-        console.error('跳转失败:', err);
-        wx.showModal({
-          title: '提示',
-          content: '页面跳转失败，请重试',
-          showCancel: false,
-        });
-      },
     });
   },
 
-  /**
-   * 跳转到预约历史
-   */
-  onHistoryTap() {
-    // TODO: 跳转到历史页面
-    wx.showToast({
-      title: '敬请期待',
-      icon: 'none',
-    });
-  },
-
-  /**
-   * 跳转到设置
-   */
-  onSettingsTap() {
-    // TODO: 跳转到设置页面
-    wx.showToast({
-      title: '敬请期待',
-      icon: 'none',
-    });
-  },
-
-  /**
-   * 跳转到信用中心
-   */
   onCreditCenterTap() {
-    // TODO: 跳转到信用中心页面
-    wx.showToast({
-      title: '敬请期待',
-      icon: 'none',
+    if (!this.ensureLoggedIn()) return;
+    wx.navigateTo({
+      url: '/pages/credit/credit',
     });
   },
 
-  /**
-   * 跳转到问题反馈
-   */
   onFeedbackTap() {
+    if (!this.ensureLoggedIn()) return;
     wx.navigateTo({
       url: '/pages/feedback/feedback',
-      success: () => {
-        wx.showToast({
-          title: '打开问题反馈',
-          icon: 'none',
-          duration: 1500,
-        });
-      },
-      fail: (err) => {
-        console.error('跳转失败:', err);
-        wx.showModal({
-          title: '提示',
-          content: '页面跳转失败，请重试',
-          showCancel: false,
-        });
-      },
     });
   },
 
-  /**
-   * 跳转到关于我们
-   */
-  onAboutTap() {
-    // TODO: 跳转到关于我们页面
-    wx.showToast({
-      title: '敬请期待',
-      icon: 'none',
-    });
-  },
-
-  /**
-   * 跳转到帮助中心
-   */
-  onHelpTap() {
-    // TODO: 跳转到帮助中心页面
-    wx.showToast({
-      title: '敬请期待',
-      icon: 'none',
-    });
-  },
-
-  /**
-   * 跳转到隐私设置
-   */
-  onPrivacyTap() {
-    // TODO: 跳转到隐私设置页面
-    wx.showToast({
-      title: '敬请期待',
-      icon: 'none',
-    });
-  },
-
-  /**
-   * 跳转到通知设置
-   */
   onNotificationTap() {
-    // TODO: 跳转到通知设置页面
-    wx.showToast({
-      title: '敬请期待',
-      icon: 'none',
+    if (!this.ensureLoggedIn()) return;
+    wx.switchTab({
+      url: '/pages/notification/notification',
+    });
+  },
+
+  onPrivacyTap() {
+    const content =
+      this.data.currentLang === 'zh'
+        ? '我们仅收集预约、通知所需的必要资料，不会向无关第三方共享你的个人信息。'
+        : 'We only use the minimum profile information required for reservations and notifications.';
+
+    wx.showModal({
+      title: t('profile.settings.privacy'),
+      content,
+      showCancel: false,
+    });
+  },
+
+  onHelpTap() {
+    const content =
+      this.data.currentLang === 'zh'
+        ? '可在“预约”页选择日期、时段与座位完成预约；相关问题也可以通过反馈页提交。'
+        : 'Use the reservation page to choose date, time period and seat. You can also submit feedback if you need help.';
+
+    wx.showModal({
+      title: t('profile.settings.help'),
+      content,
+      showCancel: false,
+    });
+  },
+
+  onAboutTap() {
+    const content =
+      this.data.currentLang === 'zh'
+        ? '图书馆座位预约系统 v1.0.0\n\n提供座位查询、预约、活动和通知等能力。'
+        : 'Library Reservation v1.0.0\n\nProvides seat search, reservation, activity and notification features.';
+
+    wx.showModal({
+      title: t('profile.settings.about'),
+      content,
+      showCancel: false,
     });
   },
 });

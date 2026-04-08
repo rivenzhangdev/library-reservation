@@ -15,7 +15,7 @@ export default {
   'actions.myReservation': 'My Reservations',
   'actions.renew': 'Quick Renewal',
   'actions.checkin': 'Scan to Check-in',
-
+  'actions.checkout': 'Scan to Check-out',
   // Opening Hours
   'openingHours.title': "Today's Opening Hours",
   'openingHours.time': '08:00 - 22:00',

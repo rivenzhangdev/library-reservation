@@ -1,4 +1,4 @@
-// 导航栏右侧按钮
+﻿// 导航栏右侧按钮
 .nav-right {
   display: flex;
   gap: var(--common-spacing-sm);
@@ -22,7 +22,6 @@
   }
 }
 
-// 页面容器
 .page-container {
   display: flex;
   flex-direction: column;
@@ -30,56 +29,29 @@
   padding: 0 var(--common-page-padding);
 }
 
-// 英文样式适配
 .page-container.lang-en {
-  // 搜索标签增加宽度
   .search-tag-item {
     padding: 0 var(--common-spacing-xl);
     font-size: var(--common-font-size-md);
   }
 
-  // 功能卡片文字缩小
   .action-text {
     font-size: var(--common-font-size-md);
   }
 
-  // 开放时间标题调整
   .opening-hours-title {
     font-size: var(--common-font-size-lg);
   }
 
-  // 座位状态标签调整
   .seat-status-label {
     font-size: var(--common-font-size-md);
   }
 
-  // 座位列表文字调整
-  .seat-item__label {
-    font-size: var(--common-font-size-lg);
-  }
-
-  .seat-item__type {
-    font-size: var(--common-font-size-md);
-  }
-
-  // 活动标题调整
   .activity-title {
     font-size: var(--common-font-size-lg);
   }
-
-  // 活动描述调整
-  .activity-description {
-    font-size: var(--common-font-size-md);
-  }
-
-  // 按钮文字调整
-  .activity-btn {
-    min-width: var(--button-small-width);
-    font-size: var(--common-font-size-md);
-  }
 }
 
-// 搜索区域
 .search-area {
   display: flex;
   flex-direction: column;
@@ -105,10 +77,6 @@
     background-color: var(--common-gray-color);
     border-radius: var(--common-border-radius-pill);
   }
-
-  .search-tag-icon {
-    font-size: var(--common-font-size-2xl);
-  }
 }
 
 .swiper-area {
@@ -122,13 +90,37 @@ swiper {
   border-radius: var(--common-border-radius-md);
 }
 
-swiper-item {
-  image {
-    width: 100%;
-  }
+.banner-item,
+.banner-placeholder {
+  width: 100%;
+  height: 100%;
 }
 
-// 今日开放时间
+.banner-item image {
+  width: 100%;
+  height: 100%;
+}
+
+.banner-placeholder {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 0 var(--common-spacing-4xl);
+  color: #fff;
+  background: linear-gradient(135deg, #3b82f6, #0f766e);
+}
+
+.banner-title {
+  font-weight: var(--common-font-weight-bold);
+  font-size: var(--common-font-size-3xl);
+}
+
+.banner-subtitle {
+  margin-top: var(--common-spacing-md);
+  font-size: var(--common-font-size-lg);
+  opacity: 0.9;
+}
+
 .opening-hours {
   display: flex;
   align-items: center;
@@ -141,17 +133,6 @@ swiper-item {
     display: flex;
     gap: var(--common-spacing-lg);
     align-items: center;
-  }
-
-  &-icon {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-
-    .van-icon {
-      color: var(--common-success-color);
-      font-size: var(--icon-size-xl);
-    }
   }
 
   &-info {
@@ -170,57 +151,49 @@ swiper-item {
     color: var(--common-regular-text-color);
     font-size: var(--common-font-size-lg);
   }
-
-  &-status {
-    padding: var(--common-spacing-sm) var(--common-spacing-2xl);
-    font-size: var(--common-font-size-lg);
-  }
 }
 
 .action-area {
   display: flex;
+  flex-wrap: wrap;
   gap: var(--common-spacing-lg);
   justify-content: space-between;
   padding: var(--common-page-padding) 0;
-  overflow-x: auto;
-  background-color: transparent;
+}
 
-  .action-card {
-    display: flex;
-    flex: 1 1 0;
-    flex-direction: column;
-    gap: var(--common-spacing-lg);
-    align-items: center;
-    padding: var(--common-spacing-3xl);
-    border-radius: var(--common-border-radius-lg);
-    box-shadow: var(--common-shadow-sm);
+.action-card {
+  display: flex;
+  flex: 1 1 42%;
+  flex-direction: column;
+  gap: var(--common-spacing-md);
+  align-items: center;
+  min-width: 160rpx;
+  padding: 26rpx 18rpx;
+  background-color: #fff;
+  border: 1rpx solid rgba(15, 23, 42, 0.08);
+  border-radius: 30rpx;
+  box-shadow: 0 10rpx 24rpx rgba(15, 23, 42, 0.06);
+  transition: transform 0.2s ease;
+}
 
-    .action-icon {
-      font-size: var(--icon-size-2xl);
+.action-card:active {
+  transform: translateY(2rpx);
+}
 
-      &--blue {
-        color: var(--common-primary-color);
-      }
+.action-card uni-icon {
+  width: 72rpx;
+  height: 72rpx;
+  padding: 18rpx;
+  line-height: 72rpx;
+  background-color: rgba(64, 158, 255, 0.1);
+  border-radius: 50%;
+}
 
-      &--purple {
-        color: #9b59b6;
-      }
-
-      &--green {
-        color: var(--common-success-color);
-      }
-
-      &--orange {
-        color: #e67e22;
-      }
-    }
-
-    .action-text {
-      color: var(--common-dark-text-color);
-      font-size: var(--common-font-size-md);
-      text-align: center;
-    }
-  }
+.action-text {
+  color: var(--common-dark-text-color);
+  font-size: var(--common-font-size-md);
+  line-height: 1.4;
+  text-align: center;
 }
 
 .seat-status-grid {
@@ -318,67 +291,6 @@ swiper-item {
   }
 }
 
-// 推荐座位
-.seat-recommend-section {
-  .view-all {
-    display: flex;
-    gap: var(--common-spacing-sm);
-    align-items: center;
-    color: var(--common-primary-color);
-    font-size: var(--common-font-size-xl);
-
-    &-text {
-      color: inherit;
-    }
-
-    &-icon {
-      color: inherit;
-      font-size: var(--icon-size-sm);
-    }
-  }
-
-  .seat-list {
-    display: flex;
-    flex-direction: column;
-    gap: var(--common-spacing-2xl);
-
-    .seat-footer {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      width: 100%;
-
-      &__left {
-        display: flex;
-        flex: 1 1 0;
-        gap: var(--common-spacing-lg);
-        align-items: center;
-        margin-right: 100rpx;
-      }
-
-      &__reserve {
-        flex: 1 1 0;
-
-        button {
-          width: 100%;
-        }
-      }
-
-      &__favorite {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        width: var(--icon-size-3xl);
-        height: var(--icon-size-3xl);
-        color: var(--common-regular-text-color);
-        background-color: var(--common-hover-bg-color);
-        border-radius: var(--common-border-radius-pill);
-      }
-    }
-  }
-}
-
-// 座位状态概览中的图表
 .trend-chart-wrapper {
   width: 100%;
   height: 400rpx;
@@ -386,28 +298,62 @@ swiper-item {
   padding-top: var(--common-spacing-lg);
   border-top: 1rpx solid var(--common-border-color);
 
-  /* stylelint-disable-next-line selector-type-no-unknown */
   ec-canvas {
     width: 100%;
     height: 100%;
   }
 }
 
-// 今日座位使用趋势图表
-.trend-section {
-  .chart-container {
-    width: 100%;
-    height: 400rpx;
+.seat-recommend-section {
+  .view-all {
+    display: flex;
+    gap: var(--common-spacing-sm);
+    align-items: center;
+    color: var(--common-primary-color);
+    font-size: var(--common-font-size-xl);
+  }
 
-    /* stylelint-disable-next-line selector-type-no-unknown */
-    ec-canvas {
-      width: 100%;
-      height: 100%;
+  .seat-list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--common-spacing-2xl);
+  }
+
+  .seat-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+
+    &__left {
+      display: flex;
+      flex: 1 1 0;
+      gap: var(--common-spacing-lg);
+      align-items: center;
+      margin-right: 100rpx;
+    }
+
+    &__reserve {
+      flex: 1 1 0;
+
+      button {
+        width: 100%;
+      }
+    }
+
+    &__favorite {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: var(--icon-size-3xl);
+      height: var(--icon-size-3xl);
+      color: var(--common-regular-text-color);
+      background-color: var(--common-hover-bg-color);
+      border-radius: var(--common-border-radius-pill);
     }
   }
 }
 
-// 活动通知
 .activity-section {
   .view-all {
     display: flex;
@@ -415,88 +361,11 @@ swiper-item {
     align-items: center;
     color: var(--common-primary-color);
     font-size: var(--common-font-size-xl);
-
-    &-text {
-      color: inherit;
-    }
-
-    &-icon {
-      color: inherit;
-      font-size: var(--icon-size-sm);
-    }
   }
 
   .activity-list {
     display: flex;
     flex-direction: column;
     gap: var(--common-spacing-2xl);
-  }
-
-  .activity-card {
-    display: flex;
-    flex-direction: column;
-    gap: var(--common-spacing-xl);
-    padding: var(--common-spacing-2xl);
-    background-color: var(--common-gray-color);
-    border-radius: var(--common-border-radius-lg);
-    transition: all var(--transition-slow);
-
-    &:active {
-      background-color: #f0f1f2;
-      transform: scale(0.98);
-    }
-
-    .activity-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-
-      .activity-title {
-        color: var(--common-dark-text-color);
-        font-weight: var(--common-font-weight-bold);
-        font-size: var(--common-font-size-2xl);
-      }
-
-      .activity-status {
-        .van-tag {
-          font-size: var(--common-font-size-lg);
-        }
-      }
-    }
-
-    .activity-description {
-      color: var(--common-regular-text-color);
-      font-size: var(--common-font-size-xl);
-      line-height: 1.5;
-    }
-
-    .activity-footer {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-
-      .activity-time {
-        display: flex;
-        gap: var(--common-spacing-sm);
-        align-items: center;
-        color: var(--common-hint-text-color);
-        font-size: var(--common-font-size-lg);
-
-        &-icon {
-          color: var(--common-hint-text-color);
-          font-size: var(--icon-size-sm);
-        }
-      }
-
-      .activity-btn {
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        min-width: var(--button-small-width);
-        padding: 0 var(--common-spacing-4xl);
-        font-size: var(--common-font-size-lg);
-        line-height: var(--button-medium-height);
-      }
-    }
   }
 }

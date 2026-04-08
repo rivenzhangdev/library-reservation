@@ -1,19 +1,10 @@
 // My Reservation page English language pack
 export default {
-  // Page title
   'myReservation.title': 'My Reservations',
-
-  // Search module
   'myReservation.search.placeholder': 'Search seat number, area...',
-
-  // Action buttons
   'myReservation.action.checkin': 'Check-in',
   'myReservation.action.renew': 'Renew',
-
-  // Empty state
   'myReservation.empty': 'No reservations yet',
-
-  // Confirmation dialogs
   'myReservation.confirm.checkinTitle': 'Confirm Check-in',
   'myReservation.confirm.checkinContent':
     'Confirm that you have arrived at the seat and checked in?',
@@ -21,20 +12,23 @@ export default {
   'myReservation.confirm.renewContent': 'Confirm to renew this reservation?',
   'myReservation.confirm.cancelTitle': 'Cancel Reservation',
   'myReservation.confirm.cancelContent': 'Confirm to cancel this reservation?',
-
-  // Operation success hints
   'myReservation.hint.checkinSuccess': 'Check-in successful',
   'myReservation.hint.renewSuccess': 'Renewal successful',
   'myReservation.hint.cancelSuccess': 'Cancellation successful',
-
-  // Example data
+  'myReservation.hint.renewFailed': 'Renewal failed, this time slot may already be occupied',
+  'myReservation.hint.loadFailed': 'Failed to load reservation details',
+  'myReservation.field.date': 'Date',
+  'myReservation.field.time': 'Time',
+  'myReservation.field.zone': 'Area',
+  'myReservation.detail.title': 'Reservation Details',
+  'myReservation.detail.seatInfo': 'Seat Info',
+  'myReservation.detail.bookingInfo': 'Reservation Info',
+  'myReservation.detail.auditInfo': 'Audit Info',
   'myReservation.example.zone1Floor2Window': 'Area A, 2F, Window Seat',
   'myReservation.example.zone3Floor3StudyRoom': 'Area B, 3F, Study Room',
   'myReservation.example.zone1Floor5SingleDesk': 'Area A, 5F, Single Desk',
-  'myReservation.example.readingAreaSingleDesk': 'Reading Area·Single Desk',
-  'myReservation.example.studyAreaDiscussionTable': 'Study Area·Discussion Table',
-
-  // Date and time
+  'myReservation.example.readingAreaSingleDesk': 'Reading Area Single Desk',
+  'myReservation.example.studyAreaDiscussionTable': 'Study Area Discussion Table',
   'myReservation.date.today': 'Today',
   'myReservation.date.tomorrow': 'Tomorrow',
   'myReservation.time.period': 'Time Period',

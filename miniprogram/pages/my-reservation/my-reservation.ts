@@ -1,81 +1,52 @@
 import { getLangClassName, t } from '../../utils/i18n';
+import { getMyBookings, cancelBooking, checkin, renewBooking } from '../../apis/booking';
+import { isLogin } from '../../utils/auth';
 
 Page({
   data: {
-    // 搜索
     searchValue: '',
-
-    // 状态筛选
     currentStatus: 'all',
     statusList: [] as Array<{ id: string; name: string; count: number }>,
-
-    // 预约记录列表
     reservations: [] as any[],
     filteredReservations: [] as any[],
-
-    // 多语言
     currentLang: 'zh' as 'zh' | 'en',
     languageClass: '',
     navTitle: '',
     searchPlaceholder: '',
     searchingHint: '',
     emptyHint: '',
-
-    // 确认对话框文本
     confirmCheckinTitle: '',
     confirmCheckinContent: '',
     confirmRenewTitle: '',
     confirmRenewContent: '',
     confirmCancelTitle: '',
     confirmCancelContent: '',
-
-    // 成功提示
     checkinSuccessHint: '',
     renewSuccessHint: '',
     cancelSuccessHint: '',
-
-    // 操作按钮文本
     actionCheckinText: '',
     actionRenewText: '',
     actionCancelText: '',
     actionDetailText: '',
   },
 
-  /**
-   * 生命周期函数--监听页面加载
-   */
-  onLoad() {
-    const app = getApp();
-
-    this.setData({
-      navTitle: app.t('myReservation.title'),
-    });
-
-    // 初始化语言
+  onLoad(options: Record<string, string>) {
     this.initLanguage();
-
-    // 加载预约记录
-    this.loadReservations();
+    const quickAction = String(options?.quickAction || '');
+    const currentStatus = quickAction === 'renew' ? 'ongoing' : 'all';
+    this.setData({ quickAction, currentStatus }, () => {
+      this.loadReservations();
+    });
   },
 
-  /**
-   * 生命周期函数--监听页面显示
-   */
   onShow() {
-    const app = getApp();
-    const currentLang = app.globalData?.currentLang || 'zh';
-
+    const currentLang = getApp<IAppOption>().globalData?.currentLang || 'zh';
     if (currentLang !== this.data.currentLang) {
       this.initLanguage();
     }
-
-    // 刷新预约记录
     this.loadReservations();
   },
 
-  /**
-   * 初始化语言
-   */
   initLanguage() {
     const currentLang = getApp<IAppOption>().globalData?.currentLang || 'zh';
 
@@ -110,79 +81,67 @@ Page({
     });
   },
 
-  /**
-   * 加载预约记录
-   */
   loadReservations() {
-    wx.showLoading({
-      title: this.data.searchingHint,
-    });
+    if (!isLogin()) {
+      wx.showToast({ title: t('common.hint.pleaseLogin'), icon: 'none' });
+      return;
+    }
 
-    // TODO: 调用后端接口获取预约记录
-    // 这里使用模拟数据
-    setTimeout(() => {
-      const mockReservations = [
-        {
-          id: '1',
-          seatName: t('myReservation.example.zone1Floor2Window'),
-          seatId: 'A2-015',
-          zone: 'A 区',
-          floor: '2 楼',
-          date: '2026-01-15',
-          startTime: '08:00',
-          endTime: '12:00',
-          status: 'ongoing',
-          type: t('myReservation.example.readingAreaSingleDesk'),
-        },
-        {
-          id: '2',
-          seatName: t('myReservation.example.zone3Floor3StudyRoom'),
-          seatId: 'B3-008',
-          zone: 'B 区',
-          floor: '3 楼',
-          date: '2026-01-16',
-          startTime: '14:00',
-          endTime: '18:00',
-          status: 'upcoming',
-          type: t('myReservation.example.studyAreaDiscussionTable'),
-        },
-        {
-          id: '3',
-          seatName: t('myReservation.example.zone1Floor5SingleDesk'),
-          seatId: 'A5-023',
-          zone: 'A 区',
-          floor: '5 楼',
-          date: '2026-01-10',
-          startTime: '09:00',
-          endTime: '17:00',
-          status: 'completed',
-          type: t('myReservation.example.readingAreaSingleDesk'),
-        },
-      ];
+    wx.showLoading({ title: this.data.searchingHint });
 
-      this.setData({
-        reservations: mockReservations,
-        filteredReservations: mockReservations,
+    getMyBookings({ page: 1, limit: 50 })
+      .then((res: any) => {
+        const responseData = res.data as any;
+        const list = responseData?.bookings || [];
+        const timeSlotNames: Record<number, string> = {
+          0: t('reservation.time.period.morning'),
+          1: t('reservation.time.period.afternoon'),
+          2: t('reservation.time.period.evening'),
+        };
+        const statusNames: Record<number, string> = {
+          0: 'upcoming',
+          1: 'ongoing',
+          2: 'completed',
+          3: 'cancelled',
+          4: 'violated',
+        };
+
+        const reservations = list.map((booking: any) => {
+          const timeSlot = Number.isFinite(booking.timeSlot) ? Number(booking.timeSlot) : 0;
+          return {
+            id: String(booking.id),
+            seatName:
+              `${booking.floorName || ''} ${booking.zone || ''} R${booking.rowNum}C${booking.colNum}`.trim(),
+            seatId: String(booking.seatId),
+            zone: booking.zone || '',
+            floor: booking.floorName || '',
+            date: booking.date,
+            startTime: booking.startTime || '',
+            endTime: booking.endTime || '',
+            timeSlot,
+            timeSlotText: timeSlotNames[timeSlot] || '',
+            status: statusNames[booking.status] || 'upcoming',
+            type: timeSlotNames[booking.timeSlot] || '',
+          };
+        });
+
+        this.updateStatusCounts(reservations);
+        wx.hideLoading();
+      })
+      .catch((err) => {
+        console.error('鍔犺浇棰勭害澶辫触:', err);
+        wx.hideLoading();
       });
-
-      // 更新各状态数量
-      this.updateStatusCounts(mockReservations);
-
-      wx.hideLoading();
-    }, 500);
   },
 
-  /**
-   * 更新状态数量
-   */
   updateStatusCounts(reservations: any[]) {
     const counts = {
       all: reservations.length,
-      ongoing: reservations.filter((r) => r.status === 'ongoing').length,
-      upcoming: reservations.filter((r) => r.status === 'upcoming').length,
-      completed: reservations.filter((r) => r.status === 'completed').length,
-      cancelled: reservations.filter((r) => r.status === 'cancelled').length,
-      violated: reservations.filter((r) => r.status === 'violated').length,
+      ongoing: reservations.filter((item) => item.status === 'ongoing').length,
+      upcoming: reservations.filter((item) => item.status === 'upcoming').length,
+      completed: reservations.filter((item) => item.status === 'completed').length,
+      cancelled: reservations.filter((item) => item.status === 'cancelled').length,
+      violated: reservations.filter((item) => item.status === 'violated').length,
     };
 
     const statusList = this.data.statusList.map((item) => ({
@@ -190,11 +149,10 @@ Page({
       count: counts[item.id as keyof typeof counts],
     }));
 
-    // 为每个预约记录计算 tag 类型和状态名称
-    const processedReservations = reservations.map((r) => ({
-      ...r,
-      tagType: this.getTagTypeByStatus(r.status),
-      statusName: this.getStatusNameByStatus(r.status),
+    const processedReservations = reservations.map((item) => ({
+      ...item,
+      tagType: this.getTagTypeByStatus(item.status),
+      statusName: this.getStatusNameByStatus(item.status),
     }));
 
     this.setData({
@@ -202,12 +160,10 @@ Page({
       reservations: processedReservations,
       filteredReservations: processedReservations,
     });
+    this.filterReservations();
   },
 
-  /**
-   * 根据状态获取标签类型
-   */
-  getTagTypeByStatus(status: string): string {
+  getTagTypeByStatus(status: string) {
     switch (status) {
       case 'ongoing':
         return 'success';
@@ -224,29 +180,31 @@ Page({
     }
   },
 
-  /**
-   * 根据状态获取状态名称
-   */
-  getStatusNameByStatus(status: string): string {
-    const statusItem = this.data.statusList.find((s) => s.id === status);
-    return statusItem ? statusItem.name : '';
+  getTimeSlotText(timeSlot: number) {
+    const app = getApp() as any;
+    const t = app.t || ((key: string) => key);
+
+    switch (timeSlot) {
+      case 0:
+        return t('reservation.time.period.morning');
+      case 1:
+        return t('reservation.time.period.afternoon');
+      case 2:
+        return t('reservation.time.period.evening');
+      default:
+        return t('reservation.time.period.unknown');
+    }
   },
 
-  /**
-   * 搜索内容变化事件
-   */
-  onSearchChange(e: any) {
-    this.setData({
-      searchValue: e.detail,
-    });
+  getStatusNameByStatus(status: string) {
+    return this.data.statusList.find((item) => item.id === status)?.name || '';
+  },
 
-    // 防抖搜索
+  onSearchChange(e: any) {
+    this.setData({ searchValue: e.detail });
     this.debounceSearch();
   },
 
-  /**
-   * 防抖搜索
-   */
   debounceSearch() {
     clearTimeout((this as any).searchTimer);
     (this as any).searchTimer = setTimeout(() => {
@@ -254,136 +212,111 @@ Page({
     }, 300);
   },
 
-  /**
-   * 状态筛选点击事件
-   */
   onStatusTap(e: any) {
-    const statusId = e.currentTarget.dataset.id;
-    this.setData({
-      currentStatus: statusId,
-    });
-
+    this.setData({ currentStatus: e.currentTarget.dataset.id });
     this.filterReservations();
   },
 
-  /**
-   * 筛选预约记录
-   */
   filterReservations() {
     const { searchValue, currentStatus, reservations } = this.data;
-
     let filtered = [...reservations];
 
-    // 按状态筛选
     if (currentStatus !== 'all') {
-      filtered = filtered.filter((r) => r.status === currentStatus);
+      filtered = filtered.filter((item) => item.status === currentStatus);
     }
 
-    // 按关键字搜索
     if (searchValue) {
       filtered = filtered.filter(
-        (r) =>
-          r.seatName.includes(searchValue) ||
-          r.seatId.includes(searchValue) ||
-          r.zone.includes(searchValue) ||
-          r.floor.includes(searchValue)
+        (item) =>
+          item.seatName.includes(searchValue) ||
+          item.zone.includes(searchValue) ||
+          item.floor.includes(searchValue)
       );
     }
 
     this.setData({ filteredReservations: filtered });
   },
 
-  /**
-   * 处理签到按钮点击
-   */
   onCheckinTap(e: any) {
     const { id } = e.currentTarget.dataset;
-
     wx.showModal({
       title: this.data.confirmCheckinTitle,
       content: this.data.confirmCheckinContent,
       confirmText: t('common.btn.confirm'),
       cancelText: t('common.btn.cancel'),
       success: (res) => {
-        if (res.confirm) {
-          // TODO: 调用签到接口
-          console.log('签到:', id);
-
-          wx.showToast({
-            title: this.data.checkinSuccessHint,
-            icon: 'success',
+        if (!res.confirm) return;
+        checkin(id)
+          .then(() => {
+            wx.showToast({ title: this.data.checkinSuccessHint, icon: 'success' });
+            this.loadReservations();
+          })
+          .catch(() => {
+            wx.showToast({ title: t('common.hint.error'), icon: 'none' });
           });
-
-          // 刷新列表
-          this.loadReservations();
-        }
       },
     });
   },
 
-  /**
-   * 处理续约按钮点击
-   */
   onRenewTap(e: any) {
     const { id } = e.currentTarget.dataset;
+    const reservation = this.data.reservations.find((item) => item.id === id);
+    const currentTimeSlot = Number.isFinite(reservation?.timeSlot)
+      ? Number(reservation?.timeSlot)
+      : 0;
+
+    if (currentTimeSlot >= 2) {
+      wx.showToast({ title: t('myReservation.hint.renewFailed'), icon: 'none' });
+      return;
+    }
+
+    const nextTimeSlot = currentTimeSlot + 1;
+    const nextTimeSlotText = this.getTimeSlotText(nextTimeSlot);
 
     wx.showModal({
       title: this.data.confirmRenewTitle,
-      content: this.data.confirmRenewContent,
+      content: `${this.data.confirmRenewContent}\n${t('reservation.time.period.selectRange')}: ${nextTimeSlotText}`,
       confirmText: t('common.btn.confirm'),
       cancelText: t('common.btn.cancel'),
       success: (res) => {
-        if (res.confirm) {
-          // TODO: 调用续约接口
-          console.log('续约:', id);
-
-          wx.showToast({
-            title: this.data.renewSuccessHint,
-            icon: 'success',
+        if (!res.confirm) return;
+        renewBooking(id, String(nextTimeSlot))
+          .then(() => {
+            wx.showToast({ title: this.data.renewSuccessHint, icon: 'success' });
+            this.loadReservations();
+          })
+          .catch(() => {
+            wx.showToast({ title: t('myReservation.hint.renewFailed'), icon: 'none' });
           });
-
-          // 刷新列表
-          this.loadReservations();
-        }
       },
     });
   },
 
-  /**
-   * 处理取消按钮点击
-   */
   onCancelTap(e: any) {
     const { id } = e.currentTarget.dataset;
-
     wx.showModal({
       title: this.data.confirmCancelTitle,
       content: this.data.confirmCancelContent,
       confirmText: t('common.btn.confirm'),
       cancelText: t('common.btn.cancel'),
       success: (res) => {
-        if (res.confirm) {
-          // TODO: 调用取消接口
-          console.log('取消:', id);
-
-          wx.showToast({
-            title: this.data.cancelSuccessHint,
-            icon: 'success',
+        if (!res.confirm) return;
+        cancelBooking(id)
+          .then(() => {
+            wx.showToast({ title: this.data.cancelSuccessHint, icon: 'success' });
+            this.loadReservations();
+          })
+          .catch(() => {
+            wx.showToast({ title: t('common.hint.error'), icon: 'none' });
           });
-
-          // 刷新列表
-          this.loadReservations();
-        }
       },
     });
   },
 
-  /**
-   * 处理查看详情
-   */
   onDetailTap(e: any) {
     const { id } = e.currentTarget.dataset;
-
-    // TODO: 跳转到预约详情页面
-    console.log('查看详情:', id);
+    wx.navigateTo({
+      url: `/pages/booking-detail/booking-detail?id=${id}`,
+    });
   },
 });

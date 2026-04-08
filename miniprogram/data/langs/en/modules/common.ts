@@ -16,6 +16,12 @@ export default {
   'common.btn.viewAll': 'View All',
   'common.btn.reserve': 'Reserve',
   'common.btn.detail': 'View Details',
+  'common.btn.favorite': 'Favorite',
+  'common.btn.unfavorite': 'Unfavorite',
+  'common.btn.checkIn': 'Check In',
+  'common.btn.checkOut': 'Check Out',
+  'common.btn.renew': 'Renew',
+  'common.btn.retry': 'Retry',
 
   // Status
   'common.status.all': 'All',
@@ -34,11 +40,18 @@ export default {
   // Hints
   'common.hint.loading': 'Loading...',
   'common.hint.success': 'Success',
-  'common.hint.error': 'Error',
-  'common.hint.noData': 'No Data',
+  'common.hint.error': 'Operation failed',
+  'common.hint.noData': 'No data',
   'common.hint.networkError': 'Network error, please try again later',
-  'common.hint.noResults': 'No results found',
+  'common.hint.noResults': 'No results',
   'common.hint.searching': 'Searching...',
+  'common.hint.pleaseLogin': 'Please log in first',
+  'common.hint.loadFailed': 'Load failed',
+  'common.hint.checkInSuccess': 'Check-in successful',
+  'common.hint.checkOutSuccess': 'Check-out successful',
+  'common.hint.invalidQrCode': 'Invalid QR code content',
+  'common.hint.processing': 'Processing...',
+  'common.hint.uploadFailed': 'Upload failed',
 
   // Time
   'common.time.days': 'days',
@@ -46,27 +59,58 @@ export default {
   'common.time.minutes': 'minutes',
   'common.time.ago': 'ago',
 
-  // Number
+  // Numbers
   'common.number.people': 'people',
   'common.number.items': 'items',
+  'common.number.times': 'times',
+  'common.number.results': 'results',
 
   // Language
   'common.lang.switch': 'Switch Language',
   'common.lang.zh': '中文',
   'common.lang.en': 'English',
 
-  // Seat facilities
-  'common.seat.facilities.power': 'With Socket',
-  'common.seat.facilities.window': 'Near Window',
+  // Facilities
+  'common.seat.facilities.power': 'Power Socket',
+  'common.seat.facilities.window': 'Window Seat',
   'common.seat.facilities.network': 'High-speed Network',
 
-  // My Collection page
+  // Common fields
+  'common.field.seat': 'Seat',
+  'common.field.date': 'Date',
+  'common.field.time': 'Time',
+  'common.field.status': 'Status',
+  'common.field.location': 'Location',
+  'common.field.description': 'Description',
+  'common.field.floor': 'Floor',
+  'common.field.zone': 'Area',
+  'common.field.type': 'Type',
+  'common.field.contact': 'Contact',
+  'common.field.facilities': 'Facilities',
+  'common.field.participants': 'Participants',
+  'common.field.creditScore': 'Credit Score',
+  'common.field.level': 'Level',
+  'common.field.records': 'Records',
+  'common.field.publisher': 'Publisher',
+  'common.field.updatedBy': 'Updated By',
+  'common.field.createdAt': 'Created At',
+  'common.field.updatedAt': 'Updated At',
+  'common.field.images': 'Images',
+  'common.field.reason': 'Reason',
+  'common.field.range': 'Range',
+  'common.field.relatedId': 'Related ID',
+
+  // Empty states
+  'common.empty.notFound': 'No matching data found',
+  'common.empty.noDescription': 'No description yet',
+
+  // My Collection
   'myCollection.title': 'My Collection',
   'myCollection.search.placeholder': 'Search seats or time slots...',
   'myCollection.favoriteSeats': 'Favorite Seats',
-  'myCollection.favoriteTimeSlots': 'Favorite Time Slots',
+  'myCollection.favoriteTimeSlots': 'Frequent Time Slots',
   'myCollection.empty.seat': 'No favorite seats',
-  'myCollection.empty.timeSlot': 'No favorite time slots',
+  'myCollection.empty.timeSlot': 'No frequent time slots',
   'myCollection.timeRange': 'Time Range',
   'myCollection.duration': 'Duration',
   'myCollection.frequency': 'Frequency',
@@ -75,17 +119,19 @@ export default {
   'myCollection.action.delete': 'Delete',
   'myCollection.action.quickReserve': 'Quick Reserve',
   'myCollection.confirm.deleteSeatTitle': 'Delete Seat',
-  'myCollection.confirm.deleteSeatContent': 'Are you sure you want to delete this seat?',
+  'myCollection.confirm.deleteSeatContent':
+    'Are you sure you want to remove this seat from favorites?',
   'myCollection.confirm.deleteTimeSlotTitle': 'Delete Time Slot',
-  'myCollection.confirm.deleteTimeSlotContent': 'Are you sure you want to delete this time slot?',
+  'myCollection.confirm.deleteTimeSlotContent':
+    'Are you sure you want to remove this time slot record?',
   'myCollection.hint.deleteSuccess': 'Deleted successfully',
   'myCollection.hint.selectSuccess': 'Selected successfully',
-  'myCollection.hint.quickReserve': 'Reserving',
+  'myCollection.hint.quickReserve': 'Reserving...',
   'myCollection.example.zone1Floor2Window': 'Area A 2F Window Seat',
   'myCollection.example.zone3Floor3StudyRoom': 'Area B 3F Study Room',
   'myCollection.example.readingAreaSingleDesk': 'Reading Area Single Desk',
   'myCollection.example.studyAreaDiscussionTable': 'Study Area Discussion Table',
-  'myCollection.example.weekdayAfternoon': 'Mon-Fri Afternoon',
+  'myCollection.example.weekdayAfternoon': 'Weekday Afternoon',
   'myCollection.example.saturdayMorning': 'Saturday Morning',
   'myCollection.example.sundayEvening': 'Sunday Evening',
   'myCollection.example.hours3': '3 Hours',

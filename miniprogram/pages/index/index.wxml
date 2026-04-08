@@ -1,6 +1,4 @@
-<!-- 页面根容器 -->
-<page-meta>
-  <!-- 导航栏 -->
+﻿<page-meta>
   <navigation-bar title="{{navTitle}}" back="{{false}}">
     <view slot="right" class="nav-right">
       <view class="lang-switch-btn" bind:tap="onSwitchLanguage">
@@ -10,18 +8,15 @@
   </navigation-bar>
 </page-meta>
 
-<!-- 页面容器 -->
 <view class="page-container {{languageClass}}">
-  <!-- 搜索区域 -->
   <view class="search-area">
     <van-search
       class="search-input"
-      value="{{ value }}"
+      value="{{value}}"
       shape="round"
       placeholder="{{searchPlaceholder}}"
       bind:search="onSearchConfirm"
     />
-    <!-- 搜索标签 -->
     <scroll-view class="search-tag" scroll-x enable-flex>
       <view
         class="search-tag-item"
@@ -36,41 +31,33 @@
     </scroll-view>
   </view>
 
-  <!-- 轮播图 -->
   <view class="swiper-area">
     <swiper indicator-dots="{{true}}" autoplay="{{true}}" interval="3000" duration="1000">
-      <swiper-item>
-        <image src="https://picsum.photos/seed/picsum/200/300" mode="aspectFill" />
-      </swiper-item>
-      <swiper-item>
-        <image src="https://picsum.photos/seed/picsum/200/300" mode="aspectFill" />
-      </swiper-item>
-      <swiper-item>
-        <image src="https://picsum.photos/seed/picsum/200/300" mode="aspectFill" />
+      <swiper-item wx:for="{{displayBanners}}" wx:key="activityId">
+        <view class="banner-item" bind:tap="onBannerTap" data-id="{{item.activityId}}">
+          <image wx:if="{{item.image}}" src="{{item.image}}" mode="aspectFill" />
+          <view wx:else class="banner-placeholder">
+            <text class="banner-title">{{item.title}}</text>
+            <text class="banner-subtitle">{{openingHoursTime}}</text>
+          </view>
+        </view>
       </swiper-item>
     </swiper>
   </view>
 
-  <!-- 功能卡片区域 -->
   <view class="action-area">
     <view
       class="action-card"
       wx:for="{{actionCards}}"
-      wx:key="text"
+      wx:key="id"
       bind:tap="onActionCardTap"
-      data-index="{{index}}"
+      data-id="{{item.id}}"
     >
-      <uni-icon
-        type="{{item.icon === 'home' ? 'iconfont' : 'vant'}}"
-        name="{{item.icon}}"
-        size="50"
-        color="#409eff"
-      />
+      <uni-icon type="{{item.iconType}}" name="{{item.icon}}" size="50" color="#409eff" />
       <text class="action-text">{{item.text}}</text>
     </view>
   </view>
 
-  <!-- 今日开放时间 -->
   <view class="opening-hours">
     <view class="opening-hours-content">
       <view class="opening-hours-icon">
@@ -81,15 +68,13 @@
         <view class="opening-hours-time">{{openingHoursTime}}</view>
       </view>
     </view>
-    <van-tag type="success" size="medium" class="opening-hours-status"
-      >{{openingHoursStatus}}</van-tag
-    >
+    <van-tag type="success" size="medium" class="opening-hours-status">
+      {{openingHoursStatus}}
+    </van-tag>
   </view>
 
-  <!-- 座位状态概览数据统计 -->
   <common-card class="seat-section" title="{{seatStatusTitle}}">
     <view class="seat-status-grid">
-      <!-- 总座位数 -->
       <view class="seat-status-card">
         <view class="seat-status-header">
           <view class="seat-status-icon seat-status-icon--blue">
@@ -100,7 +85,6 @@
         <view class="seat-status-value">{{seatStatus.total.value}}</view>
       </view>
 
-      <!-- 可用座位 -->
       <view class="seat-status-card">
         <view class="seat-status-header">
           <view class="seat-status-icon seat-status-icon--green">
@@ -119,7 +103,6 @@
         </view>
       </view>
 
-      <!-- 已预约座位 -->
       <view class="seat-status-card">
         <view class="seat-status-header">
           <view class="seat-status-icon seat-status-icon--red">
@@ -138,7 +121,6 @@
         </view>
       </view>
 
-      <!-- 维修中座位 -->
       <view class="seat-status-card">
         <view class="seat-status-header">
           <view class="seat-status-icon seat-status-icon--gray">
@@ -158,21 +140,18 @@
       </view>
     </view>
 
-    <!-- 今日座位使用趋势图表 -->
     <view class="trend-chart-wrapper">
       <ec-canvas id="echart" canvas-id="echart" ec="{{ec}}"></ec-canvas>
     </view>
   </common-card>
 
-  <!-- 实时信息 -->
   <common-card class="info-section" title="{{realTimeTitle}}">
-    <!-- 信息网格 -->
     <grid-container>
       <grid-item
         wx:for="{{realTimeItems}}"
         wx:key="label"
         mode="simple"
-        iconType="iconfont"
+        iconType="vant"
         icon="{{item.icon}}"
         label="{{item.label}}"
         value="{{item.value}}"
@@ -183,26 +162,23 @@
     </grid-container>
   </common-card>
 
-  <!-- 推荐座位 -->
   <common-card class="seat-recommend-section" title="{{recommendTitle}}">
-    <view slot="header-action" class="view-all">
+    <view slot="header-action" class="view-all" bind:tap="onViewAllSeats">
       <text class="view-all-text">{{viewAllText}}</text>
       <uni-icon type="vant" name="arrow" size="28" color="#666" />
     </view>
 
-    <!-- 座位列表 -->
     <view class="seat-list">
       <grid-item
         wx:for="{{seatList}}"
-        wx:key="seatName"
+        wx:key="seatId"
         mode="card"
         name="{{item.seatName}}"
         statusText="{{item.statusText}}"
-        attributes="{{[item.seatType, item.distance]}}"
+        attributes="{{[item.seatLabel, item.seatType, item.distance]}}"
         showFooter="{{true}}"
         clickable="{{false}}"
       >
-        <!-- 自定义底部按钮 -->
         <view slot="footer" class="seat-footer">
           <view class="seat-footer__left">
             <van-button
@@ -210,14 +186,15 @@
               size="small"
               class="seat-footer__reserve"
               bind:click="onSeatReserve"
+              data-index="{{index}}"
             >
-              {{item.reserveText}}
+              {{reserveButtonText}}
             </van-button>
-            <view class="seat-footer__favorite" bindtap="onSeatFavorite">
+            <view class="seat-footer__favorite" bind:tap="onSeatFavorite" data-index="{{index}}">
               <uni-icon type="vant" name="star-o" size="32" />
             </view>
           </view>
-          <view class="seat-footer__arrow">
+          <view class="seat-footer__arrow" bind:tap="onSeatReserve" data-index="{{index}}">
             <uni-icon type="vant" name="arrow" size="32" color="#999" />
           </view>
         </view>
@@ -225,18 +202,16 @@
     </view>
   </common-card>
 
-  <!-- 活动通知 -->
   <common-card class="activity-section" title="{{activityTitle}}">
-    <view slot="header-action" class="view-all" bindtap="onViewMoreActivities">
+    <view slot="header-action" class="view-all" bind:tap="onViewMoreActivities">
       <text class="view-all-text">{{viewMoreActivity}}</text>
       <uni-icon type="vant" name="arrow" size="28" color="#666" />
     </view>
 
-    <!-- 活动列表 -->
     <view class="activity-list">
       <content-card
         wx:for="{{activityList}}"
-        wx:key="title"
+        wx:key="id"
         mode="card"
         icon="gift-o"
         iconBgColor="#e8f4ff"
@@ -250,6 +225,8 @@
         disabled="{{item.disabled}}"
         clickable="{{false}}"
         bind:btnTap="onActivityBtnTap"
+        btnDataId="{{item.id}}"
+        data-index="{{index}}"
       />
     </view>
   </common-card>

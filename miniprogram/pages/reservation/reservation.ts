@@ -1,3 +1,9 @@
+import { getFloors, getFloorSeats } from '../../apis/seats';
+import { createBooking } from '../../apis/booking';
+import { ensureBoundStudentInfo, isLogin } from '../../utils/auth';
+import { consumePendingReservationParams } from '../../utils/reservationNavigator';
+import { sortByFloorName, sortBySeatPosition } from '../../utils/sort';
+
 Page({
   /**
    * 页面的初始数据
@@ -21,6 +27,8 @@ Page({
     filterFacilityPowerText: '',
     filterFacilityWindowText: '',
     filterResetText: '',
+    filterResultText: '',
+    noSeatText: '',
 
     // 区域选项（初始为空，在 initAreaData 中初始化）
     areas: [] as Array<{ id: string; name: string }>,
@@ -83,6 +91,7 @@ Page({
     timeRangeLabelText: '',
     customTimeStartText: '',
     customTimeEndText: '',
+    seatCount: 0,
   },
 
   /**
@@ -128,6 +137,8 @@ Page({
     if (options && Object.keys(options).length > 0) {
       this.handleFavoriteParams(options);
     }
+
+    this.consumePendingReservationParams();
   },
 
   /**
@@ -144,6 +155,14 @@ Page({
       const { seatId, seatName, seatCode, zone, floor, type, facilities } = options;
 
       console.log('接收到座位参数:', { seatId, seatName, seatCode, zone, floor, type, facilities });
+
+      // 解析楼层
+      if (floor) {
+        const floorId = Number(String(floor).replace(/[^\d]/g, ''));
+        if (!Number.isNaN(floorId) && floorId > 0) {
+          this.setData({ currentFloor: floorId });
+        }
+      }
 
       // 解析区域
       if (zone) {
@@ -192,11 +211,11 @@ Page({
       // 自动选择座位
       if (seatId) {
         const seat = this.data.seats.find((s) => s.id === seatId || s.seatCode === seatCode);
+        this.setData({
+          selectedSeatIds: [String(seatId)],
+          selectedSeatText: seatName || seat?.id || String(seatId),
+        });
         if (seat) {
-          this.setData({
-            selectedSeatIds: [seatId],
-            selectedSeatText: seatName || seatId,
-          });
           this.updateReservationInfo();
 
           wx.showToast({
@@ -327,6 +346,12 @@ Page({
       filterFacilityPowerText: t('reservation.filter.facility.power'),
       filterFacilityWindowText: t('common.seat.facilities.window'),
       filterResetText: t('reservation.filter.reset'),
+      filterResultText:
+        t('reservation.filter.result') ||
+        (this.data.currentLang === 'zh' ? '筛选结果' : 'Filter results'),
+      noSeatText:
+        t('reservation.hint.noMatchingSeats') ||
+        (this.data.currentLang === 'zh' ? '暂无匹配座位' : 'No matching seats'),
       filterText: t('reservation.filter.title'),
       searchPlaceholderText: t('reservation.search.placeholder'),
       confirmTitleText: t('reservation.confirm.title'),
@@ -365,20 +390,33 @@ Page({
   },
 
   /**
-   * 初始化楼层数据
+   * 初始化楼层数据（从后端加载）
    */
   initFloorData() {
     const app = getApp() as any;
     const t = app.t || ((key: string) => key);
 
-    const floors = [
-      { id: 1, name: t('reservation.floor.1f') },
-      { id: 2, name: t('reservation.floor.2f') },
-      { id: 3, name: t('reservation.floor.3f') },
-      { id: 4, name: t('reservation.floor.4f') },
-    ];
-
-    this.setData({ floors });
+    getFloors()
+      .then((res) => {
+        const floorsData = res.data as any[];
+        if (Array.isArray(floorsData) && floorsData.length > 0) {
+          const floors = sortByFloorName(floorsData.map((f: any) => ({ id: f.id, name: f.name })));
+          this.setData({ floors, currentFloor: floors[0]?.id ?? this.data.currentFloor });
+          // 加载第一个楼层的座位
+          this.loadSeats();
+        }
+      })
+      .catch(() => {
+        // fallback to hardcoded floors
+        const floors = [
+          { id: 1, name: t('reservation.floor.1f') },
+          { id: 2, name: t('reservation.floor.2f') },
+          { id: 3, name: t('reservation.floor.3f') },
+          { id: 4, name: t('reservation.floor.4f') },
+        ];
+        this.setData({ floors });
+        this.loadSeats();
+      });
   },
 
   /**
@@ -446,6 +484,33 @@ Page({
     if (currentLang !== this.data.currentLang) {
       this.updateLanguage();
     }
+
+    this.consumePendingReservationParams();
+  },
+
+  consumePendingReservationParams() {
+    try {
+      const pendingParams = consumePendingReservationParams() as Record<string, any> | null;
+      if (pendingParams && Object.keys(pendingParams).length > 0) {
+        this.handleFavoriteParams(pendingParams);
+      }
+    } catch (error) {
+      console.error('读取待处理预约参数失败:', error);
+    }
+  },
+
+  resolveTimeSlotValue() {
+    if (this.data.currentTimePeriod !== 'custom') {
+      const timeSlotMap: Record<string, number> = { morning: 0, afternoon: 1, evening: 2 };
+      return timeSlotMap[this.data.currentTimePeriod] ?? 0;
+    }
+
+    const referenceTime = this.data.customStartTime || this.data.startTime || '08:00';
+    const hour = Number(referenceTime.split(':')[0] || 0);
+
+    if (hour >= 18) return 2;
+    if (hour >= 13) return 1;
+    return 0;
   },
 
   /**
@@ -465,9 +530,10 @@ Page({
     const floorId = e.currentTarget.dataset.id;
     this.setData({
       currentFloor: floorId,
+      selectedSeatIds: [],
+      selectedSeatText: '',
     });
-    // 这里可以添加切换楼层后的数据加载逻辑
-    console.log('切换楼层:', floorId);
+    this.loadSeats();
   },
 
   /**
@@ -483,18 +549,47 @@ Page({
    * 搜索内容变化事件
    */
   onSearchChange(e: any) {
+    const value =
+      typeof e.detail === 'string'
+        ? e.detail
+        : typeof e.detail?.value === 'string'
+          ? e.detail.value
+          : '';
+
     this.setData({
-      searchValue: e.detail,
+      searchValue: value,
     });
-    // 可以添加防抖搜索逻辑
-    console.log('搜索:', e.detail);
+    this.debounceLoadSeats();
+  },
+
+  /**
+   * 搜索确认事件
+   */
+  onSearchConfirm(e: any) {
+    const keyword =
+      typeof e.detail === 'string'
+        ? e.detail
+        : typeof e.detail?.value === 'string'
+          ? e.detail.value
+          : '';
+
+    this.setData({
+      searchValue: keyword,
+    });
+    this.loadSeats();
+  },
+
+  debounceLoadSeats() {
+    clearTimeout((this as any).seatSearchTimer);
+    (this as any).seatSearchTimer = setTimeout(() => {
+      this.loadSeats();
+    }, 250);
   },
 
   /**
    * 区域选择事件
    */
   onAreaTap() {
-    // 这里可以弹出选择器供用户选择区域
     wx.showActionSheet({
       itemList: this.data.areas.map((item) => item.name),
       success: (res) => {
@@ -502,6 +597,7 @@ Page({
         this.setData({
           selectedArea: this.data.areas[index],
         });
+        this.loadSeats();
       },
     });
   },
@@ -510,7 +606,6 @@ Page({
    * 座位类型选择事件
    */
   onSeatTypeTap() {
-    // 这里可以弹出选择器供用户选择座位类型
     wx.showActionSheet({
       itemList: this.data.seatTypes.map((item) => item.name),
       success: (res) => {
@@ -518,6 +613,7 @@ Page({
         this.setData({
           selectedSeatType: this.data.seatTypes[index],
         });
+        this.loadSeats();
       },
     });
   },
@@ -532,7 +628,7 @@ Page({
     this.setData({
       facilities,
     });
-    console.log('设施选择:', facilities);
+    this.loadSeats();
   },
 
   /**
@@ -540,63 +636,150 @@ Page({
    */
   onResetFilter() {
     this.setData({
-      selectedArea: { id: 'all', name: '全部区域' },
-      selectedSeatType: { id: 'all', name: '全部类型' },
+      selectedArea: { id: 'all', name: this.data.areas[0]?.name || '' },
+      selectedSeatType: { id: 'all', name: this.data.seatTypes[0]?.name || '' },
       facilities: {
         power: false,
         window: false,
       },
     });
+    this.loadSeats();
   },
 
   /**
-   * 初始化座位数据
+   * 初始化座位数据（兼容，调用 loadSeats）
    */
   initSeats() {
-    // 生成示例座位数据
-    const seats = [];
-    for (let row = 1; row <= 5; row++) {
-      for (let col = 1; col <= 8; col++) {
-        const statusRand = Math.random();
-        let status: 'available' | 'booked' | 'maintenance' | 'selected' | 'mine' = 'available';
-        let bookedTimeRange = ''; // 已预约的时间段
+    this.loadSeats();
+  },
 
-        if (statusRand > 0.7) {
-          status = 'booked';
-          // 为已预约的座位随机分配一个具体时间段
-          const timeRanges = [
-            '08:00 - 10:00',
-            '08:00 - 12:00',
-            '10:00 - 12:00',
-            '13:00 - 15:00',
-            '13:00 - 17:00',
-            '15:00 - 17:00',
-            '18:00 - 20:00',
-            '18:00 - 22:00',
-            '20:00 - 22:00',
-            '14:00 - 16:00', // 自定义时间段示例
-            '09:30 - 11:30', // 自定义时间段示例
-          ];
-          bookedTimeRange = timeRanges[Math.floor(Math.random() * timeRanges.length)];
-        } else if (statusRand > 0.9) {
-          status = 'maintenance';
-        }
+  /**
+   * 从后端加载座位数据
+   */
+  loadSeats() {
+    const app = getApp() as any;
+    const t = app.t || ((key: string) => key);
+    const {
+      currentFloor,
+      selectedDate,
+      currentTimePeriod,
+      selectedArea,
+      selectedSeatType,
+      facilities,
+      searchValue,
+    } = this.data;
 
-        seats.push({
-          id: `${row}-${col}`,
-          row,
-          col,
-          status,
-          type: col % 3 === 0 ? 'double' : 'single',
-          hasSocket: col % 2 === 0,
-          isWindow: col === 1 || col === 8,
-          zone: col <= 4 ? 'A 区' : 'B 区',
-          bookedTimeRange, // 添加已预约时间段属性
-        });
-      }
+    // 构造时段值
+    const timeSlotMap: Record<string, number> = { morning: 0, afternoon: 1, evening: 2 };
+    const timeSlot = timeSlotMap[currentTimePeriod];
+
+    // 构造筛选条件
+    const filters: any = {};
+    if (selectedArea && selectedArea.id !== 'all') {
+      filters.zone = selectedArea.name;
     }
+    if (selectedSeatType && selectedSeatType.id !== 'all') {
+      const typeMap: Record<string, number> = { single: 0, double: 1, group: 2, open: 0 };
+      filters.type = typeMap[selectedSeatType.id] ?? 0;
+    }
+    if (facilities.power) filters.hasSocket = true;
+    if (facilities.window) filters.isWindow = true;
 
-    this.setData({ seats });
+    const params: any = {};
+    if (selectedDate) params.date = selectedDate;
+    if (timeSlot !== undefined && currentTimePeriod !== 'custom') params.timeSlot = timeSlot;
+    if (Object.keys(filters).length > 0) params.filters = JSON.stringify(filters);
+
+    getFloorSeats(String(currentFloor), params)
+      .then((res) => {
+        const responseData = res.data as any;
+        if (responseData?.seats) {
+          const statusMap: Record<string, string> = {
+            '0': 'available',
+            '1': 'booked',
+            '2': 'maintenance',
+            available: 'available',
+            booked: 'booked',
+            maintenance: 'maintenance',
+          };
+          const typeMap: Record<string, string> = {
+            '0': 'single',
+            '1': 'double',
+            '2': 'group',
+          };
+          let seats = responseData.seats.map((s: any) => ({
+            id: String(s.id),
+            row: s.row,
+            col: s.col,
+            status: statusMap[String(s.status)] || 'available',
+            type: typeMap[String(s.type)] || 'single',
+            hasSocket: !!s.hasSocket,
+            isWindow: !!s.isWindow,
+            zone: s.zone || '',
+            bookedTimeRange: '',
+          }));
+          const keyword = String(searchValue || '')
+            .trim()
+            .toLowerCase();
+          if (keyword) {
+            seats = seats.filter((seat: any) => {
+              const searchable = [
+                seat.id,
+                seat.zone,
+                seat.row,
+                seat.col,
+                seat.type,
+                seat.type === 'single' ? t('reservation.seatType.single') : '',
+                seat.type === 'double' ? t('reservation.seatType.double') : '',
+                seat.type === 'group' ? t('reservation.seatType.group') : '',
+                seat.hasSocket ? 'power' : '',
+                seat.hasSocket ? t('common.seat.facilities.power') : '',
+                seat.isWindow ? 'window' : '',
+                seat.isWindow ? t('common.seat.facilities.window') : '',
+              ]
+                .join(' ')
+                .toLowerCase();
+              return searchable.includes(keyword);
+            });
+          }
+          seats = sortBySeatPosition(seats);
+          const selectedSeatId = this.data.selectedSeatIds[0];
+          const matchedSeat = selectedSeatId
+            ? seats.find((seat: any) => seat.id === selectedSeatId)
+            : null;
+          this.setData({
+            seats,
+            seatCount: seats.length,
+            selectedSeatIds: matchedSeat ? [matchedSeat.id] : this.data.selectedSeatIds,
+            selectedSeatText: matchedSeat
+              ? this.data.selectedSeatText || matchedSeat.id
+              : this.data.selectedSeatText,
+          });
+
+          if (seats.length === 0) {
+            const keyword = String(searchValue || '').trim();
+            if (
+              keyword ||
+              selectedArea?.id !== 'all' ||
+              selectedSeatType?.id !== 'all' ||
+              facilities.power ||
+              facilities.window
+            ) {
+              wx.showToast({
+                title: this.data.noSeatText || '暂无匹配座位',
+                icon: 'none',
+                duration: 1800,
+              });
+            }
+          }
+
+          this.updateReservationInfo();
+        }
+      })
+      .catch((err) => {
+        console.error('加载座位失败:', err);
+        wx.showToast({ title: '加载座位失败', icon: 'none' });
+      });
   },
 
   /**
@@ -689,6 +872,8 @@ Page({
           });
         }
         console.log('选择日期:', this.data.selectedDate);
+        this.updateReservationInfo();
+        this.loadSeats();
       },
     });
   },
@@ -713,6 +898,7 @@ Page({
 
     // 更新预约信息列表
     this.updateReservationInfo();
+    this.loadSeats();
 
     console.log('选择时段:', value);
   },
@@ -870,26 +1056,60 @@ Page({
       cancelText: t('common.btn.cancel'),
       success: (res) => {
         if (res.confirm) {
-          // 这里调用预约接口
-          console.log('提交预约:', {
-            seats: selectedSeatIds,
+          // 构建预约参数
+          const seatId = selectedSeatIds[0];
+          const timePeriod = this.resolveTimeSlotValue();
+
+          // 获取开始和结束时间
+          let startTime = '';
+          let endTime = '';
+          if (this.data.currentTimePeriod === 'custom') {
+            startTime = this.data.customStartTime;
+            endTime = this.data.customEndTime;
+          } else {
+            const period = this.data.timePeriods.find(
+              (p: any) => p.value === this.data.currentTimePeriod
+            );
+            if (period) {
+              startTime = period.start;
+              endTime = period.end;
+            }
+          }
+
+          if (!isLogin()) {
+            wx.showToast({ title: t('common.hint.pleaseLogin') || '请先登录', icon: 'none' });
+            return;
+          }
+
+          if (!ensureBoundStudentInfo()) {
+            return;
+          }
+
+          createBooking({
+            seatId: parseInt(seatId),
             date: selectedDate,
-            period: this.data.currentTimePeriod,
-            duration: this.data.currentDuration,
-          });
+            timeSlot: timePeriod,
+            startTime,
+            endTime,
+          })
+            .then(() => {
+              wx.showToast({
+                title: t('reservation.hint.reservationSuccess') || t('common.hint.success'),
+                icon: 'success',
+                duration: 1500,
+              });
 
-          wx.showToast({
-            title: t('reservation.hint.reservationSuccess') || t('common.hint.success'),
-            icon: 'success',
-            duration: 1500,
-          });
-
-          // 预约成功后跳转到我的预约页面
-          setTimeout(() => {
-            wx.navigateTo({
-              url: '/pages/my-reservation/my-reservation',
+              // 预约成功后重新加载座位并跳转
+              this.loadSeats();
+              setTimeout(() => {
+                wx.navigateTo({
+                  url: '/pages/my-reservation/my-reservation',
+                });
+              }, 1500);
+            })
+            .catch((err) => {
+              console.error('预约失败:', err);
             });
-          }, 1500);
         }
       },
     });

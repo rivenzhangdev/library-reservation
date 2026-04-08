@@ -1,0 +1,27 @@
+.page {
+  padding: 16rpx;
+}
+.title {
+  margin-bottom: 16rpx;
+  font-size: 32rpx;
+}
+.item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18rpx 12rpx;
+  border-bottom: 1rpx solid #f0f0f0;
+}
+.label {
+  font-size: 28rpx;
+}
+.base {
+  color: #888;
+  font-size: 24rpx;
+}
+.current {
+  color: #409eff;
+}
+.select {
+  color: #666;
+}

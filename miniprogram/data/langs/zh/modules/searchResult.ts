@@ -5,6 +5,7 @@ export default {
 
   // 搜索提示
   'searchResult.hint.searchKeyword': '搜索："{keyword}"',
+  'searchResult.hint.resultCount': '找到 {count} 个结果',
 
   // 座位信息
   'searchResult.seat.distance': '{{distance}}m',
@@ -15,4 +16,5 @@ export default {
   // 提示信息
   'searchResult.hint.reserveSuccess': '预约成功',
   'searchResult.hint.favoriteSuccess': '收藏成功',
+  'searchResult.hint.openDetail': '查看座位详情',
 };

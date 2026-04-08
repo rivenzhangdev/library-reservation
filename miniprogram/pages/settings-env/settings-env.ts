@@ -1,0 +1,32 @@
+import { t } from '../../utils/i18n';
+import config from '../../config';
+
+Page({
+  data: {
+    pageTitle: '',
+    envs: [] as any[],
+    currentBase: '',
+  },
+
+  onLoad() {
+    this.setData({
+      pageTitle: t('settings.env.title') || 'Environment',
+      envs: config.BACKEND_ENVS,
+      currentBase: config.getBaseUrl(),
+    });
+  },
+
+  onShow() {
+    this.setData({ currentBase: config.getBaseUrl() });
+  },
+
+  onEnvTap(e: WechatMiniprogram.CustomEvent) {
+    const key = e.currentTarget.dataset.key as string;
+    const found = (config.BACKEND_ENVS as any[]).find((x) => x.key === key);
+    if (found) {
+      config.setBaseUrl(found.baseUrl);
+      this.setData({ currentBase: found.baseUrl });
+      wx.showToast({ title: t('settings.env.setSuccess') || 'Saved', icon: 'success' });
+    }
+  },
+});

@@ -37,10 +37,10 @@ module.exports = {
     // 单位相关 - 支持小程序 rpx 单位
     'unit-no-unknown': [true, { ignoreUnits: ['rpx'] }],
     
-    // 小程序特定规则 - 支持小程序内置标签
+    // 小程序特定规则 - 支持小程序内置标签和自定义组件
     'no-descending-specificity': null,
     'property-no-vendor-prefix': null,
-    'selector-type-no-unknown': [true, { ignoreTypes: ['page', 'swiper', 'swiper-item', 'scroll-view', 'image', 'text', 'view', 'block'] }],
+    'selector-type-no-unknown': [true, { ignoreTypes: ['page', 'swiper', 'swiper-item', 'scroll-view', 'image', 'text', 'view', 'block', 'uni-icon', 'ec-canvas'] }],
     
     // 注释样式
     'comment-whitespace-inside': null,

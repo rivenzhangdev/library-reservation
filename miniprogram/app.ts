@@ -1,85 +1,124 @@
-// app.ts
-import i18n, { t, switchLanguage as switchLang, getLangClassName } from './utils/i18n';
+﻿import i18n, { t, switchLanguage as switchLang, getLangClassName } from './utils/i18n';
+import { clearAuthState, getToken, getUserInfo, setToken, setUserInfo } from './utils/auth';
+import { checkLogin, wxLogin } from './apis/auth';
 
-// 定义 App 配置
+function normalizeUserInfo(userInfo: any) {
+  if (!userInfo) return undefined;
+
+  return {
+    ...userInfo,
+    id: userInfo.id || userInfo._id,
+    name: userInfo.name || userInfo.nickName,
+    nickName: userInfo.nickName || userInfo.name,
+    avatar: userInfo.avatar || userInfo.avatarUrl,
+    avatarUrl: userInfo.avatarUrl || userInfo.avatar,
+  };
+}
+
 const appConfig: IAppOption = {
   globalData: {
+    userInfo: normalizeUserInfo(getUserInfo()),
     currentLang: 'zh' as 'zh' | 'en',
     langData: {},
-    languageClass: 'lang-zh', // 默认语言类名
+    languageClass: 'lang-zh',
   },
 
-  userInfoReadyCallback: function () {
-    // 用户信息准备就绪回调函数
-  },
+  userInfoReadyCallback() {},
 
   onLaunch() {
-    // 初始化多语言系统
     i18n.loadLanguage('zh');
 
-    // 展示本地存储能力
     const logs = wx.getStorageSync('logs') || [];
     logs.unshift(Date.now());
     wx.setStorageSync('logs', logs);
 
-    // 登录
-    wx.login({
-      success: (res) => {
-        console.log(res.code);
-        // 发送 res.code 到后台换取 openId, sessionKey, unionId
-      },
+    const token = getToken();
+    if (!token) return;
+
+    checkLogin()
+      .then((res) => {
+        const responseData = res.data as any;
+        if (!responseData) return;
+
+        const userInfo = normalizeUserInfo(responseData);
+        setUserInfo(userInfo);
+        this.globalData.userInfo = userInfo;
+      })
+      .catch(() => {
+        clearAuthState();
+        this.globalData.userInfo = undefined;
+      });
+  },
+
+  doWxLogin(userProfile: Record<string, any> = {}) {
+    return new Promise((resolve, reject) => {
+      wx.login({
+        success: (res) => {
+          if (!res.code) {
+            reject(new Error('Missing WeChat login code'));
+            return;
+          }
+
+          wxLogin(res.code, userProfile)
+            .then((loginRes) => {
+              const responseData = loginRes.data as any;
+              if (responseData) {
+                const userInfo = normalizeUserInfo(responseData.userInfo || responseData.user);
+                setToken(responseData.token);
+                setUserInfo(userInfo);
+                this.globalData.userInfo = userInfo;
+              }
+              resolve(responseData);
+            })
+            .catch((error) => {
+              console.error('WeChat login failed:', error);
+              reject(error);
+            });
+        },
+        fail: reject,
+      });
     });
   },
 
-  // 自定义语言切换函数，更新全局语言类名
   customSwitchLanguage(lang: 'zh' | 'en') {
     switchLang(lang);
 
-    // 更新全局语言类名
     const languageClass = `lang-${lang}`;
     this.globalData.languageClass = languageClass;
 
-    // 更新 tabBar 标题
     const tabBarTexts = {
       zh: ['首页', '预约', '通知', '我的'],
       en: ['Home', 'Reserve', 'Notify', 'Profile'],
     };
 
-    // 更新所有 tabBar 项的文本
     tabBarTexts[lang].forEach((text, index) => {
       wx.setTabBarItem({
         index,
         text,
-        fail: (err) => {
-          console.error('设置 tabBar 标题失败:', err);
+        fail: (error) => {
+          console.error('Set tabBar title failed:', error);
         },
       });
     });
 
-    // 通知所有页面更新语言类名和 currentLang
     const pages = getCurrentPages();
     pages.forEach((page) => {
       if (page.setData) {
         page.setData({
-          languageClass: languageClass,
+          languageClass,
           currentLang: lang,
         });
       }
     });
   },
 
-  // 暴露 t 函数和其他国际化相关函数供页面使用
   t,
-  switchLanguage: undefined, // 会在 onLaunch 后被赋值
-  getLangClassName: undefined, // 会在 onLaunch 后被赋值
+  switchLanguage: undefined,
+  getLangClassName: undefined,
 };
 
-// 创建 App 实例
 App<IAppOption>(appConfig);
 
-// 在 App 构造完成后更新方法引用
 const app = getApp<IAppOption>();
-
-// 将方法引用正确设置到 App 实例
 app.switchLanguage = app.customSwitchLanguage;
 app.getLangClassName = getLangClassName;

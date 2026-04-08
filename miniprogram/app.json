@@ -7,9 +7,16 @@
     "pages/search-result/search-result",
     "pages/my-reservation/my-reservation",
     "pages/my-collection/my-collection",
+    "pages/seat-detail/seat-detail",
+    "pages/booking-detail/booking-detail",
+    "pages/activity-detail/activity-detail",
+    "pages/personal-info/personal-info",
+    "pages/credit/credit",
+    "pages/notification-detail/notification-detail",
     "pages/my-activity/my-activity",
     "pages/feedback/feedback",
-    "pages/feedback-detail/feedback-detail"
+    "pages/feedback-detail/feedback-detail",
+    "pages/settings-env/settings-env"
   ],
   "window": {
     "navigationBarTextStyle": "black",

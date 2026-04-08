@@ -15,6 +15,7 @@ export default {
   'actions.myReservation': '我的预约',
   'actions.renew': '快速续约',
   'actions.checkin': '扫码签到',
+  'actions.checkout': '扫码签退',
 
   // 开放时间
   'openingHours.title': '今日开放时间',

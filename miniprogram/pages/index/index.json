@@ -5,6 +5,10 @@
     "grid-container": "/components/grid-container/grid-container",
     "grid-item": "/components/grid-item/grid-item",
     "ec-canvas": "/components/ec-canvas/ec-canvas",
-    "content-card": "/components/content-card/content-card"
+    "content-card": "/components/content-card/content-card",
+    "navigation-bar": "/components/navigation-bar/navigation-bar",
+    "van-tag": "@vant/weapp/tag/index",
+    "van-button": "@vant/weapp/button/index",
+    "van-search": "@vant/weapp/search/index"
   }
 }

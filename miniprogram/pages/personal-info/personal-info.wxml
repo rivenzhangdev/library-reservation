@@ -1,0 +1,64 @@
+﻿<page-meta>
+  <navigation-bar title="{{navTitle}}" back="{{true}}" />
+</page-meta>
+
+<view class="page-container {{languageClass}}">
+  <view class="hero-card">
+    <view class="hero-main">
+      <view class="avatar-block">
+        <text class="avatar-label">{{avatarLabel}}</text>
+        <view class="avatar-shell">
+          <image
+            wx:if="{{form.avatarUrl}}"
+            class="avatar-image"
+            src="{{form.avatarUrl}}"
+            mode="aspectFill"
+          />
+          <view wx:else class="avatar-placeholder">
+            <uni-icon type="vant" name="user-o" size="72" color="#ffffff" />
+          </view>
+        </view>
+      </view>
+
+      <view class="hero-copy">
+        <view class="hero-title">{{form.name || '-'}}</view>
+        <view class="hero-subtitle">{{subtitle}}</view>
+      </view>
+    </view>
+
+    <button class="avatar-action" open-type="chooseAvatar" bind:chooseavatar="onChooseAvatar">
+      {{chooseAvatarText}}
+    </button>
+  </view>
+
+  <view class="form-card">
+    <van-cell-group inset="{{false}}">
+      <van-field
+        value="{{form.name}}"
+        label="{{nameLabel}}"
+        placeholder="{{nameLabel}}"
+        bind:change="onNameChange"
+        maxlength="30"
+      />
+      <van-field
+        value="{{form.studentId}}"
+        label="{{studentIdLabel}}"
+        placeholder="{{studentIdPlaceholder}}"
+        readonly="{{studentIdReadonly}}"
+        bind:change="onStudentIdChange"
+      />
+      <van-field value="{{form.phone || '-'}}" label="{{phoneLabel}}" readonly />
+    </van-cell-group>
+    <view class="readonly-hint">{{profileHint}}</view>
+  </view>
+
+  <van-button
+    custom-class="save-button"
+    type="primary"
+    block
+    loading="{{saving}}"
+    bind:click="onSave"
+  >
+    {{saveText}}
+  </van-button>
+</view>

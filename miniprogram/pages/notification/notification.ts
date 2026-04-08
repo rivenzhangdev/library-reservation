@@ -1,8 +1,15 @@
 import { t } from '../../utils/i18n';
+import {
+  getNotifications,
+  markAsRead,
+  markAllAsRead,
+  deleteNotification,
+} from '../../apis/notification';
+import { isLogin } from '../../utils/auth';
 
 interface NotificationItem {
-  id: number;
-  type: 'reservation' | 'system' | 'activity';
+  id: string;
+  type: 'reservation' | 'system' | 'activity' | 'marketing';
   icon: string;
   title: string;
   content: string;
@@ -11,30 +18,18 @@ interface NotificationItem {
 }
 
 Page({
-  /**
-   * 页面的初始数据
-   */
   data: {
     currentLang: 'zh',
     languageClass: 'lang-zh',
-    // 页面标题
     pageTitle: '',
-    // 全部已读文案
     markAllReadText: '',
-    // 标记已读文案
     markReadText: '',
-    // 查看详请文案
     viewDetailText: '',
-    // 已读/未读文案
     readText: '',
     unreadText: '',
-    // 空状态文案
     emptyText: '',
-    // 是否有未读消息
     hasUnread: false,
-    // 当前筛选
     currentFilter: 'all',
-    // 筛选标签
     filterTabs: [
       { label: '全部', value: 'all' },
       { label: '未读', value: 'unread' },
@@ -42,207 +37,162 @@ Page({
       { label: '活动通知', value: 'activity' },
       { label: '预约通知', value: 'reservation' },
     ],
-    // 通知列表
     notificationList: [] as NotificationItem[],
   },
 
-  /**
-   * 生命周期函数--监听页面加载
-   */
+  _allNotifications: [] as NotificationItem[],
+
   onLoad() {
-    this.initPageData();
     this.updateLanguage();
+    this.loadNotifications();
   },
 
-  /**
-   * 生命周期函数--监听页面显示
-   */
   onShow() {
     this.updateLanguage();
+    this.loadNotifications();
   },
 
-  /**
-   * 初始化页面数据
-   */
-  initPageData() {
-    // 模拟通知数据 - 使用有效的 Vant 图标
-    const mockNotifications: NotificationItem[] = [
-      {
-        id: 1,
-        type: 'reservation',
-        icon: 'success', // 预约成功 - 对勾图标
-        title: '预约成功通知',
-        content: '您已成功预约 A 区 2 楼靠窗座位，预约时间为今天 14:00-16:00，请按时签到。',
-        time: '10 分钟前',
-        isRead: false,
-      },
-      {
-        id: 2,
-        type: 'system',
-        icon: 'warning-o', // 系统通知 - 警告图标
-        title: '系统维护通知',
-        content: '图书馆系统将于本周日凌晨 2:00-4:00 进行维护，期间可能无法正常使用预约功能。',
-        time: '2 小时前',
-        isRead: false,
-      },
-      {
-        id: 3,
-        type: 'activity',
-        icon: 'gift-o', // 活动通知 - 礼物图标
-        title: '活动开始通知',
-        content: '您报名的"阅读马拉松挑战赛"将于明天开始，请做好准备。',
-        time: '昨天',
-        isRead: true,
-      },
-    ];
+  loadNotifications() {
+    if (!isLogin()) return;
 
+    getNotifications({ page: 1, limit: 50 })
+      .then((res: any) => {
+        const responseData = res.data as any;
+        const list = Array.isArray(responseData)
+          ? responseData
+          : responseData?.notifications || responseData?.list || [];
+
+        const typeNameMap: Record<number, NotificationItem['type']> = {
+          0: 'system',
+          1: 'reservation',
+          2: 'activity',
+          3: 'marketing',
+        };
+        const iconMap: Record<number, string> = {
+          1: 'success',
+          0: 'warning-o',
+          2: 'gift-o',
+          3: 'coupon-o',
+        };
+
+        const notifications: NotificationItem[] = list.map((item: any) => ({
+          id: String(item._id || item.id),
+          type: typeNameMap[item.type] || 'system',
+          icon: iconMap[item.type] || 'info-o',
+          title: item.title,
+          content: item.content,
+          time: item.time || item.createdAt || '',
+          isRead: !!item.isRead,
+        }));
+
+        (this as any)._allNotifications = notifications;
+        this.applyFilter(this.data.currentFilter);
+      })
+      .catch((err) => {
+        console.error('鍔犺浇閫氱煡澶辫触:', err);
+      });
+  },
+
+  updateLanguage() {
+    const currentLang = getApp<IAppOption>().globalData?.currentLang || 'zh';
     this.setData({
-      notificationList: mockNotifications,
-      hasUnread: mockNotifications.some((item) => !item.isRead),
+      currentLang,
+      languageClass: currentLang === 'zh' ? 'lang-zh' : 'lang-en',
+      pageTitle: t('notification.pageTitle'),
+      markAllReadText: t('notification.markAllRead'),
+      markReadText: t('notification.markRead'),
+      viewDetailText: t('notification.viewDetail'),
+      readText: t('notification.read'),
+      unreadText: t('notification.unread'),
+      emptyText: t('notification.empty'),
+      filterTabs: [
+        { label: t('notification.filter.all'), value: 'all' },
+        { label: t('notification.filter.unread'), value: 'unread' },
+        { label: t('notification.filter.system'), value: 'system' },
+        { label: t('notification.filter.activity'), value: 'activity' },
+        { label: t('notification.filter.reservation'), value: 'reservation' },
+      ],
     });
   },
 
-  /**
-   * 更新页面语言
-   */
-  updateLanguage() {
-    const app = getApp<IAppOption>();
-    if (app && app.globalData) {
-      const currentLang = app.globalData.currentLang || 'zh';
-      const isZh = currentLang === 'zh';
+  applyFilter(filterValue: string) {
+    const allList = (this as any)._allNotifications || [];
+    let filteredList = allList;
 
-      this.setData({
-        currentLang,
-        languageClass: isZh ? 'lang-zh' : 'lang-en',
-        pageTitle: t('notification.pageTitle'),
-        markAllReadText: t('notification.markAllRead'),
-        markReadText: t('notification.markRead'),
-        viewDetailText: t('notification.viewDetail'),
-        readText: t('notification.read'),
-        unreadText: t('notification.unread'),
-        emptyText: t('notification.empty'),
-        // 更新筛选标签
-        filterTabs: [
-          {
-            label: isZh ? '全部' : 'All',
-            value: 'all',
-          },
-          {
-            label: isZh ? '未读' : 'Unread',
-            value: 'unread',
-          },
-          {
-            label: isZh ? '系统通知' : 'System',
-            value: 'system',
-          },
-          {
-            label: isZh ? '活动通知' : 'Activity',
-            value: 'activity',
-          },
-          {
-            label: isZh ? '预约通知' : 'Reservation',
-            value: 'reservation',
-          },
-        ],
-      });
+    if (filterValue === 'unread') {
+      filteredList = allList.filter((item: NotificationItem) => !item.isRead);
+    } else if (filterValue !== 'all') {
+      filteredList = allList.filter((item: NotificationItem) => item.type === filterValue);
     }
+
+    this.setData({
+      currentFilter: filterValue,
+      notificationList: filteredList,
+      hasUnread: allList.some((item: NotificationItem) => !item.isRead),
+    });
   },
 
-  /**
-   * 筛选标签切换
-   */
+  onMarkAllRead() {
+    markAllAsRead()
+      .then(() => {
+        this.loadNotifications();
+      })
+      .catch(() => {
+        wx.showToast({ title: t('common.hint.error'), icon: 'none' });
+      });
+  },
+
   onFilterChange(event: WechatMiniprogram.CustomEvent) {
     const index = event.detail.index as number;
     const selectedTab = this.data.filterTabs[index];
-
     if (selectedTab) {
-      this.setData({
-        currentFilter: selectedTab.value,
-      });
-
-      // 根据筛选条件过滤通知
-      let filteredList = this.data.notificationList;
-
-      if (selectedTab.value === 'unread') {
-        filteredList = this.data.notificationList.filter((item) => !item.isRead);
-      } else if (selectedTab.value === 'reservation') {
-        filteredList = this.data.notificationList.filter((item) => item.type === 'reservation');
-      } else if (selectedTab.value === 'system') {
-        filteredList = this.data.notificationList.filter((item) => item.type === 'system');
-      } else if (selectedTab.value === 'activity') {
-        filteredList = this.data.notificationList.filter((item) => item.type === 'activity');
-      }
-
-      this.setData({
-        notificationList: filteredList,
-        hasUnread: filteredList.some((item) => !item.isRead),
-      });
+      this.applyFilter(selectedTab.value);
     }
   },
 
-  /**
-   * 卡片点击
-   */
-  onCardTap() {
-    // 卡片整体点击事件
-    console.log('卡片被点击');
-  },
+  onCardTap() {},
 
-  /**
-   * 操作按钮点击（查看详情、标为已读、删除）
-   */
   onActionTap(event: WechatMiniprogram.CustomEvent) {
     const action = event.detail.action as string;
+    const notifId = event.detail.id as string;
 
-    // 简化处理：这里只是示例，实际应该根据具体通知 ID 处理
     if (action === 'viewDetail') {
-      wx.showToast({
-        title: '查看详情',
-        icon: 'none',
+      wx.navigateTo({
+        url: `/pages/notification-detail/notification-detail?id=${notifId}`,
       });
-    } else if (action === 'markRead') {
-      // 删除最后一条（示例）
-      const updatedList = this.data.notificationList.map((item, index) => {
-        if (index === this.data.notificationList.length - 1) {
-          return { ...item, isRead: true };
-        }
-        return item;
-      });
+      return;
+    }
 
-      this.setData({
-        notificationList: updatedList,
-        hasUnread: updatedList.some((item) => !item.isRead),
-      });
+    if (action === 'markRead' && notifId) {
+      markAsRead(notifId)
+        .then(() => {
+          this.loadNotifications();
+        })
+        .catch(() => {
+          wx.showToast({ title: t('common.hint.error'), icon: 'none' });
+        });
+      return;
+    }
 
-      // 更新筛选标签的徽章数
-      const updatedTabs = this.data.filterTabs.map((tab) => {
-        if (tab.value === 'unread') {
-          const unreadCount = updatedList.filter((item) => !item.isRead).length;
-          return { ...tab, badge: unreadCount };
-        }
-        return tab;
-      });
+    if (action === 'markAllRead') {
+      this.onMarkAllRead();
+      return;
+    }
 
-      this.setData({
-        filterTabs: updatedTabs,
-      });
-    } else if (action === 'delete') {
+    if (action === 'delete' && notifId) {
       wx.showModal({
-        title: '确认删除',
-        content: '确定要删除这条通知吗？',
+        title: t('notification.confirm.deleteTitle'),
+        content: t('notification.confirm.deleteContent'),
         success: (res) => {
-          if (res.confirm) {
-            const updatedList = this.data.notificationList.slice(0, -1);
-            this.setData({
-              notificationList: updatedList,
-              hasUnread: updatedList.some((item) => !item.isRead),
+          if (!res.confirm) return;
+          deleteNotification(notifId)
+            .then(() => {
+              wx.showToast({ title: t('notification.toast.deleteSuccess'), icon: 'success' });
+              this.loadNotifications();
+            })
+            .catch(() => {
+              wx.showToast({ title: t('notification.toast.deleteFailed'), icon: 'none' });
             });
-
-            wx.showToast({
-              title: '删除成功',
-              icon: 'success',
-            });
-          }
         },
       });
     }

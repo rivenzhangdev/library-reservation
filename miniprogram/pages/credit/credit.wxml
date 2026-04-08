@@ -1,0 +1,68 @@
+<page-meta>
+  <navigation-bar title="{{navTitle}}" back="{{true}}" />
+</page-meta>
+
+<view class="page-container">
+  <view wx:if="{{summary}}" class="hero-card tone-{{summary.levelTone}}">
+    <view class="hero-decor">
+      <view class="decor-dot decor-dot--small"></view>
+      <view class="decor-dot decor-dot--large"></view>
+    </view>
+
+    <view class="hero-top">
+      <view>
+        <view class="hero-label">{{t('credit.summary')}}</view>
+        <view class="hero-score">{{summary.score}}</view>
+      </view>
+      <view class="level-pill">{{summary.levelLabel}}</view>
+    </view>
+
+    <view class="hero-score-panel">
+      <view class="hero-score-meta">
+        <text class="hero-score-tag">{{t('credit.summary')}}</text>
+        <text class="hero-score-chip">{{summary.levelLabel}}</text>
+      </view>
+      <view class="hero-score-extra">
+        <view class="hero-score-badge">{{currentLang === 'zh' ? '信用分' : 'Credit Score'}}</view>
+      </view>
+    </view>
+
+    <view class="progress-track">
+      <view class="progress-fill" style="width: {{summary.scorePercent}};"></view>
+    </view>
+
+    <view class="hero-intro">{{summary.intro}}</view>
+  </view>
+
+  <view class="stats-grid">
+    <view wx:for="{{statCards}}" wx:key="label" class="stat-card tone-{{item.tone}}">
+      <text class="stat-label">{{item.label}}</text>
+      <text class="stat-value">{{item.value}}</text>
+    </view>
+  </view>
+
+  <view class="records-card">
+    <view class="records-header">
+      <view class="records-title">{{t('credit.records')}}</view>
+      <view class="records-subtitle">{{records.length}}</view>
+    </view>
+
+    <view wx:if="{{records.length}}">
+      <view wx:for="{{records}}" wx:key="id" class="record-item">
+        <view class="record-marker {{item.pointsClass}}"></view>
+        <view class="record-body">
+          <view class="record-top">
+            <text class="record-reason">{{item.reason || item.type || '-'}}</text>
+            <text class="record-points {{item.pointsClass}}">{{item.pointsText}}</text>
+          </view>
+          <view class="record-date">{{item.date}}</view>
+        </view>
+      </view>
+    </view>
+
+    <view wx:else class="empty-state">
+      <uni-icon type="vant" name="notes-o" size="64" color="#d0d7de" />
+      <text class="empty-text">{{t('credit.empty')}}</text>
+    </view>
+  </view>
+</view>

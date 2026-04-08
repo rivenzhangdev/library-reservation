@@ -16,6 +16,7 @@
   "license": "",
   "dependencies": {
     "@vant/weapp": "^1.11.7",
+    "dayjs": "^1.11.20",
     "echarts-for-weixin": "^1.0.2"
   },
   "devDependencies": {

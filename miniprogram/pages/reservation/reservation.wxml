@@ -135,11 +135,25 @@
 
   <!-- 筛选按钮 -->
   <view class="filter-bar">
+    <view class="filter-right">
+      <van-search
+        value="{{searchValue}}"
+        shape="round"
+        custom-class="search-box"
+        placeholder="{{searchPlaceholderText}}"
+        bind:change="onSearchChange"
+        bind:search="onSearchConfirm"
+      />
+    </view>
     <view class="filter-left">
       <van-button icon="filter-o" size="small" class="filter-button" bind:tap="onFilterTap">
         {{filterText}}
       </van-button>
     </view>
+  </view>
+
+  <view class="filter-summary">
+    <text class="filter-summary-text">{{filterResultText}}：{{seatCount}}</text>
   </view>
 
   <!-- 筛选条件面板 -->

@@ -1,5 +1,8 @@
-/// <reference path="../../typings/index.d.ts" />
+﻿/// <reference path="../../../typings/index.d.ts" />
 
+import { getMyFeedbacks, submitFeedback as submitFeedbackApi } from '../../apis/feedback';
+import { uploadDataUrl } from '../../apis/upload';
+import { readLocalImageAsDataUrl } from '../../utils/file';
 import { t } from '../../utils/i18n';
 
 interface FeedbackType {
@@ -33,326 +36,376 @@ interface FeedbackRecord {
   createTime: string;
 }
 
+const TYPE_MAP: Record<number, { id: string; style: string }> = {
+  1: { id: 'suggestion', style: 'primary' },
+  2: { id: 'bug', style: 'danger' },
+  3: { id: 'complaint', style: 'warning' },
+  4: { id: 'other', style: 'default' },
+};
+
+const URGENCY_MAP: Record<number, { id: string; style: string }> = {
+  1: { id: 'low', style: 'low' },
+  2: { id: 'medium', style: 'medium' },
+  3: { id: 'high', style: 'high' },
+  4: { id: 'urgent', style: 'urgent' },
+};
+
+const STATUS_MAP: Record<number, { style: string; textKey: string }> = {
+  1: { style: 'warning', textKey: 'feedback.status.pending' },
+  2: { style: 'primary', textKey: 'feedback.status.processing' },
+  3: { style: 'success', textKey: 'feedback.status.resolved' },
+  4: { style: 'danger', textKey: 'feedback.status.rejected' },
+};
+
+function formatDateTime(value?: string) {
+  if (!value) return '';
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return String(value);
+
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  const hour = String(date.getHours()).padStart(2, '0');
+  const minute = String(date.getMinutes()).padStart(2, '0');
+  return `${year}-${month}-${day} ${hour}:${minute}`;
+}
+
 Page({
   data: {
-    navTitle: t('feedback.title') || '问题反馈',
+    navTitle: '',
     languageClass: '',
-    currentTab: 'submit', // 'submit' | 'records'
-
-    // 反馈类型
-    feedbackTypes: [
-      { id: 'suggestion', name: '功能建议', typeStyle: 'primary' },
-      { id: 'bug', name: '问题上报', typeStyle: 'danger' },
-      { id: 'complaint', name: '投诉建议', typeStyle: 'warning' },
-      { id: 'other', name: '其他', typeStyle: 'default' },
-    ] as FeedbackType[],
-
-    // 紧急程度
-    urgencyLevels: [
-      { id: 'low', name: '低', icon: 'tongzhi', color: '#52c41a' }, // 🌱 -> 通知图标
-      { id: 'medium', name: '中', icon: 'tongzhi', color: '#faad14' }, // ⚠️ -> 通知图标
-      { id: 'high', name: '高', icon: 'tongzhi', color: '#f5222d' }, // 🔥 -> 通知图标
-      { id: 'urgent', name: '紧急', icon: 'tongzhi', color: '#722ed1' }, // 🚨 -> 通知图标
-    ] as UrgencyLevel[],
-
-    // 选中的类型
+    currentTab: 'submit',
+    submitTabText: '',
+    recordsTabText: '',
+    typeTitle: '',
+    titleLabel: '',
+    titlePlaceholder: '',
+    descriptionLabel: '',
+    descriptionPlaceholder: '',
+    urgencyLabel: '',
+    imageLabel: '',
+    imageOptionalText: '',
+    imageUploadText: '',
+    contactLabel: '',
+    contactOptionalText: '',
+    contactPlaceholder: '',
+    submitButtonText: '',
+    emptyText: '',
+    detailTypeText: '',
+    detailSubmitTimeText: '',
+    detailUrgencyText: '',
+    feedbackTypes: [] as FeedbackType[],
+    urgencyLevels: [] as UrgencyLevel[],
     selectedType: '',
     selectedUrgency: '',
-
-    // 表单数据
     title: '',
     description: '',
     contact: '',
-
-    // 图片上传
     uploadedImages: [] as string[],
     maxImageCount: 9,
-
-    // 反馈记录
     feedbackRecords: [] as FeedbackRecord[],
   },
 
   onLoad() {
     this.updateLanguage();
-    this.initFeedbackRecords();
+    this.loadFeedbackRecords();
   },
 
-  /**
-   * 更新语言
-   */
+  onShow() {
+    this.updateLanguage();
+    if (this.data.currentTab === 'records') {
+      this.loadFeedbackRecords();
+    }
+  },
+
   updateLanguage() {
     const app = getApp<IAppOption>();
     const languageClass = app.globalData.languageClass || 'lang-zh';
+
     this.setData({
-      navTitle: t('feedback.title') || '问题反馈',
+      navTitle: t('feedback.title'),
       languageClass,
+      submitTabText: t('feedback.tab.submit'),
+      recordsTabText: t('feedback.tab.records'),
+      typeTitle: t('feedback.form.type'),
+      titleLabel: t('feedback.form.title'),
+      titlePlaceholder: t('feedback.form.title.placeholder'),
+      descriptionLabel: t('feedback.form.description'),
+      descriptionPlaceholder: t('feedback.form.description.placeholder'),
+      urgencyLabel: t('feedback.form.urgency'),
+      imageLabel: t('feedback.form.images'),
+      imageOptionalText: t('feedback.form.images.optional'),
+      imageUploadText: t('feedback.form.images.upload'),
+      contactLabel: t('feedback.form.contact'),
+      contactOptionalText: t('feedback.form.contact.optional'),
+      contactPlaceholder: t('feedback.form.contact.placeholder'),
+      submitButtonText: t('feedback.form.submit'),
+      emptyText: t('feedback.records.empty'),
+      detailTypeText: t('feedback.detail.type'),
+      detailSubmitTimeText: t('feedback.detail.submitTime'),
+      detailUrgencyText: t('feedback.detail.urgency'),
+      feedbackTypes: [
+        {
+          id: 'suggestion',
+          name: t('feedback.form.type.suggestion'),
+          typeStyle: 'primary',
+        },
+        {
+          id: 'bug',
+          name: t('feedback.form.type.bug'),
+          typeStyle: 'danger',
+        },
+        {
+          id: 'complaint',
+          name: t('feedback.form.type.complaint'),
+          typeStyle: 'warning',
+        },
+        {
+          id: 'other',
+          name: t('feedback.form.type.other'),
+          typeStyle: 'default',
+        },
+      ],
+      urgencyLevels: [
+        {
+          id: 'low',
+          name: t('feedback.form.urgency.low'),
+          icon: 'flag-o',
+          color: '#52c41a',
+        },
+        {
+          id: 'medium',
+          name: t('feedback.form.urgency.medium'),
+          icon: 'flag-o',
+          color: '#faad14',
+        },
+        {
+          id: 'high',
+          name: t('feedback.form.urgency.high'),
+          icon: 'fire-o',
+          color: '#f5222d',
+        },
+        {
+          id: 'urgent',
+          name: t('feedback.form.urgency.urgent'),
+          icon: 'warning-o',
+          color: '#722ed1',
+        },
+      ],
     });
   },
 
-  /**
-   * 初始化反馈记录
-   */
-  initFeedbackRecords() {
-    // TODO: 从服务器加载反馈记录
-    // 这里使用示例数据
-    const records: FeedbackRecord[] = [
-      {
-        id: '1',
-        title: '希望增加座位续约提醒功能',
-        description:
-          '建议在预约即将到期前 15 分钟，能够通过 APP 推送通知提醒用户可以进行续约操作，避免忘记续约导致座位被占用。',
-        contact: '138****1234',
-        typeId: 'suggestion',
-        typeName: '功能建议',
-        typeStyle: 'primary',
-        urgencyId: 'medium',
-        urgencyName: '中',
-        urgencyStyle: 'medium',
-        status: 'processing',
-        statusStyle: 'primary',
-        statusText: '处理中',
-        createTime: '2026-01-08',
-      },
-      {
-        id: '2',
-        title: '预约页面加载缓慢',
-        description: '在高峰期打开预约页面需要等待很长时间，希望能优化加载速度。',
-        contact: '',
-        typeId: 'bug',
-        typeName: '问题上报',
-        typeStyle: 'danger',
-        urgencyId: 'high',
-        urgencyName: '高',
-        urgencyStyle: 'high',
-        status: 'resolved',
-        statusStyle: 'success',
-        statusText: '已解决',
-        createTime: '2026-01-01',
-      },
-      {
-        id: '3',
-        title: '部分座位插座无法使用',
-        description: 'A 区 3 楼靠窗座位的电源插座有多个损坏，无法正常使用，请安排维修。',
-        contact: '139****5678',
-        typeId: 'complaint',
-        typeName: '投诉建议',
-        typeStyle: 'warning',
-        urgencyId: 'urgent',
-        urgencyName: '紧急',
-        urgencyStyle: 'urgent',
-        status: 'pending',
-        statusStyle: 'warning',
-        statusText: '待处理',
-        createTime: '2025-12-25',
-      },
-    ];
+  async loadFeedbackRecords() {
+    try {
+      const res: any = await getMyFeedbacks({
+        page: 1,
+        limit: 20,
+      });
+      const raw = res?.data || {};
+      const list = Array.isArray(raw.feedbacks) ? raw.feedbacks : [];
 
-    this.setData({ feedbackRecords: records });
-  },
+      const feedbackRecords: FeedbackRecord[] = list.map((record: any) => {
+        const typeMeta = TYPE_MAP[Number(record.typeId)] || TYPE_MAP[4];
+        const urgencyMeta = record.urgencyId ? URGENCY_MAP[Number(record.urgencyId)] : undefined;
+        const statusMeta = STATUS_MAP[Number(record.status)] || STATUS_MAP[1];
+        const typeName =
+          this.data.feedbackTypes.find((item) => item.id === typeMeta.id)?.name ||
+          t(`feedback.form.type.${typeMeta.id}`);
+        const urgencyName = urgencyMeta
+          ? this.data.urgencyLevels.find((item) => item.id === urgencyMeta.id)?.name ||
+            t(`feedback.form.urgency.${urgencyMeta.id}`)
+          : '';
 
-  /**
-   * 点击反馈记录
-   */
-  onRecordTap(e: any) {
-    const id = e.currentTarget.dataset.id;
-    wx.navigateTo({
-      url: `/pages/feedback-detail/feedback-detail?id=${id}`,
-      success: () => {
-        console.log('跳转到反馈详情页');
-      },
-      fail: (err) => {
-        console.error('跳转失败:', err);
-        wx.showToast({
-          title: '页面跳转失败',
-          icon: 'none',
-        });
-      },
-    });
-  },
+        return {
+          id: String(record.id || record._id),
+          title: record.title || '-',
+          description: record.description || '',
+          contact: record.contact || '',
+          typeId: typeMeta.id,
+          typeName,
+          typeStyle: typeMeta.style,
+          urgencyId: urgencyMeta?.id,
+          urgencyName,
+          urgencyStyle: urgencyMeta?.style,
+          images: Array.isArray(record.images) ? record.images : [],
+          status: String(record.status || ''),
+          statusStyle: statusMeta.style,
+          statusText: t(statusMeta.textKey),
+          createTime: formatDateTime(record.createdAt),
+        };
+      });
 
-  /**
-   * Tab 切换
-   */
-  onTabTap(e: any) {
-    const tab = e.currentTarget.dataset.tab;
-    this.setData({ currentTab: tab });
-
-    if (tab === 'records') {
-      this.initFeedbackRecords();
+      this.setData({ feedbackRecords });
+    } catch (_error) {
+      this.setData({ feedbackRecords: [] });
     }
   },
 
-  /**
-   * 选择反馈类型
-   */
-  onTypeTap(e: any) {
-    const typeId = e.currentTarget.dataset.id;
-    this.setData({ selectedType: typeId });
+  onRecordTap(e: WechatMiniprogram.TouchEvent) {
+    const { id } = e.currentTarget.dataset as { id?: string };
+    if (!id) return;
+
+    wx.navigateTo({
+      url: `/pages/feedback-detail/feedback-detail?id=${id}`,
+    });
   },
 
-  /**
-   * 选择紧急程度
-   */
-  onUrgencyTap(e: any) {
-    const urgencyId = e.currentTarget.dataset.id;
-    this.setData({ selectedUrgency: urgencyId });
+  onTabTap(e: WechatMiniprogram.TouchEvent) {
+    const { tab } = e.currentTarget.dataset as { tab?: string };
+    if (!tab) return;
+
+    this.setData({ currentTab: tab });
+    if (tab === 'records') {
+      this.loadFeedbackRecords();
+    }
   },
 
-  /**
-   * 标题输入变化
-   */
-  onTitleChange(e: any) {
+  onTypeTap(e: WechatMiniprogram.TouchEvent) {
+    const { id } = e.currentTarget.dataset as { id?: string };
+    this.setData({ selectedType: id || '' });
+  },
+
+  onUrgencyTap(e: WechatMiniprogram.TouchEvent) {
+    const { id } = e.currentTarget.dataset as { id?: string };
+    this.setData({ selectedUrgency: id || '' });
+  },
+
+  onTitleChange(e: WechatMiniprogram.CustomEvent) {
     this.setData({ title: e.detail });
   },
 
-  /**
-   * 描述输入变化
-   */
-  onDescriptionChange(e: any) {
+  onDescriptionChange(e: WechatMiniprogram.CustomEvent) {
     this.setData({ description: e.detail });
   },
 
-  /**
-   * 联系方式输入变化
-   */
-  onContactChange(e: any) {
+  onContactChange(e: WechatMiniprogram.CustomEvent) {
     this.setData({ contact: e.detail });
   },
 
-  /**
-   * 上传图片
-   */
-  onImageUpload() {
+  async onImageUpload() {
     const { uploadedImages, maxImageCount } = this.data;
     const remaining = maxImageCount - uploadedImages.length;
+    if (remaining <= 0) return;
 
-    wx.chooseImage({
-      count: remaining,
-      sizeType: ['compressed'],
-      sourceType: ['album', 'camera'],
-      success: (res) => {
-        const tempFilePaths = res.tempFilePaths;
-        const newImages = [...uploadedImages, ...tempFilePaths];
-        this.setData({ uploadedImages: newImages });
+    try {
+      const chooseRes = await new Promise<WechatMiniprogram.ChooseImageSuccessCallbackResult>(
+        (resolve, reject) => {
+          wx.chooseImage({
+            count: remaining,
+            sizeType: ['compressed'],
+            sourceType: ['album', 'camera'],
+            success: resolve,
+            fail: reject,
+          });
+        }
+      );
 
-        // TODO: 上传图片到服务器
-        console.log('上传图片:', tempFilePaths);
-      },
-      fail: (err) => {
-        console.error('选择图片失败:', err);
-        wx.showToast({
-          title: '图片选择失败',
-          icon: 'none',
-        });
-      },
-    });
+      const urls: string[] = [];
+      for (const filePath of chooseRes.tempFilePaths) {
+        const dataUrl = await readLocalImageAsDataUrl(filePath);
+        const uploadRes: any = await uploadDataUrl(dataUrl);
+        const url = uploadRes?.data?.url || uploadRes?.url || '';
+        if (url) {
+          urls.push(url);
+        }
+      }
+
+      this.setData({
+        uploadedImages: [...uploadedImages, ...urls],
+      });
+    } catch (_error) {
+      wx.showToast({
+        title: t('feedback.toast.submitFailed'),
+        icon: 'none',
+      });
+    }
   },
 
-  /**
-   * 删除图片
-   */
-  onImageDelete(e: any) {
-    const index = e.currentTarget.dataset.index;
-    const uploadedImages = this.data.uploadedImages.filter((_, idx) => idx !== index);
+  onImageDelete(e: WechatMiniprogram.TouchEvent) {
+    const { index } = e.currentTarget.dataset as { index?: number };
+    const uploadedImages = this.data.uploadedImages.filter((_, itemIndex) => itemIndex !== index);
     this.setData({ uploadedImages });
   },
 
-  /**
-   * 预览图片
-   */
-  onImagePreview(e: any) {
-    const index = e.currentTarget.dataset.index;
+  onImagePreview(e: WechatMiniprogram.TouchEvent) {
+    const { index } = e.currentTarget.dataset as { index?: number };
+    const images = this.data.uploadedImages;
+    if (index === undefined || !images[index]) return;
+
     wx.previewImage({
-      current: this.data.uploadedImages[index],
-      urls: this.data.uploadedImages,
+      current: images[index],
+      urls: images,
     });
   },
 
-  /**
-   * 提交反馈
-   */
   onSubmitTap() {
     const { selectedType, title, description } = this.data;
 
-    // 验证必填项
     if (!selectedType) {
+      wx.showToast({ title: t('feedback.toast.selectType'), icon: 'none' });
+      return;
+    }
+
+    if (!String(title || '').trim()) {
+      wx.showToast({ title: t('feedback.toast.fillTitle'), icon: 'none' });
+      return;
+    }
+
+    if (!String(description || '').trim()) {
       wx.showToast({
-        title: '请选择反馈类型',
+        title: t('feedback.toast.fillDescription'),
         icon: 'none',
-        duration: 2000,
       });
       return;
     }
 
-    if (!title || !title.trim()) {
-      wx.showToast({
-        title: '请填写问题标题',
-        icon: 'none',
-        duration: 2000,
-      });
-      return;
-    }
-
-    if (!description || !description.trim()) {
-      wx.showToast({
-        title: '请填写详细描述',
-        icon: 'none',
-        duration: 2000,
-      });
-      return;
-    }
-
-    // 显示确认对话框
     wx.showModal({
-      title: '确认提交',
-      content: '确认要提交这条反馈吗？',
+      title: t('feedback.form.submit'),
+      content: t('feedback.toast.confirmSubmit'),
       success: (res) => {
-        if (res.confirm) {
-          this.submitFeedback();
-        }
+        if (!res.confirm) return;
+        this.submitFeedback();
       },
     });
   },
 
-  /**
-   * 提交反馈到服务器
-   */
-  submitFeedback() {
+  async submitFeedback() {
     const { selectedType, selectedUrgency, title, description, contact, uploadedImages } =
       this.data;
 
-    // TODO: 调用服务器接口提交反馈
-    console.log('提交反馈:', {
-      typeId: selectedType,
-      urgencyId: selectedUrgency,
-      title,
-      description,
-      contact,
-      images: uploadedImages,
-    });
+    try {
+      await submitFeedbackApi({
+        typeId: selectedType,
+        urgencyId: selectedUrgency || undefined,
+        title: String(title || '').trim(),
+        description: String(description || '').trim(),
+        contact: String(contact || '').trim(),
+        images: uploadedImages,
+      });
 
-    // 模拟提交成功
-    wx.showToast({
-      title: '提交成功',
-      icon: 'success',
-      duration: 2000,
-      success: () => {
-        // 清空表单
-        this.setData({
-          selectedType: '',
-          selectedUrgency: '',
-          title: '',
-          description: '',
-          contact: '',
-          uploadedImages: [],
-        });
+      wx.showToast({
+        title: t('feedback.toast.submitSuccess'),
+        icon: 'success',
+      });
 
-        // 切换到记录 Tab
-        setTimeout(() => {
-          this.setData({ currentTab: 'records' });
-          this.initFeedbackRecords();
-        }, 1500);
-      },
-    });
+      this.setData({
+        selectedType: '',
+        selectedUrgency: '',
+        title: '',
+        description: '',
+        contact: '',
+        uploadedImages: [],
+      });
+
+      setTimeout(() => {
+        this.setData({ currentTab: 'records' });
+        this.loadFeedbackRecords();
+      }, 1200);
+    } catch (_error) {
+      wx.showToast({
+        title: t('feedback.toast.submitFailed'),
+        icon: 'none',
+      });
+    }
   },
 });

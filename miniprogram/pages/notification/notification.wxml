@@ -60,6 +60,7 @@
       show-delete="{{true}}"
       view-detail-text="{{viewDetailText}}"
       mark-read-text="{{markReadText}}"
+      btn-data-id="{{item.id}}"
       custom-class="notification-item"
       enable-hover="{{false}}"
       bind:tap="onCardTap"

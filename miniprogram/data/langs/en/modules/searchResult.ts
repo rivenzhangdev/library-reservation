@@ -5,6 +5,7 @@ export default {
 
   // Search hints
   'searchResult.hint.searchKeyword': 'Search: "{keyword}"',
+  'searchResult.hint.resultCount': 'Found {count} results',
 
   // Seat information
   'searchResult.seat.distance': '{{distance}}m',
@@ -15,4 +16,5 @@ export default {
   // Hints
   'searchResult.hint.reserveSuccess': 'Reservation successful',
   'searchResult.hint.favoriteSuccess': 'Added to favorites',
+  'searchResult.hint.openDetail': 'View seat details',
 };

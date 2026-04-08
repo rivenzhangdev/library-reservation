@@ -1,33 +1,52 @@
-// 个人中心页面中文语言包
-export default {
-  // 页面标题
+﻿export default {
   'profile.pageTitle': '我的',
   'profile.sectionTitle': '我的服务',
   'profile.centerTitle': '个人中心',
   'profile.settingsTitle': '系统设置',
 
-  // 用户信息
   'profile.user.name': '张三',
   'profile.user.studentId': '学号：20240001',
   'profile.user.phone': '手机：138****0000',
   'profile.user.creditScore': '信用分：100',
-  'profile.user.balance': '余额：¥0.00',
+  'profile.user.balance': '余额：0.00',
+  'profile.user.guest': '未登录',
+  'profile.user.unbound': '-',
+  'profile.user.wechatAccount': '微信账号',
 
-  // 服务菜单
+  'profile.login.tip': '登录微信账号后，可使用预约、通知、反馈和个人资料功能。',
+  'profile.login.action': '微信登录',
+  'profile.login.noticeTitle': '请先登录',
+  'profile.login.noticeContent': '当前页面需要先登录微信账号。请点击页面中的“微信登录”按钮继续。',
+  'profile.login.success': '登录成功',
+  'profile.login.failed': '登录失败，请稍后重试',
+
   'profile.service.myReservation': '我的预约',
   'profile.service.myCollection': '我的收藏',
   'profile.service.myActivity': '我的活动',
   'profile.service.history': '预约历史',
   'profile.service.settings': '设置',
 
-  // 个人中心菜单
   'profile.center.personalInfo': '个人信息',
   'profile.center.creditCenter': '信用中心',
   'profile.center.feedback': '问题反馈',
 
-  // 系统设置菜单
   'profile.settings.notification': '通知设置',
   'profile.settings.privacy': '隐私设置',
   'profile.settings.help': '帮助中心',
   'profile.settings.about': '关于我们',
+
+  'profile.personal.subtitle': '同步并维护你的真实资料，预约与通知会优先使用这里的信息。',
+  'profile.personal.avatar': '头像',
+  'profile.personal.name': '姓名',
+  'profile.personal.studentId': '学号',
+  'profile.personal.phone': '手机号',
+  'profile.personal.readonly': '手机号当前来自服务端档案。',
+  'profile.personal.chooseAvatar': '更换头像',
+  'profile.personal.save': '保存资料',
+  'profile.personal.bindHint': '未绑定学号时，可在此填写学号并与姓名一起完成绑定。',
+  'profile.personal.boundHint': '学号已绑定后不可在小程序中直接修改，如需调整请联系管理员。',
+  'profile.personal.studentIdPlaceholder': '请输入学号',
+  'profile.personal.bindSuccess': '学号绑定成功',
+  'profile.personal.nameRequired': '请输入姓名',
+  'profile.personal.studentIdRequired': '请输入学号',
 };

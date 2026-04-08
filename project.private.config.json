@@ -57,13 +57,6 @@
           "scene": null
         },
         {
-          "name": "pages/my-reservation/my-reservation",
-          "pathName": "pages/my-reservation/my-reservation",
-          "query": "",
-          "launchMode": "default",
-          "scene": null
-        },
-        {
           "name": "pages/search-result/search-result",
           "pathName": "pages/search-result/search-result",
           "query": "",
@@ -94,13 +87,6 @@
         {
           "name": "pages/profile/profile",
           "pathName": "pages/profile/profile",
-          "query": "",
-          "launchMode": "default",
-          "scene": null
-        },
-        {
-          "name": "pages/reservation/reservation",
-          "pathName": "pages/reservation/reservation",
           "query": "",
           "launchMode": "default",
           "scene": null

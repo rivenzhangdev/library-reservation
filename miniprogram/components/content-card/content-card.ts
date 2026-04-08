@@ -298,7 +298,10 @@ Component({
      */
     onActionTap(this: SafeComponentInstance, event: WechatMiniprogram.TouchEvent) {
       const action = event.currentTarget.dataset.action as string;
-      this.triggerEvent('actionTap', { action });
+      this.triggerEvent('actionTap', {
+        action,
+        id: this.data.btnDataId,
+      });
     },
 
     /**

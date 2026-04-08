@@ -1,20 +1,30 @@
 // Activity page English language pack
 export default {
-  // Title
   'activity.title': 'My Activities',
-
-  // Search
   'activity.search.placeholder': 'Search activities',
-
-  // Status - Activity-specific statuses
   'activity.status.registered': 'Registered',
   'activity.status.ended': 'Ended',
-
-  // Buttons
   'activity.btn.detail': 'View Details',
   'activity.btn.checkIn': 'Check In',
   'activity.btn.register': 'Register Now',
-
-  // Empty state
+  'activity.confirm.registerTitle': 'Confirm Registration',
+  'activity.confirm.registerContent': 'Are you sure you want to register for this activity?',
+  'activity.toast.registerSuccess': 'Registration successful',
+  'activity.toast.registerFailed': 'Registration failed',
+  'activity.toast.cancelSuccess': 'Registration cancelled',
+  'activity.toast.cancelFailed': 'Failed to cancel registration',
+  'activity.tag.registered': 'Registered',
+  'activity.participants': 'registered',
+  'activity.detail.title': 'Activity Details',
+  'activity.action.cancel': 'Cancel Registration',
+  'activity.detail.joined': 'Registered',
+  'activity.detail.notJoined': 'Not Registered',
+  'activity.detail.joinNow': 'Join Now',
+  'activity.detail.cancelJoin': 'Cancel Registration',
+  'activity.detail.time': 'Schedule',
+  'activity.detail.location': 'Location',
+  'activity.detail.description': 'Description',
+  'activity.detail.organizer': 'Publisher',
+  'activity.detail.updatedBy': 'Updated By',
   'activity.empty': 'No activities',
 };

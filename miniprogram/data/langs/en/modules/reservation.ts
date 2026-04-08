@@ -16,6 +16,7 @@ export default {
   'reservation.filter.area': 'Area',
   'reservation.filter.seatType': 'Seat Type',
   'reservation.filter.facility': 'Facilities',
+  'reservation.filter.facility.power': 'With Socket',
   'reservation.filter.reset': 'Reset Filters',
 
   // Area options

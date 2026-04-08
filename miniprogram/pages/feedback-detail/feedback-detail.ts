@@ -1,6 +1,8 @@
-/// <reference path="../../typings/index.d.ts" />
+/// <reference path="../../../typings/index.d.ts" />
 
 import { t } from '../../utils/i18n';
+import { getFeedbackDetail } from '../../apis/feedback';
+import { resolveAssetUrl } from '../../utils/assets';
 
 interface FeedbackInfo {
   id: string;
@@ -31,7 +33,7 @@ interface ProcessRecord {
 
 Page({
   data: {
-    navTitle: t('feedback.detail.title') || '反馈详情',
+    navTitle: '',
     languageClass: '',
     feedbackId: '',
     feedbackInfo: {} as FeedbackInfo,
@@ -45,76 +47,66 @@ Page({
     }
   },
 
-  /**
-   * 更新语言
-   */
   updateLanguage() {
-    const app = getApp<IAppOption>();
-    const languageClass = app.globalData.languageClass || 'lang-zh';
+    const languageClass = getApp<IAppOption>().globalData.languageClass || 'lang-zh';
     this.setData({
-      navTitle: t('feedback.detail.title') || '反馈详情',
+      navTitle: t('feedback.detail.title'),
       languageClass,
     });
   },
 
-  /**
-   * 加载反馈详情
-   */
   loadFeedbackDetail(id: string) {
-    console.log('加载反馈详情，ID:', id);
-
-    // TODO: 从服务器加载数据
-    // 这里使用示例数据
-    const feedback: FeedbackInfo = {
-      id: '1',
-      title: '希望增加座位续约提醒功能',
-      description:
-        '建议在预约即将到期前 15 分钟，能够通过 APP 推送通知提醒用户可以进行续约操作，避免忘记续约导致座位被占用。',
-      contact: '138****1234',
-      typeId: 'suggestion',
-      typeName: '功能建议',
-      typeStyle: 'primary',
-      urgencyId: 'medium',
-      urgencyName: '中等',
-      urgencyStyle: 'medium',
-      status: 'processing',
-      statusStyle: 'info',
-      statusText: '处理中',
-      createTime: '2026-01-08 14:30',
-      images: [
-        'https://picsum.photos/400/300?random=1',
-        'https://picsum.photos/400/300?random=2',
-        'https://picsum.photos/400/300?random=3',
-        'https://picsum.photos/400/300?random=4',
-        'https://picsum.photos/400/300?random=5',
-      ],
-      processRecords: [
-        {
-          id: '1',
-          userName: '管理员',
-          userRole: 'admin',
-          content: '感谢您的建议，我们正在评估此功能的可行性，预计会在下个版本中推出。',
-          processTime: '2026-01-09 10:20',
-        },
-      ],
+    const statusMap: Record<number, { style: string; text: string }> = {
+      1: { style: 'warning', text: t('feedback.status.pending') },
+      2: { style: 'primary', text: t('feedback.status.processing') },
+      3: { style: 'success', text: t('feedback.status.resolved') },
+      4: { style: 'danger', text: t('feedback.status.rejected') },
+    };
+    const typeMap: Record<number, { name: string; style: string }> = {
+      1: { name: t('feedback.form.type.suggestion'), style: 'primary' },
+      2: { name: t('feedback.form.type.bug'), style: 'danger' },
+      3: { name: t('feedback.form.type.complaint'), style: 'warning' },
+      4: { name: t('feedback.form.type.other'), style: 'default' },
     };
 
-    this.setData({ feedbackInfo: feedback });
+    getFeedbackDetail(id)
+      .then((res: any) => {
+        const detail = res.data || {};
+        const status = statusMap[detail.status] || statusMap[1];
+        const type = typeMap[detail.typeId] || typeMap[4];
+
+        const feedback: FeedbackInfo = {
+          id: detail._id || detail.id,
+          title: detail.title,
+          description: detail.description,
+          contact: detail.contact || '',
+          typeId: detail.typeId || 'other',
+          typeName: type.name,
+          typeStyle: type.style,
+          urgencyId: detail.urgencyId || '',
+          urgencyName: detail.urgencyName || '',
+          urgencyStyle: detail.urgencyId || '',
+          status: detail.status || 'pending',
+          statusStyle: status.style,
+          statusText: status.text,
+          createTime: detail.createdAt ? new Date(detail.createdAt).toLocaleString() : '',
+          images: (detail.images || []).map((image: string) => resolveAssetUrl(image)),
+          processRecords: detail.processRecords || [],
+        };
+
+        this.setData({ feedbackInfo: feedback });
+      })
+      .catch(() => {
+        wx.showToast({ title: t('common.hint.loadFailed'), icon: 'none' });
+      });
   },
 
-  /**
-   * 预览图片
-   */
   onImagePreview(e: any) {
     const index = e.currentTarget.dataset.index;
     const images = this.data.feedbackInfo.images || [];
-
     wx.previewImage({
       current: images[index],
       urls: images,
-      success: () => {
-        console.log('图片预览成功，索引:', index);
-      },
     });
   },
 });

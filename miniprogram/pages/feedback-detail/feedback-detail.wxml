@@ -2,16 +2,14 @@
   <navigation-bar title="{{navTitle}}" back="{{true}}" />
 </page-meta>
 
-<!-- 页面容器 -->
 <view class="page-container {{languageClass}}">
-  <!-- 反馈基本信息 -->
-  <view class="feedback-info">
+  <view class="feedback-info" wx:if="{{feedbackInfo.id}}">
     <view class="info-header">
       <view class="info-title-wrapper">
         <text class="info-title">{{feedbackInfo.title}}</text>
         <view class="info-meta">
           <text class="meta-type">{{feedbackInfo.typeName}}</text>
-          <text class="meta-dot">·</text>
+          <text class="meta-dot">/</text>
           <text class="meta-date">{{feedbackInfo.createTime}}</text>
         </view>
       </view>
@@ -23,67 +21,67 @@
     <view class="info-details">
       <view class="detail-row">
         <uni-icon type="vant" name="label-o" size="28" color="#999" />
-        <text class="detail-label">类型:</text>
+        <text class="detail-label">{{t('feedback.detail.type')}}:</text>
         <text class="detail-text">{{feedbackInfo.typeName}}</text>
       </view>
       <view class="detail-row">
         <uni-icon type="vant" name="clock-o" size="28" color="#999" />
-        <text class="detail-label">提交时间:</text>
+        <text class="detail-label">{{t('feedback.detail.submitTime')}}:</text>
         <text class="detail-text">{{feedbackInfo.createTime}}</text>
       </view>
       <view class="detail-row">
         <uni-icon type="vant" name="flag-o" size="28" color="#999" />
-        <text class="detail-label">紧急程度:</text>
+        <text class="detail-label">{{t('feedback.detail.urgency')}}:</text>
         <text class="detail-text urgency-{{feedbackInfo.urgencyStyle}}"
-          >{{feedbackInfo.urgencyName}}</text
+          >{{feedbackInfo.urgencyName || '-'}}</text
         >
       </view>
       <view wx:if="{{feedbackInfo.contact}}" class="detail-row">
         <uni-icon type="vant" name="phone" size="28" color="#999" />
-        <text class="detail-label">联系方式:</text>
+        <text class="detail-label">{{t('feedback.detail.contact')}}:</text>
         <text class="detail-text">{{feedbackInfo.contact}}</text>
       </view>
     </view>
 
     <view class="info-content">
-      <text class="content-label">反馈内容</text>
+      <text class="content-label">{{t('feedback.detail.content')}}</text>
       <text class="content-text">{{feedbackInfo.description}}</text>
     </view>
 
-    <!-- 图片展示 -->
-    <view
-      wx:if="{{feedbackInfo.images && feedbackInfo.images.length > 0}}"
-      class="info-images info-images-{{feedbackInfo.images.length > 3 ? 3 : feedbackInfo.images.length}}"
-    >
+    <view wx:if="{{feedbackInfo.images && feedbackInfo.images.length > 0}}" class="info-content">
+      <text class="content-label">{{t('feedback.detail.images')}}</text>
       <view
-        class="image-wrapper"
-        wx:for="{{feedbackInfo.images}}"
-        wx:key="*this"
-        wx:for-index="index"
-        wx:if="{{index < 3}}"
+        class="info-images info-images-{{feedbackInfo.images.length > 3 ? 3 : feedbackInfo.images.length}}"
       >
-        <image
-          src="{{feedbackInfo.images[index]}}"
-          mode="aspectFill"
-          class="content-image content-image-{{feedbackInfo.images.length > 3 ? 3 : feedbackInfo.images.length}}"
-          bind:tap="onImagePreview"
-          data-index="{{index}}"
-        />
         <view
-          wx:if="{{index === 2 && feedbackInfo.images.length > 3}}"
-          class="content-image-mask"
-          bind:tap="onImagePreview"
-          data-index="2"
+          class="image-wrapper"
+          wx:for="{{feedbackInfo.images}}"
+          wx:key="*this"
+          wx:for-index="index"
+          wx:if="{{index < 3}}"
         >
-          <text class="image-mask-text">+{{feedbackInfo.images.length - 3}}</text>
+          <image
+            src="{{feedbackInfo.images[index]}}"
+            mode="aspectFill"
+            class="content-image content-image-{{feedbackInfo.images.length > 3 ? 3 : feedbackInfo.images.length}}"
+            bind:tap="onImagePreview"
+            data-index="{{index}}"
+          />
+          <view
+            wx:if="{{index === 2 && feedbackInfo.images.length > 3}}"
+            class="content-image-mask"
+            bind:tap="onImagePreview"
+            data-index="2"
+          >
+            <text class="image-mask-text">+{{feedbackInfo.images.length - 3}}</text>
+          </view>
         </view>
       </view>
     </view>
   </view>
 
-  <!-- 处理记录 -->
-  <view class="process-section">
-    <view class="section-title">处理记录</view>
+  <view class="process-section" wx:if="{{feedbackInfo.id}}">
+    <view class="section-title">{{t('feedback.detail.processRecords')}}</view>
     <view wx:if="{{feedbackInfo.processRecords && feedbackInfo.processRecords.length > 0}}">
       <view wx:for="{{feedbackInfo.processRecords}}" wx:key="id" class="process-item">
         <view class="process-header">
@@ -93,7 +91,7 @@
             </view>
             <view class="user-info">
               <text class="user-name">{{item.userName}}</text>
-              <text class="user-role">管理员</text>
+              <text class="user-role">{{item.userRole || '-'}}</text>
             </view>
           </view>
           <text class="process-date">{{item.processTime}}</text>
@@ -104,17 +102,12 @@
       </view>
     </view>
     <view wx:else class="empty-process">
-      <text class="empty-process-text">暂无处理记录</text>
+      <text class="empty-process-text">{{t('feedback.detail.noRecords')}}</text>
     </view>
   </view>
 
-  <!-- 空状态 -->
   <view wx:if="{{!feedbackInfo.id}}" class="empty-state">
     <uni-icon type="vant" name="underway-o" size="120" color="#ddd" />
-    <text class="empty-text">反馈不存在</text>
+    <text class="empty-text">{{t('common.empty.notFound')}}</text>
   </view>
-
-  <!-- 弹窗组件 -->
-  <van-dialog id="van-dialog" />
-  <van-toast id="van-toast" />
 </view>

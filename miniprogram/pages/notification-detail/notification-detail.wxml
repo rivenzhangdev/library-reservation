@@ -1,0 +1,44 @@
+<page-meta>
+  <navigation-bar title="{{navTitle}}" back="{{true}}" />
+</page-meta>
+
+<view class="page-container">
+  <view wx:if="{{detail}}" class="detail-card">
+    <view class="title-row">
+      <text class="title">{{detail.title}}</text>
+      <van-tag type="{{detail.isRead ? 'default' : 'primary'}}" size="medium"
+        >{{detail.isRead ? t('notification.read') : t('notification.unread')}}</van-tag
+      >
+    </view>
+    <view class="meta-row"
+      ><text class="label">{{t('notification.detail.type')}}</text
+      ><text>{{detail.typeText}}</text></view
+    >
+    <view class="meta-row"
+      ><text class="label">{{t('notification.detail.time')}}</text
+      ><text>{{detail.time || '-'}}</text></view
+    >
+    <view class="meta-row"
+      ><text class="label">{{t('notification.detail.publisher')}}</text
+      ><text>{{detail.publisherName || '-'}}</text></view
+    >
+    <view class="meta-row"
+      ><text class="label">{{t('notification.detail.updatedBy')}}</text
+      ><text>{{detail.updatedByName || '-'}}</text></view
+    >
+    <view class="meta-row"
+      ><text class="label">{{t('notification.detail.relatedId')}}</text
+      ><text>{{detail.relatedId || '-'}}</text></view
+    >
+  </view>
+
+  <view wx:if="{{detail}}" class="detail-card">
+    <view class="content-title">{{t('notification.detail.content')}}</view>
+    <text class="content-text">{{detail.content || t('common.empty.noDescription')}}</text>
+  </view>
+
+  <view wx:if="{{!detail}}" class="empty-state">
+    <uni-icon type="vant" name="search" size="72" color="#d0d7de" />
+    <text class="empty-text">{{t('common.empty.notFound')}}</text>
+  </view>
+</view>

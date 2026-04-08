@@ -1,24 +1,62 @@
+import { favoriteSeat } from '../../apis/user';
+import { searchSeats } from '../../apis/seats';
 import { t, getLangClassName } from '../../utils/i18n';
+import { openReservationWithParams } from '../../utils/reservationNavigator';
+import { sortBySeatPosition } from '../../utils/sort';
+
+function decodeKeyword(value?: string) {
+  if (!value) return '';
+
+  try {
+    return decodeURIComponent(value);
+  } catch (error) {
+    console.warn('decode keyword failed', error);
+    return value;
+  }
+}
+
+function normalizeSeat(seat: any) {
+  const statusMap: Record<string, string> = {
+    '0': 'available',
+    '1': 'booked',
+    '2': 'maintenance',
+    available: 'available',
+    booked: 'booked',
+    maintenance: 'maintenance',
+  };
+
+  const typeMap: Record<string, string> = {
+    '0': t('reservation.seatType.single'),
+    '1': t('reservation.seatType.double'),
+    '2': t('reservation.seatType.group'),
+  };
+
+  const facilities = [
+    ...(seat.hasSocket ? [t('common.seat.facilities.power')] : []),
+    ...(seat.isWindow ? [t('common.seat.facilities.window')] : []),
+  ];
+
+  return {
+    id: String(seat.id),
+    name: `${seat.floorName || ''} ${seat.zone || ''} R${seat.row}C${seat.col}`.trim(),
+    zone: seat.zone || '',
+    floor: seat.floorName || '',
+    description: seat.description || '',
+    status: statusMap[String(seat.status)] || 'available',
+    facilities,
+    distance: '',
+    type: typeMap[String(seat.type)] || t('reservation.seatType.single'),
+  };
+}
 
 Page({
   data: {
-    // 搜索关键字
     searchValue: '',
-
-    // 状态筛选
     currentStatus: 'all',
-    statusList: [
-      { id: 'all', name: '全部' },
-      { id: 'available', name: '可用' },
-      { id: 'booked', name: '已预约' },
-      { id: 'maintenance', name: '维修中' },
-    ],
-
-    // 搜索结果
+    statusList: [] as Array<{ id: string; name: string }>,
     searchResults: [] as any[],
+    sourceResults: [] as any[],
     resultCount: 0,
-
-    // 多语言
     currentLang: 'zh' as 'zh' | 'en',
     languageClass: '',
     navTitle: '',
@@ -26,57 +64,40 @@ Page({
     searchingHint: '',
     noResultsHint: '',
     actionButtonText: '',
+    searchPlaceholder: '',
   },
 
-  /**
-   * 生命周期函数--监听页面加载
-   */
   onLoad(options: any) {
-    const app = getApp();
-
-    // 获取传递的搜索关键字
-    const keyword = options.keyword || '';
-
-    this.setData({
-      searchValue: keyword,
-      navTitle: app.t('searchResult.title'),
-    });
-
-    // 初始化语言
-    this.initLanguage();
-
-    // 执行搜索
+    const keyword = decodeKeyword(options.keyword || '');
+    this.initLanguage(keyword);
     if (keyword) {
       this.performSearch(keyword);
     }
   },
 
-  /**
-   * 生命周期函数--监听页面显示
-   */
   onShow() {
-    const app = getApp();
-    const globalLang = app.globalData?.currentLang || 'zh';
-
+    const globalLang = getApp<IAppOption>().globalData?.currentLang || 'zh';
     if (globalLang !== this.data.currentLang) {
-      this.initLanguage();
+      this.initLanguage(this.data.searchValue);
+      if (this.data.searchValue) {
+        this.performSearch(this.data.searchValue);
+      }
     }
   },
 
-  /**
-   * 初始化语言
-   */
-  initLanguage() {
+  initLanguage(keyword = '') {
     const currentLang = getApp<IAppOption>().globalData?.currentLang || 'zh';
 
     this.setData({
       currentLang,
       languageClass: getLangClassName(),
       navTitle: t('searchResult.title'),
-      hintText: t('searchResult.hint.searchKeyword', { keyword: this.data.searchValue }),
+      hintText: keyword ? t('searchResult.hint.searchKeyword', { keyword }) : '',
       searchingHint: t('common.hint.loading'),
       noResultsHint: t('common.hint.noData'),
       actionButtonText: t('searchResult.action.reserve'),
+      searchPlaceholder: t('search.placeholder'),
+      searchValue: keyword,
       statusList: [
         { id: 'all', name: t('common.status.all') },
         { id: 'available', name: t('common.status.available') },
@@ -86,190 +107,104 @@ Page({
     });
   },
 
-  /**
-   * 执行搜索
-   */
   performSearch(keyword: string) {
-    const app = getApp() as any;
-    const t = app.t || ((key: string) => key);
+    wx.showLoading({ title: this.data.searchingHint });
 
-    wx.showLoading({
-      title: this.data.searchingHint,
-    });
-
-    // TODO: 调用后端搜索接口
-    // 这里使用模拟数据
-    setTimeout(() => {
-      const mockResults = [
-        {
-          id: 'C1-001',
-          name: 'C 区 1 楼电子阅览区',
-          zone: 'C 区',
-          floor: '1 楼',
-          description: '电子阅览区',
-          status: 'available',
-          facilities: [t('common.seat.facilities.power'), t('common.seat.facilities.network')],
-          distance: 30,
-          type: 'single',
-        },
-        {
-          id: 'A2-015',
-          name: 'A 区 2 楼研修室',
-          zone: 'A 区',
-          floor: '2 楼',
-          description: '研修室',
-          status: 'booked',
-          facilities: [t('common.seat.facilities.window')],
-          distance: 50,
-          type: 'group',
-        },
-      ];
-
-      // 根据关键字过滤结果
-      const filtered = mockResults.filter((seat) => {
-        return (
-          seat.name.includes(keyword) || seat.id.includes(keyword) || seat.zone.includes(keyword)
+    searchSeats(keyword)
+      .then((res: any) => {
+        const results = sortBySeatPosition(
+          (Array.isArray(res.data) ? res.data : []).map(normalizeSeat)
         );
+        this.setData({
+          sourceResults: results,
+          searchResults: this.filterByStatus(results, this.data.currentStatus),
+          resultCount: this.filterByStatus(results, this.data.currentStatus).length,
+          hintText: t('searchResult.hint.searchKeyword', { keyword }),
+          searchValue: keyword,
+        });
+      })
+      .catch((error) => {
+        console.error('search seats failed', error);
+        this.setData({
+          sourceResults: [],
+          searchResults: [],
+          resultCount: 0,
+        });
+        wx.showToast({ title: t('common.hint.loadFailed'), icon: 'none' });
+      })
+      .finally(() => {
+        wx.hideLoading();
       });
-
-      this.setData({
-        searchResults: filtered,
-        resultCount: filtered.length,
-        hintText: t('searchResult.hint.searchKeyword', { keyword }),
-      });
-
-      wx.hideLoading();
-    }, 500);
   },
 
-  /**
-   * 搜索内容变化事件
-   */
-  onSearchChange(e: any) {
-    this.setData({
-      searchValue: e.detail,
-    });
+  filterByStatus(list: any[], status: string) {
+    if (status === 'all') return list;
+    return list.filter((seat) => seat.status === status);
   },
 
-  /**
-   * 搜索确认事件
-   */
-  onSearchConfirm(e: any) {
-    const keyword = e.detail;
-    if (keyword) {
-      this.performSearch(keyword);
-    }
+  onSearchChange(e: WechatMiniprogram.CustomEvent) {
+    this.setData({ searchValue: e.detail });
   },
 
-  /**
-   * 搜索取消事件
-   */
+  onSearchConfirm(e: WechatMiniprogram.CustomEvent) {
+    const keyword = String(e.detail || '').trim();
+    if (!keyword) return;
+    this.performSearch(keyword);
+  },
+
   onSearchCancel() {
     this.setData({
       searchValue: '',
+      hintText: '',
+      sourceResults: [],
       searchResults: [],
       resultCount: 0,
+      currentStatus: 'all',
     });
   },
 
-  /**
-   * 状态筛选点击事件
-   */
-  onStatusTap(e: any) {
-    const statusId = e.currentTarget.dataset.id;
+  onStatusTap(e: WechatMiniprogram.TouchEvent) {
+    const statusId = String(e.currentTarget.dataset.id || 'all');
+    const filtered = this.filterByStatus(this.data.sourceResults, statusId);
+
     this.setData({
       currentStatus: statusId,
+      searchResults: filtered,
+      resultCount: filtered.length,
     });
-
-    // 根据状态过滤结果
-    this.filterByStatus(statusId);
   },
 
-  /**
-   * 根据状态过滤
-   */
-  filterByStatus(statusId: string) {
-    const app = getApp() as any;
-    const t = app.t || ((key: string) => key);
-
-    // TODO: 调用后端接口或本地过滤
-    setTimeout(() => {
-      const mockResults = [
-        {
-          id: 'C1-001',
-          name: 'C 区 1 楼电子阅览区',
-          zone: 'C 区',
-          floor: '1 楼',
-          description: '电子阅览区',
-          status: 'available',
-          facilities: [t('common.seat.facilities.power'), t('common.seat.facilities.network')],
-          distance: 30,
-          type: 'single',
-        },
-        {
-          id: 'A2-015',
-          name: 'A 区 2 楼研修室',
-          zone: 'A 区',
-          floor: '2 楼',
-          description: '研修室',
-          status: statusId === 'booked' ? 'booked' : 'available',
-          facilities: [t('common.seat.facilities.window')],
-          distance: 50,
-          type: 'group',
-        },
-      ];
-
-      const filtered =
-        statusId === 'all' ? mockResults : mockResults.filter((seat) => seat.status === statusId);
-
-      this.setData({
-        searchResults: filtered,
-        resultCount: filtered.length,
-      });
-    }, 300);
-  },
-
-  /**
-   * 处理预约按钮点击
-   */
-  onReserveTap(e: any) {
+  onReserveTap(e: WechatMiniprogram.CustomEvent) {
     const { seatId, seatInfo } = e.detail;
-    const app = getApp() as any;
-    const t = app.t || ((key: string) => key);
-
-    wx.showToast({
-      title: t('searchResult.hint.reserveSuccess'),
-      icon: 'success',
+    openReservationWithParams({
+      seatId,
+      seatName: seatInfo?.name,
+      zone: seatInfo?.zone,
+      floor: seatInfo?.floor,
+      type: seatInfo?.type,
+      facilities: (seatInfo?.facilities || []).join(','),
     });
-
-    // TODO: 跳转到预约确认页面或调用预约接口
-    console.log('预约座位:', seatId, seatInfo);
   },
 
-  /**
-   * 处理收藏按钮点击
-   */
-  onFavoriteTap(e: any) {
+  onFavoriteTap(e: WechatMiniprogram.CustomEvent) {
     const { seatId, isFavorite } = e.detail;
-    const app = getApp() as any;
-    const t = app.t || ((key: string) => key);
-
-    wx.showToast({
-      title: isFavorite ? t('searchResult.hint.favoriteSuccess') : t('common.hint.success'),
-      icon: 'success',
-    });
-
-    // TODO: 调用收藏接口
-    console.log('收藏座位:', seatId, isFavorite);
+    favoriteSeat(seatId)
+      .then(() => {
+        wx.showToast({
+          title: isFavorite ? t('common.btn.favorite') : t('common.btn.unfavorite'),
+          icon: 'success',
+        });
+      })
+      .catch((error) => {
+        console.error('toggle favorite failed', error);
+        wx.showToast({ title: t('common.hint.error'), icon: 'none' });
+      });
   },
 
-  /**
-   * 处理详情按钮点击
-   */
-  onDetailTap(e: any) {
-    const { seatId, seatInfo } = e.detail;
-
-    // TODO: 跳转到座位详情页面
-    console.log('查看座位详情:', seatId, seatInfo);
+  onDetailTap(e: WechatMiniprogram.CustomEvent) {
+    const { seatId } = e.detail;
+    wx.navigateTo({
+      url: `/pages/seat-detail/seat-detail?id=${seatId}`,
+    });
   },
 });

@@ -1,0 +1,89 @@
+﻿<page-meta>
+  <navigation-bar title="{{navTitle}}" back="{{true}}" />
+</page-meta>
+
+<view class="page-container {{languageClass}}">
+  <view wx:if="{{activity}}" class="hero-card">
+    <image
+      wx:if="{{activity.image}}"
+      class="hero-image"
+      src="{{activity.image}}"
+      mode="aspectFill"
+    />
+    <view wx:else class="hero-image hero-image--placeholder">
+      <uni-icon type="vant" name="photo-o" size="72" color="#ffffff" />
+    </view>
+    <view class="hero-content">
+      <view class="hero-title">{{activity.title}}</view>
+      <view class="hero-tags">
+        <van-tag type="{{activity.statusType}}" size="medium">{{activity.statusText}}</van-tag>
+        <van-tag type="{{activity.isJoined ? 'primary' : 'default'}}" plain size="medium">
+          {{activity.isJoined ? joinedText : notJoinedText}}
+        </van-tag>
+      </view>
+    </view>
+  </view>
+
+  <view wx:if="{{activity}}" class="stats-grid">
+    <view class="stats-card">
+      <text class="stats-label">{{participantsLabel}}</text>
+      <text class="stats-value">{{activity.participantCount}}</text>
+    </view>
+    <view class="stats-card">
+      <text class="stats-label">{{locationLabel}}</text>
+      <text class="stats-value stats-value--small">{{activity.location || '-'}}</text>
+    </view>
+  </view>
+
+  <view wx:if="{{activity}}" class="section-card">
+    <view class="section-title">{{timeLabel}}</view>
+    <view class="info-row"
+      ><text class="label">{{dateLabel}}</text
+      ><text class="value">{{activity.scheduleText}}</text></view
+    >
+    <view class="info-row"
+      ><text class="label">{{locationLabel}}</text
+      ><text class="value">{{activity.locationText}}</text></view
+    >
+    <view class="info-row"
+      ><text class="label">{{participantsLabel}}</text
+      ><text class="value"
+        >{{activity.participantCount}} / {{activity.maxParticipants || '-'}}</text
+      ></view
+    >
+    <view class="participant-progress">
+      <view class="participant-progress__bar" style="width: {{activity.participantRate}}"></view>
+    </view>
+  </view>
+
+  <view wx:if="{{activity}}" class="section-card">
+    <view class="section-title">{{descriptionLabel}}</view>
+    <text class="description-text">{{activity.descriptionText}}</text>
+  </view>
+
+  <view wx:if="{{activity}}" class="section-card">
+    <view class="section-title">{{auditInfoLabel}}</view>
+    <view class="info-row"
+      ><text class="label">{{organizerLabel}}</text
+      ><text class="value">{{activity.publisherName}}</text></view
+    >
+    <view class="info-row"
+      ><text class="label">{{updatedByLabel}}</text
+      ><text class="value">{{activity.updaterName}}</text></view
+    >
+  </view>
+
+  <view wx:if="{{activity}}" class="action-bar">
+    <van-button wx:if="{{activity.canJoin}}" type="primary" round bind:tap="onJoin"
+      >{{joinNowText}}</van-button
+    >
+    <van-button wx:if="{{activity.canCancel}}" plain round bind:tap="onCancelJoin"
+      >{{cancelJoinText}}</van-button
+    >
+  </view>
+
+  <view wx:if="{{!activity}}" class="empty-state">
+    <uni-icon type="vant" name="search" size="72" color="#d0d7de" />
+    <text class="empty-text">{{notFoundText}}</text>
+  </view>
+</view>

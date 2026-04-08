@@ -16,6 +16,12 @@ export default {
   'common.btn.viewAll': '查看全部',
   'common.btn.reserve': '预约',
   'common.btn.detail': '查看详情',
+  'common.btn.favorite': '收藏',
+  'common.btn.unfavorite': '取消收藏',
+  'common.btn.checkIn': '签到',
+  'common.btn.checkOut': '签退',
+  'common.btn.renew': '续约',
+  'common.btn.retry': '重试',
 
   // 状态通用文案
   'common.status.all': '全部',
@@ -28,7 +34,7 @@ export default {
   'common.status.cancelled': '已取消',
   'common.status.violated': '已违约',
   'common.status.booked': '已预约',
-  'common.status.maintenance': '维修中',
+  'common.status.maintenance': '维护中',
   'common.status.selected': '已选择',
 
   // 提示信息
@@ -39,6 +45,13 @@ export default {
   'common.hint.networkError': '网络错误，请稍后重试',
   'common.hint.noResults': '暂无搜索结果',
   'common.hint.searching': '搜索中...',
+  'common.hint.pleaseLogin': '请先登录',
+  'common.hint.loadFailed': '加载失败',
+  'common.hint.checkInSuccess': '签到成功',
+  'common.hint.checkOutSuccess': '签退成功',
+  'common.hint.invalidQrCode': '无效的二维码内容',
+  'common.hint.processing': '处理中...',
+  'common.hint.uploadFailed': '上传失败',
 
   // 时间相关
   'common.time.days': '天',
@@ -49,6 +62,8 @@ export default {
   // 数字格式
   'common.number.people': '人',
   'common.number.items': '项',
+  'common.number.times': '次',
+  'common.number.results': '个结果',
 
   // 语言切换
   'common.lang.switch': '切换语言',
@@ -60,13 +75,42 @@ export default {
   'common.seat.facilities.window': '靠窗',
   'common.seat.facilities.network': '高速网络',
 
+  // 通用字段
+  'common.field.seat': '座位',
+  'common.field.date': '日期',
+  'common.field.time': '时间',
+  'common.field.status': '状态',
+  'common.field.location': '地点',
+  'common.field.description': '描述',
+  'common.field.floor': '楼层',
+  'common.field.zone': '区域',
+  'common.field.type': '类型',
+  'common.field.contact': '联系方式',
+  'common.field.facilities': '设施',
+  'common.field.participants': '参与人数',
+  'common.field.creditScore': '信用分',
+  'common.field.level': '等级',
+  'common.field.records': '记录',
+  'common.field.publisher': '发布人',
+  'common.field.updatedBy': '更新人',
+  'common.field.createdAt': '创建时间',
+  'common.field.updatedAt': '更新时间',
+  'common.field.images': '图片',
+  'common.field.reason': '原因',
+  'common.field.range': '范围',
+  'common.field.relatedId': '关联编号',
+
+  // 通用空状态
+  'common.empty.notFound': '未找到对应数据',
+  'common.empty.noDescription': '暂无描述',
+
   // 我的收藏页面
   'myCollection.title': '我的收藏',
   'myCollection.search.placeholder': '搜索座位或时段...',
   'myCollection.favoriteSeats': '常用座位',
   'myCollection.favoriteTimeSlots': '常用时段',
   'myCollection.empty.seat': '暂无收藏座位',
-  'myCollection.empty.timeSlot': '暂无收藏时段',
+  'myCollection.empty.timeSlot': '暂无常用时段',
   'myCollection.timeRange': '时间范围',
   'myCollection.duration': '时长',
   'myCollection.frequency': '使用频率',
@@ -77,7 +121,7 @@ export default {
   'myCollection.confirm.deleteSeatTitle': '删除座位',
   'myCollection.confirm.deleteSeatContent': '确定要删除该座位收藏吗？',
   'myCollection.confirm.deleteTimeSlotTitle': '删除时段',
-  'myCollection.confirm.deleteTimeSlotContent': '确定要删除该时段收藏吗？',
+  'myCollection.confirm.deleteTimeSlotContent': '确定要删除该时段记录吗？',
   'myCollection.hint.deleteSuccess': '删除成功',
   'myCollection.hint.selectSuccess': '选择成功',
   'myCollection.hint.quickReserve': '正在预约',
@@ -87,7 +131,7 @@ export default {
   'myCollection.example.studyAreaDiscussionTable': '自习区讨论桌',
   'myCollection.example.weekdayAfternoon': '周一至周五下午',
   'myCollection.example.saturdayMorning': '周六上午',
-  'myCollection.example.sundayEvening': '周日晚上',
+  'myCollection.example.sundayEvening': '周日晚间',
   'myCollection.example.hours3': '3 小时',
   'myCollection.example.usageFrequency12': '使用频率：12 次',
   'myCollection.example.usageFrequency8': '使用频率：8 次',

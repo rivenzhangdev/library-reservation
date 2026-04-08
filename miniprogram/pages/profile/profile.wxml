@@ -1,14 +1,11 @@
-<!-- 个人中心页面 -->
-<page-meta>
-  <!-- 导航栏 -->
+﻿<page-meta>
   <navigation-bar title="{{pageTitle}}" back="{{false}}" />
 </page-meta>
 
 <view class="page-container">
   <view class="profile-content">
-    <!-- 语言切换按钮区域 -->
     <view class="lang-switch-section">
-      <view class="lang-switch-card" bindtap="onLanguageSwitch">
+      <view class="lang-switch-card" bind:tap="onLanguageSwitch">
         <view class="lang-switch-content">
           <uni-icon type="vant" name="globe" size="40" color="#409eff" />
           <view class="lang-switch-text">
@@ -20,44 +17,48 @@
       </view>
     </view>
 
-    <!-- 用户信息卡片 -->
-    <view class="user-card">
-      <!-- 用户头像 -->
+    <view class="user-card {{!isLoggedIn ? 'user-card--guest' : ''}}">
       <view class="user-avatar-wrapper">
-        <view class="user-avatar">
+        <image wx:if="{{avatarUrl}}" class="user-avatar" src="{{avatarUrl}}" mode="aspectFill" />
+        <view wx:else class="user-avatar">
           <uni-icon type="vant" name="user-o" size="80" color="#fff" />
         </view>
       </view>
 
-      <!-- 用户信息 -->
       <view class="user-info">
         <view class="user-name">{{userName}}</view>
 
-        <!-- 学号和手机 -->
+        <view wx:if="{{isLoggedIn && userAccount}}" class="user-account-row">
+          <text class="user-account-label">{{userAccountLabel}}</text>
+          <text class="user-account-value">{{userAccount}}</text>
+        </view>
+
         <view class="user-details">
           <view class="user-detail-item">
-            <uni-icon type="vant" name="idcard" size="28" color="rgba(255,255,255,0.8)" />
+            <uni-icon type="vant" name="idcard" size="28" color="rgba(255,255,255,0.85)" />
             <text class="detail-text">{{studentId}}</text>
           </view>
           <view class="user-detail-item">
-            <uni-icon type="vant" name="phone" size="28" color="rgba(255,255,255,0.8)" />
+            <uni-icon type="vant" name="phone" size="28" color="rgba(255,255,255,0.85)" />
             <text class="detail-text">{{phone}}</text>
           </view>
+        </view>
+
+        <view wx:if="{{!isLoggedIn}}" class="login-panel">
+          <text class="login-tip">{{loginTip}}</text>
+          <button class="login-button" bind:tap="onLoginTap">{{loginActionText}}</button>
         </view>
       </view>
     </view>
 
-    <!-- 我的服务 -->
     <section-list
       title="{{sectionTitle}}"
       items="{{serviceItems}}"
       bind:itemTap="onSectionItemTap"
     />
 
-    <!-- 个人中心 -->
     <section-list title="{{centerTitle}}" items="{{centerItems}}" bind:itemTap="onSectionItemTap" />
 
-    <!-- 系统设置 -->
     <section-list
       title="{{settingsTitle}}"
       items="{{settingsItems}}"

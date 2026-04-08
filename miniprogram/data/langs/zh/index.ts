@@ -7,6 +7,7 @@ import searchResult from './modules/searchResult';
 import myReservation from './modules/myReservation';
 import activity from './modules/activity';
 import feedback from './modules/feedback';
+import credit from './modules/credit';
 
 export default {
   ...common,
@@ -18,4 +19,5 @@ export default {
   ...myReservation,
   ...activity,
   ...feedback,
+  ...credit,
 };
