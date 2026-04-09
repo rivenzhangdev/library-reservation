@@ -15,7 +15,7 @@ function normalizeUserInfo(userInfo: any) {
   };
 }
 
-const appConfig: IAppOption = {
+const appConfig = {
   globalData: {
     userInfo: normalizeUserInfo(getUserInfo()),
     currentLang: 'zh' as 'zh' | 'en',
@@ -33,7 +33,9 @@ const appConfig: IAppOption = {
     wx.setStorageSync('logs', logs);
 
     const token = getToken();
-    if (!token) return;
+    if (!token) {
+      return;
+    }
 
     checkLogin()
       .then((res) => {
@@ -48,6 +50,14 @@ const appConfig: IAppOption = {
         clearAuthState();
         this.globalData.userInfo = undefined;
       });
+  },
+
+  onShow() {
+    const token = getToken();
+    if (!token) {
+      this.globalData.userInfo = undefined;
+      return;
+    }
   },
 
   doWxLogin(userProfile: Record<string, any> = {}) {

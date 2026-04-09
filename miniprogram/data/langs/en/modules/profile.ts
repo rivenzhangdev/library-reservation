@@ -4,17 +4,21 @@
   'profile.centerTitle': 'Personal Center',
   'profile.settingsTitle': 'System Settings',
 
-  'profile.user.name': 'Zhang San',
-  'profile.user.studentId': 'Student ID: 20240001',
-  'profile.user.phone': 'Phone: 138****0000',
-  'profile.user.creditScore': 'Credit Score: 100',
-  'profile.user.balance': 'Balance: 0.00',
   'profile.user.guest': 'Guest',
   'profile.user.unbound': '-',
   'profile.user.wechatAccount': 'WeChat Account',
 
+  'login.pageTitle': 'Login',
+  'login.brandTitle': 'Smart Library',
+  'login.brandSubtitle': 'Reserve seats, join events, and enjoy an easier library experience',
+  'login.description': 'Please log in with WeChat to continue using library services.',
+  'login.button': 'WeChat One-click Login',
+  'login.agreement': 'By logging in you agree to',
+  'login.agreementTip': 'User agreement page is not yet implemented',
+  'login.privacyTip': 'Privacy policy page is not yet implemented',
+
   'profile.login.tip':
-    'Log in with WeChat to use reservations, notifications, feedback and your personal profile.',
+    'Log in to reserve seats quickly, see notifications, send feedback, and manage your profile.',
   'profile.login.action': 'WeChat Login',
   'profile.login.noticeTitle': 'Please Log In',
   'profile.login.noticeContent':

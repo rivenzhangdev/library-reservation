@@ -22,11 +22,25 @@
     "miniprogram": {
       "list": [
         {
-          "name": "pages/feedback/feedback",
-          "pathName": "pages/feedback/feedback",
+          "name": "pages/personal-info/personal-info",
+          "pathName": "pages/personal-info/personal-info",
           "query": "",
           "scene": null,
           "launchMode": "default"
+        },
+        {
+          "name": "pages/settings-env/settings-env",
+          "pathName": "pages/settings-env/settings-env",
+          "query": "",
+          "launchMode": "default",
+          "scene": null
+        },
+        {
+          "name": "pages/feedback/feedback",
+          "pathName": "pages/feedback/feedback",
+          "query": "",
+          "launchMode": "default",
+          "scene": null
         },
         {
           "name": "pages/feedback/feedback",

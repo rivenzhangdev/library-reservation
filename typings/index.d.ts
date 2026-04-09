@@ -8,7 +8,7 @@ interface IAppOption {
       avatar?: string,
       avatarUrl?: string,
       studentId?: string | null,
-      role?: string,
+      role?: number,
       phone?: string,
       creditScore?: number,
       [key: string]: any,
@@ -24,4 +24,5 @@ interface IAppOption {
   customSwitchLanguage: (lang: 'zh' | 'en') => void,
   doWxLogin: (userProfile?: Record<string, any>) => Promise<any>,
   onLaunch: () => void,
+  onShow?: () => void,
 }

@@ -65,7 +65,7 @@ function handleError(res: WechatMiniprogram.RequestSuccessCallbackResult) {
     if (statusCode === 401) {
       clearAuthState();
       setTimeout(() => {
-        wx.reLaunch({ url: '/pages/profile/profile' });
+        wx.reLaunch({ url: '/pages/login/login' });
       }, 1500);
     }
 
@@ -97,7 +97,7 @@ function handleError(res: WechatMiniprogram.RequestSuccessCallbackResult) {
     if (errorCode === 'InvalidToken' || errorCode === 'TokenExpired') {
       clearAuthState();
       setTimeout(() => {
-        wx.reLaunch({ url: '/pages/profile/profile' });
+        wx.reLaunch({ url: '/pages/login/login' });
       }, 1500);
     }
 
@@ -189,7 +189,8 @@ function request(options: RequestOptions): Promise<HttpResponse> {
           resolve(res.data as HttpResponse);
         } else {
           // 错误处理
-          handleError(res);
+          handleError(res).catch(reject);
+          return;
         }
       },
       fail: (err) => {

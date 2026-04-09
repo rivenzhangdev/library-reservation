@@ -95,6 +95,17 @@ export function isLogin(): boolean {
   return !!token;
 }
 
+export function redirectToLogin(redirectUrl?: string): void {
+  const pages = getCurrentPages();
+  const currentPage = pages[pages.length - 1] as any;
+  if (currentPage?.route === 'pages/login/login') {
+    return;
+  }
+
+  const query = redirectUrl ? `?redirectUrl=${encodeURIComponent(redirectUrl)}` : '';
+  wx.navigateTo({ url: `/pages/login/login${query}` });
+}
+
 export function hasBoundStudentInfo(userInfo?: any): boolean {
   const user = userInfo || getUserInfo();
   const studentId = String(user?.studentId || '').trim();
@@ -108,10 +119,7 @@ export function requireLogin(callback: () => void): void {
   if (isLogin()) {
     callback();
   } else {
-    wx.showToast({
-      title: '请先登录',
-      icon: 'none',
-    });
+    redirectToLogin();
   }
 }
 
@@ -169,6 +177,7 @@ export default {
   setUserInfo,
   clearUserInfo,
   isLogin,
+  redirectToLogin,
   requireLogin,
   logout,
   clearAuthState,

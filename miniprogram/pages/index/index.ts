@@ -4,7 +4,7 @@ import { getActivities, joinActivity } from '../../apis/activity';
 import { getFloors, getFloorSeats } from '../../apis/seats';
 import { favoriteSeat } from '../../apis/user';
 import { checkin, checkout } from '../../apis/booking';
-import { getToken, setToken, setUserInfo } from '../../utils/auth';
+import { getToken, redirectToLogin } from '../../utils/auth';
 import { resolveAssetUrl } from '../../utils/assets';
 import { t } from '../../utils/i18n';
 import { openReservationWithParams } from '../../utils/reservationNavigator';
@@ -101,12 +101,6 @@ Page({
     this.updateLanguage();
     this.loadSeatOverview();
     this.loadActivities();
-
-    if (!getToken()) {
-      wx.switchTab({
-        url: '/pages/profile/profile',
-      });
-    }
   },
 
   updateLanguage() {
@@ -168,24 +162,6 @@ Page({
           activityId: '',
         },
       ],
-    });
-  },
-
-  maybePromptLogin() {
-    if (getToken() || (this as any).__loginPrompted) return;
-    (this as any).__loginPrompted = true;
-
-    wx.showModal({
-      title: this.data.currentLang === 'zh' ? '微信登录' : 'WeChat Login',
-      content:
-        this.data.currentLang === 'zh'
-          ? '登录后可使用预约、收藏、报名活动等功能。'
-          : 'Log in to reserve seats, save favorites and join activities.',
-      confirmText: this.data.currentLang === 'zh' ? '去登录' : 'Login',
-      success: (res) => {
-        if (!res.confirm) return;
-        this.onWechatLogin();
-      },
     });
   },
 
@@ -371,7 +347,6 @@ Page({
   async loadActivities() {
     if (!getToken()) {
       this.setData({ banners: [], activityList: [] });
-      this.maybePromptLogin();
       return;
     }
 
@@ -526,7 +501,7 @@ Page({
     const seatInfo = this.data.seatList[index || 0];
     if (!seatInfo) return;
     if (!getToken()) {
-      this.maybePromptLogin();
+      redirectToLogin();
       return;
     }
 
@@ -684,7 +659,7 @@ Page({
     }
 
     if (!getToken()) {
-      this.maybePromptLogin();
+      redirectToLogin();
       return;
     }
 
@@ -709,31 +684,6 @@ Page({
 
     wx.navigateTo({
       url: '/pages/my-reservation/my-reservation',
-    });
-  },
-
-  onWechatLogin() {
-    const app = getApp<IAppOption>() as any;
-    wx.getUserProfile({
-      desc:
-        this.data.currentLang === 'zh'
-          ? '用于完善头像和昵称信息'
-          : 'Used to complete your avatar and nickname',
-      success: async (profileRes) => {
-        try {
-          const loginRes = await app.doWxLogin?.(profileRes.userInfo || {});
-          const responseData = loginRes?.data || loginRes;
-          if (responseData?.token) {
-            setToken(responseData.token);
-          }
-          if (responseData?.userInfo || responseData?.user) {
-            setUserInfo(responseData.userInfo || responseData.user);
-          }
-          this.loadActivities();
-        } catch (_error) {
-          wx.showToast({ title: t('common.hint.error'), icon: 'none' });
-        }
-      },
     });
   },
 });

@@ -304,10 +304,11 @@ Page({
       for (const filePath of chooseRes.tempFilePaths) {
         const dataUrl = await readLocalImageAsDataUrl(filePath);
         const uploadRes: any = await uploadDataUrl(dataUrl);
-        const url = uploadRes?.data?.url || uploadRes?.url || '';
-        if (url) {
-          urls.push(url);
+        const url = uploadRes?.data?.url;
+        if (!url || typeof url !== 'string') {
+          throw new Error('Upload response did not return data.url');
         }
+        urls.push(url);
       }
 
       this.setData({

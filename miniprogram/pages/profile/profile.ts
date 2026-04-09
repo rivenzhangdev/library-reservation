@@ -1,5 +1,5 @@
-﻿import { getCredit, getProfile } from '../../apis/user';
-import { getUserInfo, isLogin, setUserInfo } from '../../utils/auth';
+﻿import { getProfile } from '../../apis/user';
+import { getUserInfo, isLogin, redirectToLogin, setUserInfo } from '../../utils/auth';
 import { t } from '../../utils/i18n';
 
 interface ProfileMenuItem {
@@ -24,8 +24,6 @@ interface ProfilePageData {
   userAccount: string;
   studentId: string;
   phone: string;
-  creditScore: string;
-  balance: string;
   serviceItems: ProfileMenuItem[];
   centerItems: ProfileMenuItem[];
   settingsItems: ProfileMenuItem[];
@@ -79,8 +77,6 @@ Page({
     avatarUrl: '',
     studentId: '',
     phone: '',
-    creditScore: '',
-    balance: '',
     serviceItems: [],
     centerItems: [],
     settingsItems: [],
@@ -98,7 +94,6 @@ Page({
   onShow() {
     this.updateLanguage();
     this.loadUserProfile();
-    this.maybePromptLogin();
   },
 
   buildMenus() {
@@ -229,7 +224,6 @@ Page({
         avatarUrl: '',
         studentId: t('profile.user.unbound'),
         phone: t('profile.user.unbound'),
-        creditScore: t('profile.user.unbound'),
       });
       return;
     }
@@ -252,59 +246,10 @@ Page({
         this.applyUserState(nextUserInfo);
       })
       .catch(() => {});
-
-    getCredit()
-      .then((res) => {
-        const creditData = res.data as any;
-        this.setData({
-          creditScore: String(creditData?.creditScore ?? creditData?.score ?? 100),
-        });
-      })
-      .catch(() => {});
-  },
-
-  maybePromptLogin() {
-    if (isLogin() || (this as any).__loginPrompted) return;
-    (this as any).__loginPrompted = true;
-
-    wx.showModal({
-      title: t('profile.login.noticeTitle'),
-      content: t('profile.login.noticeContent'),
-      showCancel: false,
-      confirmText: t('profile.login.action'),
-      success: (res) => {
-        if (res.confirm) {
-          this.onLoginTap();
-        }
-      },
-    });
   },
 
   onLoginTap() {
-    const app = getApp<IAppOption>() as any;
-    wx.getUserProfile({
-      desc:
-        this.data.currentLang === 'zh'
-          ? '用于完善头像、昵称和个人资料展示'
-          : 'Used to complete your avatar, nickname and profile display',
-      success: async (profileRes) => {
-        try {
-          await app.doWxLogin?.(profileRes.userInfo || {});
-          this.setData({ isLoggedIn: true });
-          this.loadUserProfile();
-          wx.showToast({
-            title: t('profile.login.success'),
-            icon: 'success',
-          });
-        } catch (error) {
-          console.error('profile login failed', error);
-          wx.showToast({
-            title: t('profile.login.failed'),
-            icon: 'none',
-          });
-        }
-      },
-    });
+    redirectToLogin();
   },
 
   onSectionItemTap(event: WechatMiniprogram.CustomEvent) {
@@ -325,13 +270,7 @@ Page({
 
   ensureLoggedIn() {
     if (isLogin()) return true;
-
-    wx.showModal({
-      title: t('profile.login.noticeTitle'),
-      content: t('profile.login.noticeContent'),
-      confirmText: t('profile.login.action'),
-    });
-
+    redirectToLogin();
     return false;
   },
 

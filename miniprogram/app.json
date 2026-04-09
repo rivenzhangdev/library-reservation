@@ -1,6 +1,7 @@
 {
   "pages": [
     "pages/index/index",
+    "pages/login/login",
     "pages/reservation/reservation",
     "pages/notification/notification",
     "pages/profile/profile",
