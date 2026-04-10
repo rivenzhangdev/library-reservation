@@ -61,6 +61,7 @@ Component({
     seatMapLegendMine: '',
     seatMapLegendMineDesc: '',
     seatMapInstruction: '',
+    seatMapEmptyText: '',
   } as SeatsSelectData,
 
   /**
@@ -97,7 +98,7 @@ Component({
    */
   observers: {
     seats(newVal: Seat[]) {
-      if (newVal && newVal.length > 0) {
+      if (Array.isArray(newVal)) {
         this.calculateGridSize();
       }
     },
@@ -131,13 +132,11 @@ Component({
       const seats = this.data.seats;
 
       if (seats.length === 0) {
-        // 如果没有座位数据，使用默认配置（单位：rpx）
-        const gap = 8; // var(--common-spacing-sm) = 8rpx
         this.setData({
-          rows: 5,
-          cols: 8,
-          seatSize: 80, // 80rpx
-          gridWidth: 8 * 80 + 7 * gap, // 座位总宽 + 7 个 gap
+          rows: 0,
+          cols: 0,
+          seatSize: 80,
+          gridWidth: 0,
         });
         return;
       }
@@ -146,13 +145,11 @@ Component({
       const rows = Math.max(...seats.map((seat) => seat.row));
       const cols = Math.max(...seats.map((seat) => seat.col));
 
-      // 计算最佳座位大小（考虑屏幕宽度）
-      const systemInfo = wx.getSystemInfoSync();
+      // 计算最佳座位大小（考虑屏幕宽度，并避免座位过大导致布局过空）
       const gap = 8; // var(--common-spacing-sm) = 8rpx
-      const availableWidth = systemInfo.windowWidth * 2 - 128; // windowWidth(px) 转 rpx，减去左右边距 128rpx
-
-      // 计算每个座位的大小（不减去 gap，gap 是额外的）
-      const seatSize = Math.min(Math.floor(availableWidth / cols), 120); // 最大 120rpx
+      const availableWidth = 750 - 128; // 750rpx 设计稿宽度，减去左右边距 128rpx
+      const computedSize = Math.floor((availableWidth - (cols - 1) * gap) / cols);
+      const seatSize = Math.min(Math.max(computedSize, 80), 110); // 保持座位大小在 80~110rpx 范围内
 
       this.setData({
         rows,
@@ -180,6 +177,18 @@ Component({
       }
 
       console.log('点击座位:', seatId, '状态:', seat.status);
+
+      const query = this.createSelectorQuery();
+      query.select(`#${seatId}`).boundingClientRect();
+      query.selectViewport().scrollOffset();
+      query.exec((res: any[]) => {
+        const rect = res && res[0] ? res[0] : null;
+        this.triggerEvent('seatTap', {
+          seatId: seat.id,
+          seat: seat,
+          rect,
+        });
+      });
 
       // 不能选择已预约、维修中的座位
       if (seat.status === 'booked' || seat.status === 'maintenance') {
@@ -252,6 +261,7 @@ Component({
         seatMapLegendMine: t('common.status.booked'),
         seatMapLegendMineDesc: t('reservation.seatMap.legend.mine.desc'),
         seatMapInstruction: t('reservation.seatMap.instruction'),
+        seatMapEmptyText: t('common.empty.notFound'),
       });
     },
   },

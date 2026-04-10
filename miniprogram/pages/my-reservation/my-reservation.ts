@@ -1,5 +1,5 @@
 import { getLangClassName, t } from '../../utils/i18n';
-import { getMyBookings, cancelBooking, checkin, renewBooking } from '../../apis/booking';
+import { getMyBookings, cancelBooking, checkin, checkout, renewBooking } from '../../apis/booking';
 import { isLogin } from '../../utils/auth';
 
 Page({
@@ -25,6 +25,7 @@ Page({
     renewSuccessHint: '',
     cancelSuccessHint: '',
     actionCheckinText: '',
+    actionCheckoutText: '',
     actionRenewText: '',
     actionCancelText: '',
     actionDetailText: '',
@@ -59,6 +60,8 @@ Page({
       emptyHint: t('myReservation.empty'),
       confirmCheckinTitle: t('myReservation.confirm.checkinTitle'),
       confirmCheckinContent: t('myReservation.confirm.checkinContent'),
+      confirmCheckoutTitle: t('myReservation.confirm.checkoutTitle'),
+      confirmCheckoutContent: t('myReservation.confirm.checkoutContent'),
       confirmRenewTitle: t('myReservation.confirm.renewTitle'),
       confirmRenewContent: t('myReservation.confirm.renewContent'),
       confirmCancelTitle: t('myReservation.confirm.cancelTitle'),
@@ -67,6 +70,7 @@ Page({
       renewSuccessHint: t('myReservation.hint.renewSuccess'),
       cancelSuccessHint: t('myReservation.hint.cancelSuccess'),
       actionCheckinText: t('myReservation.action.checkin'),
+      actionCheckoutText: t('myReservation.action.checkout'),
       actionRenewText: t('myReservation.action.renew'),
       actionCancelText: t('common.btn.cancel'),
       actionDetailText: t('common.btn.detail'),
@@ -258,6 +262,27 @@ Page({
     });
   },
 
+  onCheckoutTap(e: any) {
+    const { id } = e.currentTarget.dataset;
+    wx.showModal({
+      title: this.data.confirmCheckoutTitle,
+      content: this.data.confirmCheckoutContent,
+      confirmText: t('common.btn.confirm'),
+      cancelText: t('common.btn.cancel'),
+      success: (res) => {
+        if (!res.confirm) return;
+        checkout(id)
+          .then(() => {
+            wx.showToast({ title: t('common.hint.checkOutSuccess'), icon: 'success' });
+            this.loadReservations();
+          })
+          .catch(() => {
+            wx.showToast({ title: t('common.hint.error'), icon: 'none' });
+          });
+      },
+    });
+  },
+
   onRenewTap(e: any) {
     const { id } = e.currentTarget.dataset;
     const reservation = this.data.reservations.find((item) => item.id === id);
@@ -280,7 +305,7 @@ Page({
       cancelText: t('common.btn.cancel'),
       success: (res) => {
         if (!res.confirm) return;
-        renewBooking(id, String(nextTimeSlot))
+        renewBooking(id, nextTimeSlot)
           .then(() => {
             wx.showToast({ title: this.data.renewSuccessHint, icon: 'success' });
             this.loadReservations();

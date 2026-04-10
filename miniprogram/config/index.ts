@@ -72,10 +72,39 @@ export const BACKEND_ENVS = [
   },
 ];
 
+function resolveLanBaseUrl(baseUrl: string) {
+  if (!/localhost|127\.0\.0\.1/.test(baseUrl)) {
+    return baseUrl;
+  }
+
+  try {
+    const sys = wx.getSystemInfoSync && wx.getSystemInfoSync();
+    if (sys && sys.platform && sys.platform !== 'devtools') {
+      const matchedEnv = (Object.keys(DEFAULTS) as Array<keyof typeof DEFAULTS>).find(
+        (key) => DEFAULTS[key] === baseUrl
+      );
+      if (matchedEnv) {
+        const matchedLan = LAN_DEFAULTS[matchedEnv];
+        if (matchedLan) {
+          return matchedLan;
+        }
+      }
+      const firstLan = Object.values(LAN_DEFAULTS).find((v) => v && v.length > 0);
+      if (firstLan) {
+        return firstLan;
+      }
+    }
+  } catch (_e) {
+    // ignore
+  }
+
+  return baseUrl;
+}
+
 export function getBaseUrl() {
   try {
     const b = wx.getStorageSync(STORAGE_KEY) as string;
-    if (b) return b;
+    if (b) return resolveLanBaseUrl(b);
   } catch (_e) {
     // ignore
   }

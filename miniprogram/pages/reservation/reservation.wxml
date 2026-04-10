@@ -29,7 +29,7 @@
       <van-cell-group>
         <van-field
           readonly
-          model:value="{{selectedDate}}"
+          value="{{selectedDate}}"
           placeholder="{{t('reservation.time.date.placeholder')}}"
           bind:click="onDateClick"
           is-link
@@ -44,7 +44,7 @@
       <view class="time-period-options">
         <block wx:for="{{timePeriods}}" wx:key="value">
           <view
-            class="time-period-option {{currentTimePeriod === item.value ? 'active' : ''}}"
+            class="time-period-option {{currentTimePeriod === item.value ? 'active' : ''}} {{item.disabled ? 'disabled' : ''}}"
             bind:tap="onTimePeriodTap"
             data-value="{{item.value}}"
           >
@@ -55,11 +55,7 @@
       </view>
 
       <!-- 自定义时间段入口 -->
-      <view
-        class="custom-time-toggle"
-        wx:if="{{!showCustomTime && currentTimePeriod !== 'custom'}}"
-        bind:tap="toggleCustomTime"
-      >
+      <view class="custom-time-toggle" wx:if="{{!showCustomTime}}" bind:tap="toggleCustomTime">
         <uni-icon type="vant" name="edit" size="24" color="var(--common-primary-color)" />
         <text class="custom-time-text">{{customTimeConfirmText}}</text>
       </view>
@@ -69,32 +65,22 @@
         <view class="custom-time-inputs">
           <view class="custom-time-input">
             <view class="custom-time-label">{{customTimeStartText}}</view>
-            <picker
-              mode="time"
-              value="{{startTime}}"
-              bind:change="onStartTimeChange"
-              class="time-picker"
-            >
+            <view class="time-picker" bind:tap="onStartTimeClick">
               <view class="picker-display">
                 <text>{{startTime}}</text>
                 <uni-icon type="vant" name="clock-o" size="24" />
               </view>
-            </picker>
+            </view>
           </view>
 
           <view class="custom-time-input">
             <view class="custom-time-label">{{customTimeEndText}}</view>
-            <picker
-              mode="time"
-              value="{{endTime}}"
-              bind:change="onEndTimeChange"
-              class="time-picker"
-            >
+            <view class="time-picker" bind:tap="onEndTimeClick">
               <view class="picker-display">
                 <text>{{endTime}}</text>
                 <uni-icon type="vant" name="clock-o" size="24" />
               </view>
-            </picker>
+            </view>
           </view>
         </view>
 
@@ -102,6 +88,20 @@
           {{customTimeConfirmText}}
         </view>
       </view>
+
+      <van-popup
+        show="{{showDatetimePicker}}"
+        position="bottom"
+        custom-style="height: 320px;"
+        bind:close="onDatetimePickerCancel"
+      >
+        <van-datetime-picker
+          type="{{datetimePickerType}}"
+          value="{{datetimePickerValue}}"
+          bind:confirm="onDatetimePickerConfirm"
+          bind:cancel="onDatetimePickerCancel"
+        />
+      </van-popup>
 
       <!-- 取消自定义时间段 -->
       <view class="cancel-custom-time" wx:if="{{showCustomTime}}" bind:tap="toggleCustomTime">
@@ -141,6 +141,7 @@
         shape="round"
         custom-class="search-box"
         placeholder="{{searchPlaceholderText}}"
+        loading="{{seatsLoading}}"
         bind:change="onSearchChange"
         bind:search="onSearchConfirm"
       />
@@ -150,6 +151,11 @@
         {{filterText}}
       </van-button>
     </view>
+  </view>
+
+  <view class="search-loading" wx:if="{{seatsLoading}}">
+    <van-loading type="spinner" size="20" />
+    <text class="search-loading-text">加载中...</text>
   </view>
 
   <view class="filter-summary">
@@ -184,21 +190,25 @@
       <view class="filter-item">
         <view class="filter-label">{{filterFacilityText}}</view>
         <view class="facility-options">
-          <view class="facility-item" bind:tap="onFacilityTap" data-type="power">
+          <view class="facility-item {{facilities.power ? 'active' : ''}}">
             <van-checkbox
               checked="{{facilities.power}}"
               shape="square"
               icon-size="32rpx"
               class="facility-checkbox"
+              data-type="power"
+              bind:change="onFacilityTap"
             />
             <text class="facility-label">{{filterFacilityPowerText}}</text>
           </view>
-          <view class="facility-item" bind:tap="onFacilityTap" data-type="window">
+          <view class="facility-item {{facilities.window ? 'active' : ''}}">
             <van-checkbox
               checked="{{facilities.window}}"
               shape="square"
               icon-size="32rpx"
               class="facility-checkbox"
+              data-type="window"
+              bind:change="onFacilityTap"
             />
             <text class="facility-label">{{filterFacilityWindowText}}</text>
           </view>
@@ -221,8 +231,58 @@
       theme="{{theme}}"
       currentLang="{{currentLang}}"
       bind:seatSelect="onSeatSelect"
+      bind:seatTap="onSeatTap"
       bind:error="onSeatError"
     />
+
+    <!-- 座位信息卡片 -->
+    <view
+      class="seat-info-popover {{popoverDirection}}"
+      wx:if="{{selectedSeatInfo}}"
+      style="{{seatInfoPopoverStyle}}"
+    >
+      <view class="seat-info-popover-arrow"></view>
+      <view class="seat-info-card">
+        <view class="seat-info-header">
+          <view>
+            <text class="seat-info-title"
+              >{{selectedSeatInfo.seatName || selectedSeatInfo.row + '-' +
+              selectedSeatInfo.col}}</text
+            >
+            <text class="seat-info-subtitle">{{selectedSeatInfo.zone || ''}}</text>
+          </view>
+          <view class="seat-info-close" bind:tap="onCloseSeatInfo">
+            <text class="iconfont icon-close"></text>
+          </view>
+        </view>
+        <view class="seat-info-body">
+          <view class="seat-info-row">
+            <text class="seat-info-label">{{t('reservation.info.status')}}</text>
+            <text class="seat-info-value">{{selectedSeatInfo.statusText}}</text>
+          </view>
+          <view class="seat-info-row" wx:if="{{selectedSeatInfo.type}}">
+            <text class="seat-info-label">{{t('reservation.info.type')}}</text>
+            <text class="seat-info-value">{{selectedSeatInfo.type}}</text>
+          </view>
+          <view class="seat-info-row" wx:if="{{selectedSeatInfo.hasSocket}}">
+            <text class="seat-info-label">{{t('reservation.info.facility')}}</text>
+            <text class="seat-info-value">{{selectedSeatInfo.hasSocketText}}</text>
+          </view>
+          <view class="seat-info-row" wx:if="{{selectedSeatInfo.isWindow}}">
+            <text class="seat-info-label">{{t('reservation.info.window')}}</text>
+            <text class="seat-info-value">{{selectedSeatInfo.isWindowText}}</text>
+          </view>
+          <view class="seat-info-row" wx:if="{{selectedSeatInfo.bookedTimeRange}}">
+            <text class="seat-info-label">{{t('reservation.info.bookedTimeRange')}}</text>
+            <text class="seat-info-value">{{selectedSeatInfo.bookedTimeRange}}</text>
+          </view>
+          <view class="seat-info-row" wx:if="{{selectedSeatInfo.description}}">
+            <text class="seat-info-label">{{t('reservation.info.description')}}</text>
+            <text class="seat-info-value">{{selectedSeatInfo.description}}</text>
+          </view>
+        </view>
+      </view>
+    </view>
 
     <!-- 预约确认模块 -->
     <view

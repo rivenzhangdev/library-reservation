@@ -181,6 +181,9 @@ swiper {
 }
 
 .action-card uni-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   width: 72rpx;
   height: 72rpx;
   padding: 18rpx;

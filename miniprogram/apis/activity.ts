@@ -37,9 +37,33 @@ export const joinActivity = (id: string) =>
 export const cancelActivity = (id: string) =>
   activityApi.post(`/cancel/${id}`, null, { needAuth: true });
 
+/**
+ * 活动签到
+ * POST /api/activity/checkin/:id
+ */
+export const checkinActivity = (id: string) =>
+  activityApi.post(`/checkin/${id}`, null, {
+    needAuth: true,
+    showLoading: true,
+    loadingTitle: '签到中...',
+  });
+
+/**
+ * 活动签退
+ * POST /api/activity/checkout/:id
+ */
+export const checkoutActivity = (id: string) =>
+  activityApi.post(`/checkout/${id}`, null, {
+    needAuth: true,
+    showLoading: true,
+    loadingTitle: '签退中...',
+  });
+
 export default {
   getActivities,
   getActivityDetail,
   joinActivity,
   cancelActivity,
+  checkinActivity,
+  checkoutActivity,
 };

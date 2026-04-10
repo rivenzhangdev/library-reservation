@@ -16,6 +16,7 @@ export default {
   'actions.renew': 'Quick Renewal',
   'actions.checkin': 'Scan to Check-in',
   'actions.checkout': 'Scan to Check-out',
+  'actions.scan': 'Scan',
   // Opening Hours
   'openingHours.title': "Today's Opening Hours",
   'openingHours.time': '08:00 - 22:00',

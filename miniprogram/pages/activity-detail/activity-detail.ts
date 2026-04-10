@@ -1,4 +1,10 @@
-﻿import { cancelActivity, getActivityDetail, joinActivity } from '../../apis/activity';
+﻿import {
+  cancelActivity,
+  getActivityDetail,
+  joinActivity,
+  checkinActivity,
+  checkoutActivity,
+} from '../../apis/activity';
 import { isLogin } from '../../utils/auth';
 import { resolveAssetUrl } from '../../utils/assets';
 import { t } from '../../utils/i18n';
@@ -49,6 +55,11 @@ Page({
     updatedByLabel: '',
     joinNowText: '',
     cancelJoinText: '',
+    checkInText: '',
+    checkOutText: '',
+    signedInText: '',
+    signedOutText: '',
+    signStatusLabel: '',
     notFoundText: '',
   },
 
@@ -88,6 +99,11 @@ Page({
       updatedByLabel: t('activity.detail.updatedBy'),
       joinNowText: t('activity.detail.joinNow'),
       cancelJoinText: t('activity.detail.cancelJoin'),
+      checkInText: t('common.btn.checkIn'),
+      checkOutText: t('common.btn.checkOut'),
+      signedInText: t('activity.detail.signedIn'),
+      signedOutText: t('activity.detail.signedOut'),
+      signStatusLabel: t('activity.detail.signStatus'),
       notFoundText: t('common.empty.notFound'),
     });
   },
@@ -111,17 +127,35 @@ Page({
             ? `${Math.min(100, Math.round((participantCount / maxParticipants) * 100))}%`
             : '0%';
 
+        const checkedIn = Array.isArray(detail.checkedIn) ? detail.checkedIn : [];
+        const checkedOut = Array.isArray(detail.checkedOut) ? detail.checkedOut : [];
+        const isCheckedIn = checkedIn.some((item: any) => String(item) === String(currentUserId));
+        const isCheckedOut = checkedOut.some((item: any) => String(item) === String(currentUserId));
+        const canSignIn = isJoined && !isCheckedIn && String(detail.status) === '1';
+        const canSignOut =
+          isJoined && isCheckedIn && !isCheckedOut && String(detail.status) !== '0';
+        const signStatusText = isCheckedOut
+          ? t('activity.detail.signedOut')
+          : isCheckedIn
+            ? t('activity.detail.signedIn')
+            : '';
+
         this.setData({
           activity: {
             ...detail,
             image: resolveAssetUrl(detail.coverImage),
             isJoined,
+            isCheckedIn,
+            isCheckedOut,
             participantCount,
             participantRate,
             statusText: statusMeta.text,
             statusType: statusMeta.type,
             canJoin: String(detail.status) === '0' && !isJoined,
             canCancel: isJoined && String(detail.status) !== '2',
+            canSignIn,
+            canSignOut,
+            signStatusText,
             scheduleText: `${formatDateTime(detail.startTime)} - ${formatDateTime(detail.endTime)}`,
             locationText: [detail.floorName, detail.location].filter(Boolean).join(' / ') || '-',
             publisherName:
@@ -181,5 +215,29 @@ Page({
           });
       },
     });
+  },
+
+  onSignIn() {
+    if (!this.ensureLogin()) return;
+    checkinActivity(this.data.activityId)
+      .then(() => {
+        wx.showToast({ title: t('common.hint.checkInSuccess'), icon: 'success' });
+        this.loadDetail(this.data.activityId);
+      })
+      .catch(() => {
+        wx.showToast({ title: t('common.hint.error'), icon: 'none' });
+      });
+  },
+
+  onSignOut() {
+    if (!this.ensureLogin()) return;
+    checkoutActivity(this.data.activityId)
+      .then(() => {
+        wx.showToast({ title: t('common.hint.checkOutSuccess'), icon: 'success' });
+        this.loadDetail(this.data.activityId);
+      })
+      .catch(() => {
+        wx.showToast({ title: t('common.hint.error'), icon: 'none' });
+      });
   },
 });

@@ -31,7 +31,23 @@
     </button>
   </view>
 
+  <view class="bind-card">
+    <view class="bind-card-header">{{identityTitle}}</view>
+    <van-cell-group inset="{{false}}">
+      <van-field
+        value="{{form.studentId}}"
+        label="{{studentIdLabel}}"
+        placeholder="{{studentIdPlaceholder}}"
+        readonly="{{studentIdReadonly}}"
+        bind:change="onStudentIdChange"
+      />
+    </van-cell-group>
+    <view class="identity-status">{{studentIdStatusText}}</view>
+    <view class="readonly-hint">{{profileHint}}</view>
+  </view>
+
   <view class="form-card">
+    <view class="form-card-header">{{personalInfoTitle}}</view>
     <van-cell-group inset="{{false}}">
       <van-field
         value="{{form.name}}"
@@ -41,15 +57,13 @@
         maxlength="30"
       />
       <van-field
-        value="{{form.studentId}}"
-        label="{{studentIdLabel}}"
-        placeholder="{{studentIdPlaceholder}}"
-        readonly="{{studentIdReadonly}}"
-        bind:change="onStudentIdChange"
+        value="{{form.phone}}"
+        label="{{phoneLabel}}"
+        placeholder="{{phonePlaceholder}}"
+        bind:change="onPhoneChange"
+        maxlength="20"
       />
-      <van-field value="{{form.phone || '-'}}" label="{{phoneLabel}}" readonly />
     </van-cell-group>
-    <view class="readonly-hint">{{profileHint}}</view>
   </view>
 
   <van-button

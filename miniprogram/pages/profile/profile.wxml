@@ -32,30 +32,22 @@
           <text class="user-account-label">{{userAccountLabel}}</text>
           <text class="user-account-value">{{userAccount}}</text>
         </view>
+      </view>
 
-        <view class="user-details">
-          <view class="user-detail-item">
-            <uni-icon type="vant" name="idcard" size="28" color="rgba(255,255,255,0.85)" />
-            <text class="detail-text">{{studentId}}</text>
-          </view>
-          <view class="user-detail-item">
-            <uni-icon type="vant" name="phone" size="28" color="rgba(255,255,255,0.85)" />
-            <text class="detail-text">{{phone}}</text>
-          </view>
-        </view>
-
-        <view wx:if="{{!isLoggedIn}}" class="login-panel">
-          <text class="login-tip">{{loginTip}}</text>
-          <button class="login-button" bind:tap="onLoginTap">{{loginActionText}}</button>
-        </view>
+      <view wx:if="{{!isLoggedIn}}" class="guest-actions">
+        <text class="guest-tip">{{loginTip}}</text>
+        <button class="login-button" bind:tap="onLoginTap">{{loginActionText}}</button>
       </view>
     </view>
 
-    <section-list
-      title="{{sectionTitle}}"
-      items="{{serviceItems}}"
-      bind:itemTap="onSectionItemTap"
-    />
+    <view class="section-block">
+      <section-list
+        title="{{sectionTitle}}"
+        items="{{serviceItems}}"
+        bind:itemTap="onSectionItemTap"
+      />
+      <view wx:if="{{serviceNotice}}" class="section-tip">{{serviceNotice}}</view>
+    </view>
 
     <section-list title="{{centerTitle}}" items="{{centerItems}}" bind:itemTap="onSectionItemTap" />
 

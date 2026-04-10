@@ -78,31 +78,36 @@
         </view>
       </view>
     </view>
-  </view>
 
-  <view class="process-section" wx:if="{{feedbackInfo.id}}">
-    <view class="section-title">{{t('feedback.detail.processRecords')}}</view>
-    <view wx:if="{{feedbackInfo.processRecords && feedbackInfo.processRecords.length > 0}}">
-      <view wx:for="{{feedbackInfo.processRecords}}" wx:key="id" class="process-item">
-        <view class="process-header">
-          <view class="process-user">
-            <view class="user-avatar">
-              <uni-icon type="vant" name="manager" size="40" color="#fff" />
-            </view>
-            <view class="user-info">
-              <text class="user-name">{{item.userName}}</text>
-              <text class="user-role">{{item.userRole || '-'}}</text>
+    <view class="timeline-section" wx:if="{{feedbackInfo.id}}">
+      <view class="section-title">{{t('feedback.detail.timelineTitle')}}</view>
+      <view class="timeline">
+        <block wx:for="{{feedbackInfo.timelineItems}}" wx:key="id">
+          <view class="timeline-item">
+            <view
+              class="timeline-dot {{item.type === 'reply' ? 'timeline-dot--official' : ''}}"
+            ></view>
+            <view class="timeline-content">
+              <view class="timeline-header">
+                <view>
+                  <text class="timeline-title">{{item.title}}</text>
+                  <text class="timeline-user" wx:if="{{item.userRole}}"> {{item.userRole}} </text>
+                </view>
+                <text class="timeline-time">{{item.time}}</text>
+              </view>
+              <view class="timeline-body">
+                <text>{{item.content || t('common.noData')}}</text>
+              </view>
             </view>
           </view>
-          <text class="process-date">{{item.processTime}}</text>
-        </view>
-        <view class="process-content">
-          <text class="process-text">{{item.content}}</text>
+        </block>
+        <view
+          wx:if="{{!feedbackInfo.timelineItems || !feedbackInfo.timelineItems.length}}"
+          class="empty-process"
+        >
+          <text class="empty-process-text">{{t('feedback.detail.noRecords')}}</text>
         </view>
       </view>
-    </view>
-    <view wx:else class="empty-process">
-      <text class="empty-process-text">{{t('feedback.detail.noRecords')}}</text>
     </view>
   </view>
 

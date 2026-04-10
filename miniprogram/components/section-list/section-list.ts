@@ -40,8 +40,14 @@ Component({
      * 处理列表项点击
      */
     onItemTap(this: SafeComponentInstance, event: WechatMiniprogram.CustomEvent) {
+      const dataset = event.currentTarget.dataset;
+      const disabled = dataset.disabled === true || dataset.disabled === 'true';
+      if (disabled) {
+        return;
+      }
+
       // 从 dataset 获取 action
-      const action = event.currentTarget.dataset.action;
+      const action = dataset.action;
 
       // 触发 itemTap 事件，只传递 action
       this.triggerEvent(

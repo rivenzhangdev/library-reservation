@@ -1,10 +1,16 @@
 ﻿// @ts-ignore
 import * as echarts from '../../components/ec-canvas/echarts.min';
-import { getActivities, joinActivity } from '../../apis/activity';
+import {
+  getActivities,
+  joinActivity,
+  checkinActivity,
+  checkoutActivity,
+  getActivityDetail,
+} from '../../apis/activity';
 import { getFloors, getFloorSeats } from '../../apis/seats';
 import { favoriteSeat } from '../../apis/user';
-import { checkin, checkout } from '../../apis/booking';
-import { getToken, redirectToLogin } from '../../utils/auth';
+import { checkin, checkout, getBookingDetail } from '../../apis/booking';
+import { getToken, redirectToLogin, getUserInfo } from '../../utils/auth';
 import { resolveAssetUrl } from '../../utils/assets';
 import { t } from '../../utils/i18n';
 import { openReservationWithParams } from '../../utils/reservationNavigator';
@@ -149,10 +155,10 @@ Page({
           text: t('actions.renew'),
         },
         {
-          id: 'checkin',
+          id: 'scan',
           icon: 'scan',
           iconType: 'vant',
-          text: t('actions.checkin'),
+          text: t('actions.scan'),
         },
       ],
       displayBanners: [
@@ -589,7 +595,7 @@ Page({
     });
   },
 
-  async handleScanAction(action: 'checkin' | 'checkout') {
+  async handleScanAction(requestedAction?: 'checkin' | 'checkout') {
     try {
       const result = await new Promise<WechatMiniprogram.ScanCodeSuccessCallbackResult>(
         (resolve, reject) => {
@@ -602,52 +608,251 @@ Page({
         }
       );
 
-      const bookingId = this.parseBookingIdFromScanResult(result.result);
-      if (!bookingId) {
+      const payload = this.parseScanPayload(result.result);
+      if (!payload?.id) {
         wx.showToast({ title: t('common.hint.invalidQrCode'), icon: 'none' });
         return;
       }
 
-      if (action === 'checkin') {
-        await checkin(bookingId);
-        wx.showToast({ title: t('common.hint.checkInSuccess'), icon: 'success' });
-      } else {
-        await checkout(bookingId);
-        wx.showToast({ title: t('common.hint.checkOutSuccess'), icon: 'success' });
+      const effectiveAction = payload.action ? payload.action : requestedAction;
+
+      if (payload.type === 'activity') {
+        await this.handleActivityScan(payload, effectiveAction);
+        return;
       }
+
+      await this.handleBookingScan(payload, effectiveAction);
     } catch (error: any) {
-      const errMsg = error?.message || t('common.hint.error');
+      const errMsg = error?.message || (typeof error === 'string' ? error : t('common.hint.error'));
       wx.showToast({ title: errMsg, icon: 'none' });
     }
   },
 
-  parseBookingIdFromScanResult(result: string) {
-    if (!result) return '';
+  async handleBookingScan(
+    payload: { type: 'booking' | 'activity'; id: string; action?: string },
+    requestedAction?: 'checkin' | 'checkout'
+  ) {
+    let action = payload.action as 'checkin' | 'checkout' | undefined;
+    if (!action) action = requestedAction;
 
-    let encoded = result.trim();
-    if (/^\d+$/.test(encoded)) return encoded;
+    if (!action) {
+      const res: any = await getBookingDetail(payload.id);
+      const booking = res?.data ?? res;
+      const status = Number(booking?.status);
+      if (status === 0) {
+        action = 'checkin';
+      } else if (status === 1) {
+        action = 'checkout';
+      } else if (status === 2) {
+        wx.showToast({ title: t('common.hint.alreadyCheckedOut') || '已签到并签退', icon: 'none' });
+        return;
+      } else {
+        wx.showToast({ title: t('common.hint.invalidQrCode'), icon: 'none' });
+        return;
+      }
+    }
 
-    if (encoded.startsWith('{') || encoded.startsWith('[')) {
+    if (action === 'checkin') {
+      const res: any = await getBookingDetail(payload.id);
+      const booking = res?.data ?? res;
+      if (Number(booking?.status) === 1) {
+        wx.showToast({
+          title: t('common.hint.alreadyCheckedIn') || '已签到，无需重复扫码',
+          icon: 'none',
+        });
+        return;
+      }
+      await checkin(payload.id);
+      wx.showToast({ title: t('common.hint.checkInSuccess'), icon: 'success' });
+      return;
+    }
+
+    if (action === 'checkout') {
+      const res: any = await getBookingDetail(payload.id);
+      const booking = res?.data ?? res;
+      const status = Number(booking?.status);
+      if (status === 0) {
+        wx.showToast({
+          title: t('common.hint.cannotCheckoutBeforeCheckin') || '尚未签到，无法签退',
+          icon: 'none',
+        });
+        return;
+      }
+      if (status === 2) {
+        wx.showToast({
+          title: t('common.hint.alreadyCheckedOut') || '已签退，操作已完成',
+          icon: 'none',
+        });
+        return;
+      }
+      await checkout(payload.id);
+      wx.showToast({ title: t('common.hint.checkOutSuccess'), icon: 'success' });
+      return;
+    }
+
+    wx.showToast({ title: t('common.hint.invalidQrCode'), icon: 'none' });
+  },
+
+  async handleActivityScan(
+    payload: { type: 'booking' | 'activity'; id: string; action?: string },
+    requestedAction?: 'checkin' | 'checkout'
+  ) {
+    let action = payload.action as 'checkin' | 'checkout' | undefined;
+    if (!action) action = requestedAction;
+
+    const res: any = await getActivityDetail(payload.id);
+    const activity = res?.data ?? res;
+    const currentUserId = getApp<IAppOption>().globalData?.userInfo?.id || getUserInfo()?.id || '';
+    const checkedIn = Array.isArray(activity?.checkedIn) ? activity.checkedIn : [];
+    const checkedOut = Array.isArray(activity?.checkedOut) ? activity.checkedOut : [];
+    const isCheckedIn = checkedIn.some((item: any) => String(item) === String(currentUserId));
+    const isCheckedOut = checkedOut.some((item: any) => String(item) === String(currentUserId));
+
+    if (!action) {
+      if (Number(activity?.status) === 0) {
+        wx.showToast({
+          title: t('common.hint.activityNotStarted') || '活动未开始，无法签到',
+          icon: 'none',
+        });
+        return;
+      }
+      if (isCheckedOut) {
+        wx.showToast({
+          title: t('common.hint.alreadyCheckedOut') || '已签退，操作已完成',
+          icon: 'none',
+        });
+        return;
+      }
+      action = isCheckedIn ? 'checkout' : 'checkin';
+    }
+
+    if (action === 'checkin') {
+      if (Number(activity?.status) !== 1) {
+        wx.showToast({
+          title: t('common.hint.activityCannotCheckIn') || '当前活动不支持签到',
+          icon: 'none',
+        });
+        return;
+      }
+      if (isCheckedIn) {
+        wx.showToast({
+          title: t('common.hint.alreadyCheckedIn') || '已签到，无需重复扫码',
+          icon: 'none',
+        });
+        return;
+      }
+      await checkinActivity(payload.id);
+      wx.showToast({ title: t('common.hint.checkInSuccess'), icon: 'success' });
+      return;
+    }
+
+    if (action === 'checkout') {
+      if (Number(activity?.status) === 0) {
+        wx.showToast({
+          title: t('common.hint.activityNotStarted') || '活动未开始，无法签退',
+          icon: 'none',
+        });
+        return;
+      }
+      if (!isCheckedIn) {
+        wx.showToast({
+          title: t('common.hint.activityNotCheckedIn') || '尚未签到，无法签退',
+          icon: 'none',
+        });
+        return;
+      }
+      if (isCheckedOut) {
+        wx.showToast({
+          title: t('common.hint.alreadyCheckedOut') || '已签退，操作已完成',
+          icon: 'none',
+        });
+        return;
+      }
+      await checkoutActivity(payload.id);
+      wx.showToast({ title: t('common.hint.checkOutSuccess'), icon: 'success' });
+      return;
+    }
+
+    wx.showToast({ title: t('common.hint.invalidQrCode'), icon: 'none' });
+  },
+
+  parseScanPayload(result: string) {
+    if (!result) return null;
+
+    const raw = result.trim();
+    const payload: { type: 'booking' | 'activity'; id: string; action?: 'checkin' | 'checkout' } = {
+      type: 'booking',
+      id: '',
+    };
+
+    if (/^\d+$/.test(raw)) {
+      payload.id = raw;
+      return payload;
+    }
+
+    const tryParseJson = (text: string) => {
+      if (!text.startsWith('{') && !text.startsWith('[')) return null;
       try {
-        const parsed = JSON.parse(encoded);
-        if (parsed?.bookingId) return String(parsed.bookingId);
-        if (parsed?.id) return String(parsed.id);
+        return JSON.parse(text);
       } catch {
-        // ignore
+        return null;
+      }
+    };
+
+    const json = tryParseJson(raw);
+    if (json) {
+      const id = json.bookingId || json.activityId || json.id || json.data?.id;
+      const type = String(json.type || json.entity || '').toLowerCase();
+      const action = String(json.action || '').toLowerCase();
+      if (id) {
+        payload.id = String(id);
+        if (type === 'activity' || String(json.type) === 'activity') {
+          payload.type = 'activity';
+        }
+        if (action === 'checkin' || action === 'checkout') {
+          payload.action = action;
+        }
+        return payload;
       }
     }
 
     try {
-      const url = new URL(encoded);
-      const id = url.searchParams.get('bookingId') || url.searchParams.get('id');
-      if (id) return String(id);
+      const url = new URL(raw);
+      const queryType = String(
+        url.searchParams.get('type') || url.searchParams.get('entity') || ''
+      ).toLowerCase();
+      const queryAction = String(url.searchParams.get('action') || '').toLowerCase();
+      const id =
+        url.searchParams.get('activityId') ||
+        url.searchParams.get('bookingId') ||
+        url.searchParams.get('id');
+      if (id) {
+        payload.id = String(id);
+        if (queryType === 'activity') payload.type = 'activity';
+        if (queryAction === 'checkin' || queryAction === 'checkout') {
+          payload.action = queryAction;
+        }
+        return payload;
+      }
     } catch {
-      // ignore
+      // ignore invalid url
     }
 
-    const match = encoded.match(/(?:bookingId|id)=([^&]+)/i);
-    if (match) return match[1];
-    return '';
+    const typeMatch = raw.match(/(?:type|entity)=([^&]+)/i);
+    const actionMatch = raw.match(/(?:action)=([^&]+)/i);
+    const idMatch = raw.match(/(?:activityId|bookingId|id)=([^&]+)/i);
+    if (idMatch) {
+      payload.id = idMatch[1];
+      const typeValue = typeMatch?.[1]?.toLowerCase();
+      const actionValue = actionMatch?.[1]?.toLowerCase();
+      if (typeValue === 'activity') payload.type = 'activity';
+      if (actionValue === 'checkin' || actionValue === 'checkout') {
+        payload.action = actionValue;
+      }
+      return payload;
+    }
+
+    return null;
   },
 
   onActionCardTap(e: WechatMiniprogram.TouchEvent) {
@@ -663,8 +868,8 @@ Page({
       return;
     }
 
-    if (id === 'checkin') {
-      this.handleScanAction('checkin');
+    if (id === 'scan') {
+      this.handleScanAction();
       return;
     }
 

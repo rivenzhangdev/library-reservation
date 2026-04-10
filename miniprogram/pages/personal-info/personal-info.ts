@@ -1,6 +1,6 @@
 ﻿import { bindStudentId } from '../../apis/auth';
 import { getProfile, updateProfile } from '../../apis/user';
-import { getUserInfo, setUserInfo } from '../../utils/auth';
+import { getUserInfo, isLogin, setUserInfo } from '../../utils/auth';
 import { readLocalImageAsDataUrl } from '../../utils/file';
 import { t } from '../../utils/i18n';
 
@@ -42,12 +42,17 @@ Page({
     nameLabel: '',
     studentIdLabel: '',
     phoneLabel: '',
+    identityTitle: '',
+    personalInfoTitle: '',
+    studentIdStatusText: '',
     profileHint: '',
     bindHint: '',
     studentIdPlaceholder: '',
+    phonePlaceholder: '',
     chooseAvatarText: '',
     saveText: '',
     studentIdReadonly: false,
+    isLoggedIn: false,
     form: {
       name: '',
       studentId: '',
@@ -70,6 +75,7 @@ Page({
 
   updateLanguage() {
     const app = getApp<IAppOption>();
+    const isLoggedIn = isLogin();
     this.setData({
       navTitle: t('profile.center.personalInfo'),
       languageClass: app.globalData.languageClass || 'lang-zh',
@@ -78,10 +84,15 @@ Page({
       nameLabel: t('profile.personal.name'),
       studentIdLabel: t('profile.personal.studentId'),
       phoneLabel: t('profile.personal.phone'),
+      identityTitle: t('profile.personal.identityTitle'),
+      personalInfoTitle: t('profile.personal.infoTitle'),
+      studentIdStatusText: '',
       bindHint: t('profile.personal.bindHint'),
       studentIdPlaceholder: t('profile.personal.studentIdPlaceholder'),
+      phonePlaceholder: t('profile.personal.phonePlaceholder'),
       chooseAvatarText: t('profile.personal.chooseAvatar'),
       saveText: t('profile.personal.save'),
+      isLoggedIn,
     });
   },
 
@@ -89,8 +100,14 @@ Page({
     const normalized = normalizeUser(user);
     if (!normalized) return;
 
+    const studentIdStatusText = normalized.isStudentBound
+      ? t('profile.personal.boundStatus')
+      : t('profile.personal.unboundStatus');
+
     this.setData({
+      isLoggedIn: true,
       studentIdReadonly: normalized.isStudentBound,
+      studentIdStatusText,
       profileHint: normalized.isStudentBound
         ? t('profile.personal.boundHint')
         : t('profile.personal.bindHint'),
@@ -139,6 +156,12 @@ Page({
     });
   },
 
+  onPhoneChange(e: WechatMiniprogram.CustomEvent) {
+    this.setData({
+      'form.phone': e.detail,
+    });
+  },
+
   async onChooseAvatar(e: WechatMiniprogram.CustomEvent) {
     const avatarUrl = e.detail?.avatarUrl;
     if (!avatarUrl) return;
@@ -173,7 +196,10 @@ Page({
       return;
     }
 
-    const payload: Record<string, any> = { name };
+    const payload: Record<string, any> = {
+      name,
+      phone: String(form.phone || '').trim(),
+    };
     if (avatarChanged && avatarUploadData) {
       payload.avatar = avatarUploadData;
     }

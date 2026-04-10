@@ -18,7 +18,7 @@
   'login.privacyTip': 'Privacy policy page is not yet implemented',
 
   'profile.login.tip':
-    'Log in to reserve seats quickly, see notifications, send feedback, and manage your profile.',
+    'Log in to continue, but note that some services still require authorization or additional profile setup before they can be used.',
   'profile.login.action': 'WeChat Login',
   'profile.login.noticeTitle': 'Please Log In',
   'profile.login.noticeContent':
@@ -31,6 +31,16 @@
   'profile.service.myActivity': 'My Activities',
   'profile.service.history': 'Reservation History',
   'profile.service.settings': 'Settings',
+  'profile.service.tip.loggedOut':
+    'Log in to access reservation, collection and activity services.',
+  'profile.service.tip.unbound':
+    'Student ID is not bound yet. Reservations require completed profile information.',
+  'profile.service.tip.bound': 'Your account is bound and all services are available.',
+  'profile.service.sectionTitle': 'My Services',
+  'profile.service.coreTitle': 'Core Services',
+  'profile.service.extendedTitle': 'Extended Services',
+  'profile.service.feedback': 'Feedback',
+  'profile.service.emptyText': 'Log in to view your service entries here.',
 
   'profile.center.personalInfo': 'Personal Info',
   'profile.center.creditCenter': 'Credit Center',
@@ -47,13 +57,21 @@
   'profile.personal.name': 'Name',
   'profile.personal.studentId': 'Student ID',
   'profile.personal.phone': 'Phone',
+  'profile.personal.identityTitle': 'Identity Info',
+  'profile.personal.infoTitle': 'Personal Info',
+  'profile.personal.boundStatus': 'Student ID bound',
+  'profile.personal.unboundStatus': 'Student ID not bound',
   'profile.personal.readonly': 'Your phone number is currently synced from the server profile.',
   'profile.personal.chooseAvatar': 'Change Avatar',
   'profile.personal.save': 'Save Profile',
   'profile.personal.bindHint':
     'If your student ID is not bound yet, you can bind it here together with your name.',
   'profile.personal.boundHint': 'Once bound, the student ID cannot be changed in the mini program.',
+  'profile.bindCard.title': 'Bind Info',
+  'profile.bindCard.modifyUsername': 'Change Username',
+  'profile.bindCard.forgetPassword': 'Forgot Password',
   'profile.personal.studentIdPlaceholder': 'Enter student ID',
+  'profile.personal.phonePlaceholder': 'Enter phone number',
   'profile.personal.bindSuccess': 'Student ID bound successfully',
   'profile.personal.nameRequired': 'Please enter your name',
   'profile.personal.studentIdRequired': 'Please enter your student ID',

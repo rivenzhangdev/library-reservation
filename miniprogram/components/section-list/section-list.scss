@@ -10,6 +10,11 @@
   font-size: var(--common-font-size-2xl);
 }
 
+.section-list-item--disabled {
+  opacity: 0.6;
+  pointer-events: none;
+}
+
 .section-list-content {
   display: flex;
   flex-direction: column;

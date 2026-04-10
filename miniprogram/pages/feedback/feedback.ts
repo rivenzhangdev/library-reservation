@@ -34,6 +34,7 @@ interface FeedbackRecord {
   statusStyle: string;
   statusText: string;
   createTime: string;
+  commentsCount?: number;
 }
 
 const TYPE_MAP: Record<number, { id: string; style: string }> = {
@@ -48,6 +49,20 @@ const URGENCY_MAP: Record<number, { id: string; style: string }> = {
   2: { id: 'medium', style: 'medium' },
   3: { id: 'high', style: 'high' },
   4: { id: 'urgent', style: 'urgent' },
+};
+
+const FEEDBACK_TYPE_REVERSE_MAP: Record<string, number> = {
+  suggestion: 1,
+  bug: 2,
+  complaint: 3,
+  other: 4,
+};
+
+const URGENCY_LEVEL_REVERSE_MAP: Record<string, number> = {
+  low: 1,
+  medium: 2,
+  high: 3,
+  urgent: 4,
 };
 
 const STATUS_MAP: Record<number, { style: string; textKey: string }> = {
@@ -207,7 +222,9 @@ Page({
       const feedbackRecords: FeedbackRecord[] = list.map((record: any) => {
         const typeMeta = TYPE_MAP[Number(record.typeId)] || TYPE_MAP[4];
         const urgencyMeta = record.urgencyId ? URGENCY_MAP[Number(record.urgencyId)] : undefined;
-        const statusMeta = STATUS_MAP[Number(record.status)] || STATUS_MAP[1];
+        const rawStatus = Number(record.status) || 1;
+        const effectiveStatus = rawStatus === 1 && Number(record.commentsCount) > 0 ? 2 : rawStatus;
+        const statusMeta = STATUS_MAP[effectiveStatus] || STATUS_MAP[1];
         const typeName =
           this.data.feedbackTypes.find((item) => item.id === typeMeta.id)?.name ||
           t(`feedback.form.type.${typeMeta.id}`);
@@ -232,6 +249,7 @@ Page({
           statusStyle: statusMeta.style,
           statusText: t(statusMeta.textKey),
           createTime: formatDateTime(record.createdAt),
+          commentsCount: Number(record.commentsCount) || 0,
         };
       });
 
@@ -374,10 +392,13 @@ Page({
     const { selectedType, selectedUrgency, title, description, contact, uploadedImages } =
       this.data;
 
+    const typeId = FEEDBACK_TYPE_REVERSE_MAP[selectedType] || 4;
+    const urgencyId = selectedUrgency ? URGENCY_LEVEL_REVERSE_MAP[selectedUrgency] : undefined;
+
     try {
       await submitFeedbackApi({
-        typeId: selectedType,
-        urgencyId: selectedUrgency || undefined,
+        typeId,
+        urgencyId,
         title: String(title || '').trim(),
         description: String(description || '').trim(),
         contact: String(contact || '').trim(),

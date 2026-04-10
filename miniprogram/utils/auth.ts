@@ -156,7 +156,7 @@ export function ensureBoundStudentInfo(options?: {
 
   wx.showModal({
     title: options?.title || '请先完善个人信息',
-    content: options?.content || '当前操作需要先绑定学号和姓名，是否前往个人信息页完成绑定？',
+    content: options?.content || '绑定后才可以预约座位，是否前往个人信息页完成绑定？',
     confirmText: options?.confirmText || '去绑定',
     success: (res) => {
       if (!res.confirm) return;

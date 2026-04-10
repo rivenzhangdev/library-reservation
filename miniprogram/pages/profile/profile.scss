@@ -71,13 +71,24 @@
   padding-bottom: var(--common-spacing-3xl);
 }
 
+.section-block {
+  margin-bottom: var(--common-spacing-2xl);
+}
+
+.section-tip {
+  margin: calc(var(--common-spacing-sm) * 1) var(--common-spacing-sm) var(--common-spacing-lg);
+  color: var(--common-secondary-text-color);
+  font-size: var(--common-font-size-md);
+  line-height: 1.6;
+}
+
 .user-card {
   position: relative;
   margin: 0 0 var(--common-spacing-2xl);
-  padding: var(--common-spacing-5xl) var(--common-spacing-3xl);
+  padding: 40rpx 30rpx 30rpx;
   overflow: hidden;
   background: var(--common-primary-gradient);
-  border-radius: var(--common-border-radius-xl);
+  border-radius: 24rpx;
   box-shadow: var(--common-shadow-primary);
 
   &::before {
@@ -87,8 +98,8 @@
     right: -100rpx;
     width: 300rpx;
     height: 300rpx;
-    background: rgba(255, 255, 255, 0.1);
-    border-radius: var(--common-border-radius-pill);
+    background: rgba(255, 255, 255, 0.08);
+    border-radius: 999rpx;
   }
 
   &::after {
@@ -101,6 +112,66 @@
     background: rgba(255, 255, 255, 0.08);
     border-radius: var(--common-border-radius-pill);
   }
+}
+
+.bind-card {
+  margin: 22rpx 0 0;
+  padding: 22rpx;
+  background: var(--common-white-color);
+  border-radius: 20rpx;
+  box-shadow: var(--common-shadow-sm);
+}
+
+.bind-card-header {
+  margin-bottom: 16rpx;
+  color: var(--common-dark-text-color);
+  font-weight: var(--common-font-weight-bold);
+  font-size: 26rpx;
+}
+
+.bind-card-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16rpx 0;
+  border-bottom: 1rpx solid rgba(15, 23, 42, 0.06);
+}
+
+.bind-card-row:last-child {
+  border-bottom: 0;
+}
+
+.bind-card-label {
+  color: var(--common-regular-text-color);
+  font-size: 22rpx;
+}
+
+.bind-card-value {
+  color: var(--common-dark-text-color);
+  font-weight: var(--common-font-weight-medium);
+  font-size: 24rpx;
+}
+
+.bind-card-actions {
+  display: flex;
+  gap: var(--common-spacing-md);
+  margin-top: var(--common-spacing-lg);
+}
+
+.bind-button {
+  flex: 1;
+  min-height: 70rpx;
+  color: var(--common-white-color);
+  font-weight: var(--common-font-weight-bold);
+  font-size: 26rpx;
+  background: var(--common-primary-color);
+  border: 0;
+  border-radius: 16rpx;
+}
+
+.bind-button--secondary {
+  color: var(--common-dark-text-color);
+  background: rgba(15, 23, 42, 0.08);
 }
 
 .user-card--guest {
@@ -141,10 +212,10 @@
 }
 
 .user-name {
-  margin-bottom: var(--common-spacing-md);
+  margin-bottom: 14rpx;
   color: var(--common-white-color);
   font-weight: var(--common-font-weight-bold);
-  font-size: var(--common-font-size-5xl);
+  font-size: 32rpx;
   word-break: break-all;
 }
 
@@ -152,11 +223,34 @@
   display: inline-flex;
   gap: var(--common-spacing-sm);
   align-items: center;
-  margin-bottom: var(--common-spacing-3xl);
-  padding: 10rpx 20rpx;
+  margin-bottom: var(--common-spacing-xl);
+  padding: 10rpx 18rpx;
   color: rgba(255, 255, 255, 0.95);
-  font-size: var(--common-font-size-lg);
-  background: rgba(255, 255, 255, 0.14);
+  font-size: 24rpx;
+  border-radius: 999rpx;
+}
+
+.guest-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 16rpx;
+  align-items: center;
+  margin-top: var(--common-spacing-lg);
+}
+
+.guest-tip {
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 24rpx;
+}
+
+.login-button {
+  width: 100%;
+  min-height: 70rpx;
+  color: #fff;
+  font-weight: 700;
+  font-size: 26rpx;
+  background: rgba(255, 255, 255, 0.16);
+  border: 0;
   border-radius: 999rpx;
 }
 

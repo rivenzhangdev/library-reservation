@@ -59,7 +59,7 @@ export const checkin = (id: string, location?: any) =>
  * 预约续约
  * POST /api/booking/renew/:id
  */
-export const renewBooking = (id: string, timeSlot: string, location?: any) =>
+export const renewBooking = (id: string, timeSlot: number, location?: any) =>
   bookingApi.post(
     `/renew/${id}`,
     { timeSlot, location },

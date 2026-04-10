@@ -26,5 +26,8 @@ export default {
   'activity.detail.description': 'Description',
   'activity.detail.organizer': 'Publisher',
   'activity.detail.updatedBy': 'Updated By',
+  'activity.detail.signedIn': 'Signed In',
+  'activity.detail.signedOut': 'Signed Out',
+  'activity.detail.signStatus': 'Attendance Status',
   'activity.empty': 'No activities',
 };

@@ -93,7 +93,7 @@ Page({
   onRenew() {
     const booking = this.data.booking;
     const nextTimeSlot = booking?.timeSlot === 2 ? 0 : Number(booking?.timeSlot || 0) + 1;
-    renewBooking(this.data.bookingId, String(nextTimeSlot))
+    renewBooking(this.data.bookingId, nextTimeSlot)
       .then(() => {
         wx.showToast({ title: t('myReservation.hint.renewSuccess'), icon: 'success' });
         this.loadDetail(this.data.bookingId);

@@ -1,5 +1,11 @@
 ﻿import { getProfile } from '../../apis/user';
-import { getUserInfo, isLogin, redirectToLogin, setUserInfo } from '../../utils/auth';
+import {
+  getUserInfo,
+  hasBoundStudentInfo,
+  isLogin,
+  redirectToLogin,
+  setUserInfo,
+} from '../../utils/auth';
 import { t } from '../../utils/i18n';
 
 interface ProfileMenuItem {
@@ -9,6 +15,7 @@ interface ProfileMenuItem {
   iconBgColor: string;
   badgeCount?: number;
   clickable?: boolean;
+  disabled?: boolean;
   action: string;
 }
 
@@ -22,8 +29,9 @@ interface ProfilePageData {
   userName: string;
   userAccountLabel: string;
   userAccount: string;
-  studentId: string;
-  phone: string;
+  forgotPasswordText: string;
+  isStudentBound: boolean;
+  serviceNotice: string;
   serviceItems: ProfileMenuItem[];
   centerItems: ProfileMenuItem[];
   settingsItems: ProfileMenuItem[];
@@ -75,8 +83,9 @@ Page({
     userAccountLabel: '',
     userAccount: '',
     avatarUrl: '',
-    studentId: '',
-    phone: '',
+    forgotPasswordText: '',
+    isStudentBound: false,
+    serviceNotice: '',
     serviceItems: [],
     centerItems: [],
     settingsItems: [],
@@ -96,7 +105,17 @@ Page({
     this.loadUserProfile();
   },
 
-  buildMenus() {
+  getServiceNotice(isLoggedIn: boolean, isStudentBound: boolean) {
+    if (!isLoggedIn) {
+      return t('profile.service.tip.loggedOut');
+    }
+    if (!isStudentBound) {
+      return t('profile.service.tip.unbound');
+    }
+    return t('profile.service.tip.bound');
+  },
+
+  buildMenus(isLoggedIn: boolean, isStudentBound: boolean) {
     return {
       serviceItems: [
         {
@@ -106,6 +125,7 @@ Page({
           iconBgColor: '#dbeafe',
           badgeCount: 0,
           action: 'onMyReservationTap',
+          disabled: !isLoggedIn || !isStudentBound,
         },
         {
           label: t('profile.service.myCollection'),
@@ -113,6 +133,7 @@ Page({
           iconColor: '#d97706',
           iconBgColor: '#fef3c7',
           action: 'onMyCollectionTap',
+          disabled: !isLoggedIn,
         },
         {
           label: t('profile.service.myActivity'),
@@ -120,6 +141,7 @@ Page({
           iconColor: '#dc2626',
           iconBgColor: '#fee2e2',
           action: 'onMyActivityTap',
+          disabled: !isLoggedIn,
         },
       ],
       centerItems: [
@@ -129,6 +151,7 @@ Page({
           iconColor: '#7c3aed',
           iconBgColor: '#f3e8ff',
           action: 'onPersonalInfoTap',
+          disabled: !isLoggedIn,
         },
         {
           label: t('profile.center.creditCenter'),
@@ -136,6 +159,7 @@ Page({
           iconColor: '#ca8a04',
           iconBgColor: '#fef9c3',
           action: 'onCreditCenterTap',
+          disabled: !isLoggedIn,
         },
         {
           label: t('profile.center.feedback'),
@@ -143,6 +167,7 @@ Page({
           iconColor: '#0284c7',
           iconBgColor: '#e0f2fe',
           action: 'onFeedbackTap',
+          disabled: !isLoggedIn,
         },
       ],
       settingsItems: [
@@ -152,6 +177,7 @@ Page({
           iconColor: '#2563eb',
           iconBgColor: '#dbeafe',
           action: 'onNotificationTap',
+          disabled: !isLoggedIn,
         },
         {
           label: t('profile.settings.privacy'),
@@ -159,6 +185,7 @@ Page({
           iconColor: '#16a34a',
           iconBgColor: '#dcfce7',
           action: 'onPrivacyTap',
+          disabled: !isLoggedIn,
         },
         {
           label: t('profile.settings.help'),
@@ -166,6 +193,7 @@ Page({
           iconColor: '#ea580c',
           iconBgColor: '#ffedd5',
           action: 'onHelpTap',
+          disabled: !isLoggedIn,
         },
         {
           label: t('profile.settings.about'),
@@ -173,6 +201,7 @@ Page({
           iconColor: '#0891b2',
           iconBgColor: '#cffafe',
           action: 'onAboutTap',
+          disabled: !isLoggedIn,
         },
       ],
     };
@@ -182,7 +211,12 @@ Page({
     const app = getApp<IAppOption>();
     const currentLang = app.globalData.currentLang || 'zh';
     const isZh = currentLang === 'zh';
-    const { serviceItems, centerItems, settingsItems } = this.buildMenus();
+    const isLoggedIn = isLogin();
+    const isStudentBound = isLoggedIn && hasBoundStudentInfo();
+    const { serviceItems, centerItems, settingsItems } = this.buildMenus(
+      isLoggedIn,
+      isStudentBound
+    );
 
     this.setData({
       currentLang,
@@ -190,6 +224,7 @@ Page({
       sectionTitle: t('profile.sectionTitle'),
       centerTitle: t('profile.centerTitle'),
       settingsTitle: t('profile.settingsTitle'),
+      forgotPasswordText: t('profile.bindCard.forgetPassword'),
       langSwitchLabel: isZh ? t('common.lang.en') : t('common.lang.zh'),
       langSwitchDesc: isZh ? 'Switch to English' : '切换到中文',
       userAccountLabel: t('profile.user.wechatAccount'),
@@ -198,6 +233,7 @@ Page({
       serviceItems,
       centerItems,
       settingsItems,
+      serviceNotice: this.getServiceNotice(isLoggedIn, isStudentBound),
     });
   },
 
@@ -205,25 +241,34 @@ Page({
     const normalized = normalizeUser(user);
     if (!normalized) return;
 
+    const bound = hasBoundStudentInfo(normalized);
+    const serviceState = this.buildMenus(true, bound);
     this.setData({
       isLoggedIn: true,
+      isStudentBound: bound,
       userName: getDisplayName(normalized),
       userAccount: normalized.username || normalized.nickName || '',
       avatarUrl: normalized.avatarUrl || '',
-      studentId: normalized.studentId || t('profile.user.unbound'),
-      phone: normalized.phone || t('profile.user.unbound'),
+      serviceItems: serviceState.serviceItems,
+      centerItems: serviceState.centerItems,
+      settingsItems: serviceState.settingsItems,
+      serviceNotice: this.getServiceNotice(true, bound),
     });
   },
 
   loadUserProfile() {
     if (!isLogin()) {
+      const serviceState = this.buildMenus(false, false);
       this.setData({
         isLoggedIn: false,
+        isStudentBound: false,
         userName: t('profile.user.guest'),
         userAccount: '',
         avatarUrl: '',
-        studentId: t('profile.user.unbound'),
-        phone: t('profile.user.unbound'),
+        serviceItems: serviceState.serviceItems,
+        centerItems: serviceState.centerItems,
+        settingsItems: serviceState.settingsItems,
+        serviceNotice: this.getServiceNotice(false, false),
       });
       return;
     }
@@ -250,6 +295,19 @@ Page({
 
   onLoginTap() {
     redirectToLogin();
+  },
+
+  onForgotPasswordTap() {
+    const content =
+      this.data.currentLang === 'zh'
+        ? '当前小程序使用微信登录，仅支持通过微信账号恢复。若需要密码重置，请联系管理员或使用后台账号管理。'
+        : 'This mini program uses WeChat login and does not support password reset in-app. Please contact the administrator or use admin account management if needed.';
+
+    wx.showModal({
+      title: this.data.forgotPasswordText,
+      content,
+      showCancel: false,
+    });
   },
 
   onSectionItemTap(event: WechatMiniprogram.CustomEvent) {

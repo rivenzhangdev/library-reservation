@@ -65,6 +65,15 @@
                 size="small"
                 type="primary"
                 plain
+                bind:tap="onCheckoutTap"
+                data-id="{{item.id}}"
+              >
+                {{actionCheckoutText}}
+              </van-button>
+              <van-button
+                size="small"
+                type="primary"
+                plain
                 bind:tap="onRenewTap"
                 data-id="{{item.id}}"
               >

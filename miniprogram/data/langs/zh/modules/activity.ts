@@ -26,5 +26,8 @@ export default {
   'activity.detail.description': '活动介绍',
   'activity.detail.organizer': '发布人',
   'activity.detail.updatedBy': '更新人',
+  'activity.detail.signedIn': '已签到',
+  'activity.detail.signedOut': '已签退',
+  'activity.detail.signStatus': '签到状态',
   'activity.empty': '暂无活动',
 };

@@ -8,7 +8,6 @@
     current-status="{{currentStatus}}"
     bind:status-change="onStatusChange"
   />
-
   <view class="search-wrap">
     <van-search
       value="{{searchValue}}"

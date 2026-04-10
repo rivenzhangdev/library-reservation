@@ -18,6 +18,14 @@ export default {
   'reservation.filter.facility': 'Facilities',
   'reservation.filter.facility.power': 'With Socket',
   'reservation.filter.reset': 'Reset Filters',
+  'reservation.filter.title': 'Filter',
+  'reservation.filter.result': 'Filter results',
+  'reservation.hint.noMatchingSeats': 'No matching seats',
+  'reservation.hint.invalidTimeSlot': 'This time slot cannot be booked',
+  'reservation.hint.invalidCustomTime': 'Custom time must be in the future',
+  'reservation.hint.customTimeSlotRange': 'Custom time must be within the selected time period',
+  'reservation.hint.customTimeSameAsSlot': 'Custom time cannot equal the full time period',
+  'reservation.hint.customTimeBothRequired': 'Both start time and end time are required',
 
   // Area options
   'reservation.area.all': 'All Areas',
@@ -95,4 +103,5 @@ export default {
   'reservation.seatMap.legend.selected.desc': '(Seat you selected)',
   'reservation.seatMap.legend.mine.desc': '(Your booked seat)',
   'reservation.seatMap.instruction': 'Tap available seat to select, tap again to deselect',
+  'reservation.info.bookedTimeRange': 'Booked Time',
 };

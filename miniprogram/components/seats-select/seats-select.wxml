@@ -9,7 +9,15 @@
 
   <view class="seat-map-content">
     <!-- 座位网格区域（可滚动） -->
+    <view wx:if="{{seats.length === 0}}" class="seat-grid empty-state-wrapper">
+      <view class="empty-state">
+        <text class="empty-icon iconfont icon-chair"></text>
+        <text class="empty-text">{{seatMapEmptyText}}</text>
+      </view>
+    </view>
+
     <scroll-view
+      wx:elif="{{seats.length > 0}}"
       scroll-x="{{true}}"
       scroll-y="{{false}}"
       class="seat-grid-container"

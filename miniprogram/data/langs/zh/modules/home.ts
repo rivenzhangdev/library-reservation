@@ -16,6 +16,7 @@ export default {
   'actions.renew': '快速续约',
   'actions.checkin': '扫码签到',
   'actions.checkout': '扫码签退',
+  'actions.scan': '扫一扫',
 
   // 开放时间
   'openingHours.title': '今日开放时间',

@@ -35,6 +35,10 @@
     </view>
   </view>
 
+  <view wx:if="{{activity.signStatusText}}" class="sign-status">
+    <text class="sign-status__text">{{activity.signStatusText}}</text>
+  </view>
+
   <view wx:if="{{activity}}" class="section-card">
     <view class="section-title">{{timeLabel}}</view>
     <view class="info-row"
@@ -79,6 +83,12 @@
     >
     <van-button wx:if="{{activity.canCancel}}" plain round bind:tap="onCancelJoin"
       >{{cancelJoinText}}</van-button
+    >
+    <van-button wx:if="{{activity.canSignIn}}" type="primary" round bind:tap="onSignIn"
+      >{{checkInText}}</van-button
+    >
+    <van-button wx:if="{{activity.canSignOut}}" plain round bind:tap="onSignOut"
+      >{{checkOutText}}</van-button
     >
   </view>
 

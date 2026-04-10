@@ -8,8 +8,9 @@
     <view
       wx:for="{{items}}"
       wx:key="index"
-      class="section-list-item"
+      class="section-list-item {{item.disabled ? 'section-list-item--disabled' : ''}}"
       data-action="{{item.action}}"
+      data-disabled="{{item.disabled}}"
       bind:tap="onItemTap"
     >
       <content-card

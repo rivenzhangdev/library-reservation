@@ -18,6 +18,13 @@ export default {
   'reservation.filter.facility': '设施',
   'reservation.filter.facility.power': '有插座',
   'reservation.filter.reset': '重置筛选条件',
+  'reservation.filter.title': '筛选',
+  'reservation.filter.result': '筛选结果',
+  'reservation.hint.noMatchingSeats': '暂无匹配座位',
+  'reservation.hint.invalidTimeSlot': '该时间段不可预约',
+  'reservation.hint.invalidCustomTime': '自定义时间必须晚于当前时间',
+  'reservation.hint.customTimeSlotRange': '自定义时间必须在所选时间段范围内',
+  'reservation.hint.customTimeSameAsSlot': '自定义时间不能等于完整时间段',
 
   // 区域选项
   'reservation.area.all': '全部区域',
@@ -77,6 +84,7 @@ export default {
   'reservation.hint.pleaseSelectSeat': '请选择座位',
   'reservation.hint.reservationSuccess': '预约成功',
   'reservation.hint.endTimeMustAfterStart': '结束时间必须晚于开始时间',
+  'reservation.hint.customTimeBothRequired': '开始时间和结束时间必须同时填写',
   'reservation.hint.customTimeConfirmed': '时间段已确认',
   'reservation.hint.customTimeCancelled': '已取消自定义时间段',
 
@@ -90,4 +98,5 @@ export default {
   'reservation.seatMap.legend.selected.desc': '(您已选择的座位)',
   'reservation.seatMap.legend.mine.desc': '(您已预约的座位)',
   'reservation.seatMap.instruction': '点击可用座位进行选择，再次点击取消选择',
+  'reservation.info.bookedTimeRange': '已预约时间段',
 };
