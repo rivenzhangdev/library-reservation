@@ -2,43 +2,64 @@
   <navigation-bar title="{{navTitle}}" back="{{true}}" />
 </page-meta>
 
-<view class="page-container">
-  <view wx:if="{{detail}}" class="detail-card">
-    <view class="title-row">
-      <text class="title">{{detail.title}}</text>
-      <van-tag type="{{detail.isRead ? 'default' : 'primary'}}" size="medium"
-        >{{detail.isRead ? t('notification.read') : t('notification.unread')}}</van-tag
-      >
+<view class="page-container {{languageClass}}">
+  <view wx:if="{{notification}}" class="hero-card">
+    <view class="hero-headline">
+      <text class="hero-title">{{notification.title}}</text>
+      <text class="hero-subtitle">{{notification.content}}</text>
     </view>
-    <view class="meta-row"
-      ><text class="label">{{t('notification.detail.type')}}</text
-      ><text>{{detail.typeText}}</text></view
-    >
-    <view class="meta-row"
-      ><text class="label">{{t('notification.detail.time')}}</text
-      ><text>{{detail.time || '-'}}</text></view
-    >
-    <view class="meta-row"
-      ><text class="label">{{t('notification.detail.publisher')}}</text
-      ><text>{{detail.publisherName || '-'}}</text></view
-    >
-    <view class="meta-row"
-      ><text class="label">{{t('notification.detail.updatedBy')}}</text
-      ><text>{{detail.updatedByName || '-'}}</text></view
-    >
-    <view class="meta-row"
-      ><text class="label">{{t('notification.detail.relatedId')}}</text
-      ><text>{{detail.relatedId || '-'}}</text></view
-    >
+    <view class="hero-tags">
+      <van-tag type="primary" size="large">{{notification.typeText}}</van-tag>
+      <van-tag
+        size="medium"
+        plain
+        type="{{notification.isRead ? 'success' : 'warning'}}"
+      >
+        {{notification.isReadText}}
+      </van-tag>
+    </view>
   </view>
 
-  <view wx:if="{{detail}}" class="detail-card">
-    <view class="content-title">{{t('notification.detail.content')}}</view>
-    <text class="content-text">{{detail.content || t('common.empty.noDescription')}}</text>
+  <view wx:if="{{notification}}" class="section-card">
+    <view class="section-title">{{basicInfoLabel}}</view>
+    <view class="info-row">
+      <text class="label">{{timeLabel}}</text>
+      <text class="value">{{notification.time}}</text>
+    </view>
+    <view class="info-row">
+      <text class="label">{{publisherLabel}}</text>
+      <text class="value">{{notification.publisherName || '-'}}</text>
+    </view>
+    <view wx:if="{{notification.updatedByName}}" class="info-row">
+      <text class="label">{{updatedByLabel}}</text>
+      <text class="value">{{notification.updatedByName}}</text>
+    </view>
   </view>
 
-  <view wx:if="{{!detail}}" class="empty-state">
+  <view wx:if="{{notification.extraInfoRows.length}}" class="section-card">
+    <view class="section-title">{{extraInfoLabel}}</view>
+    <view
+      wx:for="{{notification.extraInfoRows}}"
+      wx:key="label"
+      class="info-row"
+    >
+      <text class="label">{{item.label}}</text>
+      <text class="value">{{item.value}}</text>
+    </view>
+  </view>
+
+  <view wx:if="{{notification}}" class="section-card">
+    <view class="section-title">{{contentLabel}}</view>
+    <text class="description-text">{{notification.content}}</text>
+  </view>
+
+  <view wx:if="{{loading}}" class="empty-state">
+    <uni-icon type="vant" name="loading" size="72" color="#409eff" />
+    <text class="empty-text">{{loadingText}}</text>
+  </view>
+
+  <view wx:if="{{!loading && !notification}}" class="empty-state">
     <uni-icon type="vant" name="search" size="72" color="#d0d7de" />
-    <text class="empty-text">{{t('common.empty.notFound')}}</text>
+    <text class="empty-text">{{emptyText}}</text>
   </view>
 </view>

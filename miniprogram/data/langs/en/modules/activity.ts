@@ -1,6 +1,6 @@
 // Activity page English language pack
 export default {
-  'activity.title': 'My Activities',
+  'activity.title': 'Activity List',
   'activity.search.placeholder': 'Search activities',
   'activity.status.registered': 'Registered',
   'activity.status.ended': 'Ended',

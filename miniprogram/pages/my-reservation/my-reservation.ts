@@ -1,6 +1,37 @@
 import { getLangClassName, t } from '../../utils/i18n';
 import { getMyBookings, cancelBooking, checkin, checkout, renewBooking } from '../../apis/booking';
+import { formatDateTime } from '../../utils/time';
 import { isLogin } from '../../utils/auth';
+
+function getStatusName(status: string, statusList: Array<{ id: string; name: string }>) {
+  return statusList.find((item) => item.id === status)?.name || '';
+}
+
+function getTagTypeByStatus(status: string) {
+  switch (status) {
+    case 'ongoing':
+      return 'success';
+    case 'upcoming':
+      return 'warning';
+    case 'completed':
+      return 'primary';
+    case 'cancelled':
+      return 'default';
+    case 'violated':
+      return 'danger';
+    default:
+      return 'default';
+  }
+}
+
+function buildSeatTitle(booking: any) {
+  if (booking.seatName) return booking.seatName;
+  const zone = booking.zone ? `${booking.zone}` : '';
+  const floor = booking.floorName ? `${booking.floorName}` : '';
+  const row = booking.rowNum ? `R${booking.rowNum}` : '';
+  const col = booking.colNum ? `C${booking.colNum}` : '';
+  return [zone, floor, row + col].filter(Boolean).join(' ') || String(booking.seatId || '');
+}
 
 Page({
   data: {
@@ -17,6 +48,8 @@ Page({
     emptyHint: '',
     confirmCheckinTitle: '',
     confirmCheckinContent: '',
+    confirmCheckoutTitle: '',
+    confirmCheckoutContent: '',
     confirmRenewTitle: '',
     confirmRenewContent: '',
     confirmCancelTitle: '',
@@ -111,21 +144,35 @@ Page({
         };
 
         const reservations = list.map((booking: any) => {
-          const timeSlot = Number.isFinite(booking.timeSlot) ? Number(booking.timeSlot) : 0;
+          const bookingStatus =
+            typeof booking.status === 'number'
+              ? statusNames[booking.status]
+              : String(booking.status || 'upcoming');
+          const timeSlot = Number.isFinite(booking.timeSlot) ? Number(booking.timeSlot) : -1;
+          const normalizeTime = (value: string) => {
+            if (!value) return '';
+            return value.length >= 5 ? value.slice(0, 5) : value;
+          };
+          const timeRange =
+            booking.startTime && booking.endTime
+              ? `${normalizeTime(booking.startTime)} - ${normalizeTime(booking.endTime)}`
+              : timeSlotNames[timeSlot] || '';
+          const seatName = buildSeatTitle(booking);
+
           return {
             id: String(booking.id),
-            seatName:
-              `${booking.floorName || ''} ${booking.zone || ''} R${booking.rowNum}C${booking.colNum}`.trim(),
-            seatId: String(booking.seatId),
-            zone: booking.zone || '',
-            floor: booking.floorName || '',
-            date: booking.date,
-            startTime: booking.startTime || '',
-            endTime: booking.endTime || '',
+            seatName,
+            description: booking.description || booking.seatDescription || '',
+            date: booking.date || formatDateTime(booking.createdAt || '', 'YYYY-MM-DD'),
+            timeRange,
+            region: booking.zone || booking.area || '',
+            seatType:
+              booking.seatTypeName || booking.typeName || booking.seatType || booking.type || '',
+            status: bookingStatus,
+            tagType: getTagTypeByStatus(bookingStatus),
+            statusName: getStatusName(bookingStatus, this.data.statusList),
             timeSlot,
-            timeSlotText: timeSlotNames[timeSlot] || '',
-            status: statusNames[booking.status] || 'upcoming',
-            type: timeSlotNames[booking.timeSlot] || '',
+            booking,
           };
         });
 
@@ -133,7 +180,7 @@ Page({
         wx.hideLoading();
       })
       .catch((err) => {
-        console.error('鍔犺浇棰勭害澶辫触:', err);
+        console.error('加载预约失败:', err);
         wx.hideLoading();
       });
   },
@@ -155,8 +202,7 @@ Page({
 
     const processedReservations = reservations.map((item) => ({
       ...item,
-      tagType: this.getTagTypeByStatus(item.status),
-      statusName: this.getStatusNameByStatus(item.status),
+      statusName: getStatusName(item.status, statusList),
     }));
 
     this.setData({
@@ -167,45 +213,9 @@ Page({
     this.filterReservations();
   },
 
-  getTagTypeByStatus(status: string) {
-    switch (status) {
-      case 'ongoing':
-        return 'success';
-      case 'upcoming':
-        return 'warning';
-      case 'completed':
-        return 'primary';
-      case 'cancelled':
-        return 'default';
-      case 'violated':
-        return 'danger';
-      default:
-        return 'default';
-    }
-  },
-
-  getTimeSlotText(timeSlot: number) {
-    const app = getApp() as any;
-    const t = app.t || ((key: string) => key);
-
-    switch (timeSlot) {
-      case 0:
-        return t('reservation.time.period.morning');
-      case 1:
-        return t('reservation.time.period.afternoon');
-      case 2:
-        return t('reservation.time.period.evening');
-      default:
-        return t('reservation.time.period.unknown');
-    }
-  },
-
-  getStatusNameByStatus(status: string) {
-    return this.data.statusList.find((item) => item.id === status)?.name || '';
-  },
-
   onSearchChange(e: any) {
-    this.setData({ searchValue: e.detail });
+    const value = typeof e.detail === 'string' ? e.detail : e.detail?.value || '';
+    this.setData({ searchValue: value });
     this.debounceSearch();
   },
 
@@ -230,11 +240,12 @@ Page({
     }
 
     if (searchValue) {
-      filtered = filtered.filter(
-        (item) =>
-          item.seatName.includes(searchValue) ||
-          item.zone.includes(searchValue) ||
-          item.floor.includes(searchValue)
+      const keyword = String(searchValue).trim().toLowerCase();
+      filtered = filtered.filter((item) =>
+        [item.seatName, item.locationLabel, item.date, item.timeRange, item.statusName]
+          .join(' ')
+          .toLowerCase()
+          .includes(keyword)
       );
     }
 
@@ -335,13 +346,6 @@ Page({
             wx.showToast({ title: t('common.hint.error'), icon: 'none' });
           });
       },
-    });
-  },
-
-  onDetailTap(e: any) {
-    const { id } = e.currentTarget.dataset;
-    wx.navigateTo({
-      url: `/pages/booking-detail/booking-detail?id=${id}`,
     });
   },
 });

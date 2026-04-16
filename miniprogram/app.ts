@@ -5,13 +5,36 @@ import { checkLogin, wxLogin } from './apis/auth';
 function normalizeUserInfo(userInfo: any) {
   if (!userInfo) return undefined;
 
+  const existing = getUserInfo() || {};
+  const safeString = (value: any) =>
+    typeof value === 'string' && value.trim() ? value.trim() : undefined;
+
+  const avatarUrl = safeString(userInfo.avatarUrl) || safeString(existing.avatarUrl);
+  const username = safeString(userInfo.username) || safeString(existing.username);
+  const name = safeString(userInfo.name) || safeString(existing.name) || username;
+  const nickName = safeString(userInfo.nickName) || safeString(userInfo.name) || username;
+  const blacklisted =
+    typeof userInfo.blacklisted === 'boolean'
+      ? userInfo.blacklisted
+      : typeof existing.blacklisted === 'boolean'
+        ? existing.blacklisted
+        : false;
+  const blacklistReason =
+    safeString(userInfo.blacklistReason) || safeString(existing.blacklistReason);
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const { avatar: _avatar1, ...existingRest } = existing;
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const { avatar: _avatar2, ...userInfoRest } = userInfo;
+
   return {
-    ...userInfo,
-    id: userInfo.id || userInfo._id,
-    name: userInfo.name || userInfo.nickName,
-    nickName: userInfo.nickName || userInfo.name,
-    avatar: userInfo.avatar || userInfo.avatarUrl,
-    avatarUrl: userInfo.avatarUrl || userInfo.avatar,
+    ...existingRest,
+    ...userInfoRest,
+    id: userInfo.id || userInfo._id || existing.id || existing._id,
+    name,
+    nickName,
+    avatarUrl,
+    blacklisted,
+    blacklistReason,
   };
 }
 

@@ -25,8 +25,8 @@
           "name": "pages/personal-info/personal-info",
           "pathName": "pages/personal-info/personal-info",
           "query": "",
-          "scene": null,
-          "launchMode": "default"
+          "launchMode": "default",
+          "scene": null
         },
         {
           "name": "pages/settings-env/settings-env",

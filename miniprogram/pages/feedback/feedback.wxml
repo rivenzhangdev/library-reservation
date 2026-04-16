@@ -167,7 +167,7 @@
             <uni-icon type="vant" name="label-o" size="24" color="#999" />
             <text class="detail-label">{{detailTypeText}}：</text>
             <text class="detail-text">{{item.typeName}}</text>
-          </view>
+        </view>
           <view class="detail-row">
             <uni-icon type="vant" name="clock-o" size="24" color="#999" />
             <text class="detail-label">{{detailSubmitTimeText}}：</text>

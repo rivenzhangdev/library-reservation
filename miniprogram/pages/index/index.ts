@@ -8,27 +8,24 @@ import {
   getActivityDetail,
 } from '../../apis/activity';
 import { getFloors, getFloorSeats } from '../../apis/seats';
-import { favoriteSeat } from '../../apis/user';
+import { favoriteSeat, getFavorites } from '../../apis/user';
 import { checkin, checkout, getBookingDetail } from '../../apis/booking';
+import { getSeatTypeConfigs, getSeatFacilityConfigs } from '../../apis/config';
 import { getToken, redirectToLogin, getUserInfo } from '../../utils/auth';
 import { resolveAssetUrl } from '../../utils/assets';
 import { t } from '../../utils/i18n';
 import { openReservationWithParams } from '../../utils/reservationNavigator';
 import { compareFloorName, compareSeatPosition } from '../../utils/sort';
+import { formatMonthDayTime, getCurrentTimeSlot, getToday } from '../../utils/time';
 
-function getToday() {
-  const now = new Date();
-  const year = now.getFullYear();
-  const month = String(now.getMonth() + 1).padStart(2, '0');
-  const day = String(now.getDate()).padStart(2, '0');
-  return `${year}-${month}-${day}`;
-}
-
-function getCurrentTimeSlot() {
-  const hour = new Date().getHours();
-  if (hour >= 18) return 2;
-  if (hour >= 13) return 1;
-  return 0;
+function getSearchTagLabel(key: string, label: string) {
+  if (key === 'power') return t('search.tags.power');
+  if (key === 'window') return t('search.tags.window');
+  if (key === 'single') return t('search.tags.single');
+  if (key === 'double') return t('search.tags.double');
+  if (key === 'group') return t('search.tags.group');
+  if (key === 'open') return t('reservation.seatType.open');
+  return label || key;
 }
 
 function getCurrentTimeSlotLabel() {
@@ -39,15 +36,7 @@ function getCurrentTimeSlotLabel() {
 }
 
 function formatDate(value?: string) {
-  if (!value) return '';
-  const date = new Date(value);
-  if (Number.isNaN(date.getTime())) return String(value);
-
-  const month = String(date.getMonth() + 1).padStart(2, '0');
-  const day = String(date.getDate()).padStart(2, '0');
-  const hour = String(date.getHours()).padStart(2, '0');
-  const minute = String(date.getMinutes()).padStart(2, '0');
-  return `${month}-${day} ${hour}:${minute}`;
+  return formatMonthDayTime(value);
 }
 
 Page({
@@ -99,12 +88,14 @@ Page({
 
   onLoad() {
     this.updateLanguage();
+    this.loadSearchTags();
     this.loadSeatOverview();
     this.loadActivities();
   },
 
   onShow() {
     this.updateLanguage();
+    this.loadSearchTags();
     this.loadSeatOverview();
     this.loadActivities();
   },
@@ -171,6 +162,51 @@ Page({
     });
   },
 
+  async loadSearchTags() {
+    try {
+      const [facilityRes, typeRes] = await Promise.all([
+        getSeatFacilityConfigs(),
+        getSeatTypeConfigs(),
+      ]);
+      const facilities = Array.isArray(facilityRes.data) ? facilityRes.data : [];
+      const seatTypes = Array.isArray(typeRes.data) ? typeRes.data : [];
+
+      const tags = [
+        ...facilities
+          .filter((item: any) => item && item.enabled !== false && item.key)
+          .map((item: any) => getSearchTagLabel(item.key, item.label || String(item.key))),
+        ...seatTypes
+          .filter((item: any) => item && item.enabled !== false && item.value)
+          .map((item: any) => getSearchTagLabel(item.value, item.label || String(item.value))),
+      ];
+
+      if (tags.length === 0) {
+        this.setData({
+          searchTags: [
+            t('search.tags.power'),
+            t('search.tags.window'),
+            t('search.tags.single'),
+            t('search.tags.double'),
+            t('search.tags.group'),
+          ],
+        });
+      } else {
+        this.setData({ searchTags: tags });
+      }
+    } catch (error) {
+      console.warn('加载搜索标签失败，使用默认标签', error);
+      this.setData({
+        searchTags: [
+          t('search.tags.power'),
+          t('search.tags.window'),
+          t('search.tags.single'),
+          t('search.tags.double'),
+          t('search.tags.group'),
+        ],
+      });
+    }
+  },
+
   async loadSeatOverview() {
     const date = getToday();
     const timeSlot = getCurrentTimeSlot();
@@ -225,6 +261,21 @@ Page({
         seatResults[0] || { floor: { name: '-' }, seats: [] }
       );
 
+      const favoriteIds = new Set<string>();
+      if (getToken()) {
+        try {
+          const favRes: any = await getFavorites();
+          const list = Array.isArray(favRes.data) ? favRes.data : [];
+          list.forEach((item: any) => {
+            if (item && item.id !== undefined) {
+              favoriteIds.add(String(item.id));
+            }
+          });
+        } catch (_error) {
+          console.warn('获取收藏座位列表失败', _error);
+        }
+      }
+
       const seatList = availableSeats
         .sort(
           (a, b) =>
@@ -233,17 +284,8 @@ Page({
             compareSeatPosition(a, b)
         )
         .slice(0, 3)
-        .map((seat: any) => ({
-          seatId: String(seat.id),
-          seatLabel: seat.floorName || '-',
-          seatName: `${seat.zone || 'Seat'} R${seat.row}C${seat.col}`,
-          seatType:
-            String(seat.type) === '1'
-              ? t('seat.type.double')
-              : String(seat.type) === '2'
-                ? t('reservation.seatType.group')
-                : t('seat.type.single'),
-          distance:
+        .map((seat: any) => {
+          const distanceText =
             seat.description ||
             [
               seat.hasSocket ? t('common.seat.facilities.power') : '',
@@ -252,15 +294,33 @@ Page({
               .filter(Boolean)
               .join(' / ') ||
             seat.zone ||
-            '-',
-          statusText: t('common.status.available'),
-          floor: seat.floorName || '',
-          zone: seat.zone || '',
-          facilities: [
-            ...(seat.hasSocket ? [t('common.seat.facilities.power')] : []),
-            ...(seat.isWindow ? [t('common.seat.facilities.window')] : []),
-          ],
-        }));
+            '';
+
+          const seatLabel = seat.floorName || '';
+          const seatType =
+            String(seat.type) === '1'
+              ? t('seat.type.double')
+              : String(seat.type) === '2'
+                ? t('reservation.seatType.group')
+                : t('seat.type.single');
+
+          return {
+            seatId: String(seat.id),
+            seatLabel,
+            seatName: `${seat.zone || 'Seat'} R${seat.row}C${seat.col}`,
+            seatType,
+            distance: distanceText,
+            attributes: [seatLabel, seatType, distanceText].filter(Boolean),
+            statusText: t('common.status.available'),
+            floor: seat.floorName || '',
+            zone: seat.zone || '',
+            facilities: [
+              ...(seat.hasSocket ? [t('common.seat.facilities.power')] : []),
+              ...(seat.isWindow ? [t('common.seat.facilities.window')] : []),
+            ],
+            isFavorite: favoriteIds.has(String(seat.id)),
+          };
+        });
 
       const chartLabels = seatResults.slice(0, 6).map((item) => item.floor?.name || '-');
       const chartValues = seatResults
@@ -382,7 +442,7 @@ Page({
               : statusKey === '2'
                 ? t('common.status.completed')
                 : t('common.status.pending'),
-          btnText: isJoined ? t('activity.btn.detail') : t('common.btn.confirm'),
+          btnText: isJoined ? t('activity.btn.detail') : t('activity.btn.register'),
           time: `${formatDate(activity.startTime)}${
             activity.endTime ? ` - ${formatDate(activity.endTime)}` : ''
           }`,
@@ -472,7 +532,6 @@ Page({
             data: values,
             barWidth: 18,
             itemStyle: {
-              borderRadius: [8, 8, 0, 0],
               color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
                 { offset: 0, color: '#409eff' },
                 { offset: 1, color: '#67b8ff' },
@@ -499,6 +558,7 @@ Page({
       floor: seatInfo.floor,
       type: seatInfo.seatType,
       facilities: (seatInfo.facilities || []).join(','),
+      date: getToday(),
     });
   },
 
@@ -513,7 +573,15 @@ Page({
 
     favoriteSeat(String(seatInfo.seatId))
       .then(() => {
-        wx.showToast({ title: t('common.btn.favorite'), icon: 'success' });
+        const seatList = [...this.data.seatList];
+        const nextInfo = { ...seatInfo, isFavorite: !seatInfo.isFavorite };
+        seatList[index || 0] = nextInfo;
+        this.setData({ seatList });
+
+        wx.showToast({
+          title: nextInfo.isFavorite ? t('common.btn.favorite') : t('common.btn.unfavorite'),
+          icon: 'success',
+        });
       })
       .catch(() => {
         wx.showToast({ title: t('common.hint.error'), icon: 'none' });

@@ -27,4 +27,12 @@ export default {
   'notification.detail.publisher': '发布人',
   'notification.detail.updatedBy': '更新人',
   'notification.detail.relatedId': '关联编号',
+  'notification.detail.publisherSystem': '系统',
+  'notification.detail.basicInfo': '基本信息',
+  'notification.detail.extraInfo': '扩展信息',
+  'notification.detail.bookingId': '预约编号',
+  'notification.detail.seatId': '座位编号',
+  'notification.detail.bookingInfo': '预约信息',
+  'notification.detail.date': '预约日期',
+  'notification.detail.timeSlot': '时间段',
 };

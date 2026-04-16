@@ -40,6 +40,8 @@ export default {
   'feedback.detail.type': '类型',
   'feedback.detail.submitTime': '提交时间',
   'feedback.detail.urgency': '紧急程度',
+  'feedback.chat.user': '用户消息',
+  'feedback.chat.system': '系统回复',
   'feedback.detail.contact': '联系方式',
   'feedback.detail.content': '反馈内容',
   'feedback.detail.images': '反馈图片',

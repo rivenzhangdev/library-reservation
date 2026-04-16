@@ -19,80 +19,47 @@
   </scroll-view>
 
   <view class="reservation-list">
-    <common-card wx:for="{{filteredReservations}}" wx:key="id" class="reservation-item">
-      <view class="reservation-card">
-        <view class="reservation-header">
-          <view class="reservation-info">
-            <text class="reservation-name">{{item.seatName}}</text>
-            <van-tag type="{{item.tagType || 'default'}}" size="small">{{item.statusName}}</van-tag>
+    <block wx:for="{{filteredReservations}}" wx:key="id">
+      <common-card>
+        <view class="reservation-top">
+          <view class="reservation-title-group">
+            <text class="reservation-title">{{item.seatName}}</text>
+            <text class="reservation-subtitle">{{item.description || item.locationLabel}}</text>
+          </view>
+          <van-tag type="{{item.tagType}}" size="medium">{{item.statusName}}</van-tag>
+        </view>
+
+        <view class="reservation-meta-row">
+          <view class="reservation-meta-info">
+            <view class="reservation-meta-time-badge">
+              <text class="reservation-meta-time">{{item.timeRange}}</text>
+            </view>
+            <text class="reservation-meta-date">{{item.date}}</text>
+          </view>
+
+          <view class="reservation-actions">
+            <view class="reservation-action-group">
+              <block wx:if="{{item.status === 'ongoing'}}">
+                <van-button size="small" type="primary" plain bind:tap="onCheckinTap" data-id="{{item.id}}">{{actionCheckinText}}</van-button>
+                <van-button size="small" type="info" plain bind:tap="onCancelTap" data-id="{{item.id}}">{{actionCancelText}}</van-button>
+              </block>
+              <block wx:if="{{item.status === 'upcoming'}}">
+                <van-button size="small" type="primary" plain bind:tap="onRenewTap" data-id="{{item.id}}">{{actionRenewText}}</van-button>
+                <van-button size="small" type="info" plain bind:tap="onCancelTap" data-id="{{item.id}}">{{actionCancelText}}</van-button>
+              </block>
+            </view>
           </view>
         </view>
 
-        <view class="reservation-detail">
-          <view class="reservation-row">
-            <text class="reservation-label">{{t('myReservation.field.date')}}:</text>
-            <text class="reservation-value">{{item.date}}</text>
-          </view>
-          <view class="reservation-row">
-            <text class="reservation-label">{{t('myReservation.field.time')}}:</text>
-            <text class="reservation-value">{{item.startTime}} - {{item.endTime}}</text>
-          </view>
-          <view class="reservation-row">
-            <text class="reservation-label">{{t('myReservation.field.zone')}}:</text>
-            <text class="reservation-value">{{item.zone}} / {{item.type}}</text>
-          </view>
+        <view wx:if="{{item.region || item.seatType || item.booking.checkinTime || item.booking.checkedInAt}}" class="reservation-additional">
+          <text wx:if="{{item.region}}">{{item.region}}</text>
+          <text wx:if="{{item.region && item.seatType}}"> · </text>
+          <text wx:if="{{item.seatType}}">{{item.seatType}}</text>
+          <text wx:if="{{(item.region || item.seatType) && (item.booking.checkinTime || item.booking.checkedInAt)}}"> · </text>
+          <text wx:if="{{item.booking.checkinTime || item.booking.checkedInAt}}">{{item.booking.checkinTime || item.booking.checkedInAt}}</text>
         </view>
-
-        <view class="reservation-actions">
-          <view class="reservation-actions-right">
-            <block wx:if="{{item.status === 'upcoming'}}">
-              <van-button
-                size="small"
-                type="primary"
-                plain
-                bind:tap="onCheckinTap"
-                data-id="{{item.id}}"
-              >
-                {{actionCheckinText}}
-              </van-button>
-              <van-button size="small" plain bind:tap="onCancelTap" data-id="{{item.id}}">
-                {{actionCancelText}}
-              </van-button>
-            </block>
-
-            <block wx:if="{{item.status === 'ongoing'}}">
-              <van-button
-                size="small"
-                type="primary"
-                plain
-                bind:tap="onCheckoutTap"
-                data-id="{{item.id}}"
-              >
-                {{actionCheckoutText}}
-              </van-button>
-              <van-button
-                size="small"
-                type="primary"
-                plain
-                bind:tap="onRenewTap"
-                data-id="{{item.id}}"
-              >
-                {{actionRenewText}}
-              </van-button>
-              <van-button size="small" plain bind:tap="onCancelTap" data-id="{{item.id}}">
-                {{actionCancelText}}
-              </van-button>
-            </block>
-
-            <block wx:if="{{item.status !== 'ongoing' && item.status !== 'upcoming'}}">
-              <van-button size="small" plain bind:tap="onDetailTap" data-id="{{item.id}}">
-                {{actionDetailText}}
-              </van-button>
-            </block>
-          </view>
-        </view>
-      </view>
-    </common-card>
+      </common-card>
+    </block>
   </view>
 
   <view wx:if="{{filteredReservations.length === 0}}" class="empty-state">

@@ -14,12 +14,28 @@
       <uni-icon type="vant" name="photo-o" size="72" color="#ffffff" />
     </view>
     <view class="hero-content">
-      <view class="hero-title">{{activity.title}}</view>
-      <view class="hero-tags">
-        <van-tag type="{{activity.statusType}}" size="medium">{{activity.statusText}}</van-tag>
-        <van-tag type="{{activity.isJoined ? 'primary' : 'default'}}" plain size="medium">
-          {{activity.isJoined ? joinedText : notJoinedText}}
-        </van-tag>
+      <view class="hero-meta">
+        <view class="hero-title">{{activity.title}}</view>
+        <view class="hero-tags">
+          <van-tag type="{{activity.statusType}}" size="medium">{{activity.statusText}}</van-tag>
+          <van-tag type="{{activity.isJoined ? 'primary' : 'default'}}" plain size="medium">
+            {{activity.isJoined ? joinedText : notJoinedText}}
+          </van-tag>
+        </view>
+      </view>
+      <view class="hero-action-group">
+        <van-button wx:if="{{activity.canJoin}}" size="small" class="action-button" type="primary" bind:tap="onJoin">
+          {{joinNowText}}
+        </van-button>
+        <van-button wx:if="{{activity.canCancel}}" size="small" class="action-button cancel-button" type="danger" bind:tap="onCancelJoin">
+          {{cancelJoinText}}
+        </van-button>
+        <van-button wx:if="{{activity.canSignIn}}" size="small" class="action-button" type="primary" bind:tap="onSignIn">
+          {{checkInText}}
+        </van-button>
+        <van-button wx:if="{{activity.canSignOut}}" size="small" class="action-button" type="warning" bind:tap="onSignOut">
+          {{checkOutText}}
+        </van-button>
       </view>
     </view>
   </view>
@@ -70,25 +86,6 @@
     <view class="info-row"
       ><text class="label">{{organizerLabel}}</text
       ><text class="value">{{activity.publisherName}}</text></view
-    >
-    <view class="info-row"
-      ><text class="label">{{updatedByLabel}}</text
-      ><text class="value">{{activity.updaterName}}</text></view
-    >
-  </view>
-
-  <view wx:if="{{activity}}" class="action-bar">
-    <van-button wx:if="{{activity.canJoin}}" type="primary" round bind:tap="onJoin"
-      >{{joinNowText}}</van-button
-    >
-    <van-button wx:if="{{activity.canCancel}}" plain round bind:tap="onCancelJoin"
-      >{{cancelJoinText}}</van-button
-    >
-    <van-button wx:if="{{activity.canSignIn}}" type="primary" round bind:tap="onSignIn"
-      >{{checkInText}}</van-button
-    >
-    <van-button wx:if="{{activity.canSignOut}}" plain round bind:tap="onSignOut"
-      >{{checkOutText}}</van-button
     >
   </view>
 

@@ -32,12 +32,18 @@ export type Seat = {
   status: SeatStatus;
   /** 座位类型 */
   type?: SeatType;
+  /** 类型标签文本 */
+  typeLabel?: string;
   /** 是否有插座 */
   hasSocket?: boolean;
   /** 是否靠窗 */
   isWindow?: boolean;
+  /** 是否为自己预约 */
+  isMine?: boolean;
   /** 所属区域 */
   zone?: string;
+  /** 标签列表 */
+  tags?: string[];
   /** 已预约时间段 (仅 booked 和 mine 状态有效) */
   bookedTimeRange?: string;
 };
@@ -70,6 +76,42 @@ export type SeatsSelectData = {
   cols: number;
   /** 网格宽度（像素） */
   gridWidth: number;
+  /** 当前激活的座位 ID */
+  activeSeatId?: string;
+  /** 当前激活的座位 */
+  activeSeat?: Seat | null;
+  /** tooltip 样式 */
+  seatTooltipStyle?: string;
+  /** tooltip 箭头样式 */
+  seatTooltipArrowStyle?: string;
+  /** tooltip 箭头方向 */
+  tooltipDirection?: 'down' | 'up' | 'left' | 'right';
+  /** tooltip 标题 */
+  seatTooltipHeader?: string;
+  /** tooltip 标题状态 */
+  seatTooltipStatus?: string;
+  /** tooltip 行数据 */
+  seatTooltipRows?: Array<{
+    key: string;
+    label: string;
+    timeLabel: string;
+    statusText: string;
+    type: string;
+  }>;
+  /** 时间段配置 */
+  timePeriods?: Array<{
+    timeSlot: number;
+    value: string;
+    label: string;
+    start: string;
+    end: string;
+    enabled?: boolean;
+    disabled?: boolean;
+  }>;
+  /** tooltip 描述文本 */
+  seatTooltipDescription?: string;
+  /** 座位矩阵 */
+  seatMatrix: Array<Array<Seat | null>>;
 
   /** 多语言文本 */
   seatMapTitle: string;

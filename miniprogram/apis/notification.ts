@@ -21,6 +21,13 @@ export const getNotificationDetail = (id: string) =>
   notificationApi.get(`/${id}`, null, { needAuth: true });
 
 /**
+ * 获取当前配置的 WeChat 订阅模板 ID
+ * GET /api/notification/template-ids
+ */
+export const getWechatTemplateIds = () =>
+  notificationApi.get('/template-ids', null, { needAuth: true });
+
+/**
  * 标记通知已读
  * POST /api/notification/read/:id
  */
@@ -43,6 +50,7 @@ export const deleteNotification = (id: string) =>
 export default {
   getNotifications,
   getNotificationDetail,
+  getWechatTemplateIds,
   markAsRead,
   markAllAsRead,
   deleteNotification,

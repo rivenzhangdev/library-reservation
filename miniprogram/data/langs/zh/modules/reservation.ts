@@ -23,8 +23,10 @@ export default {
   'reservation.hint.noMatchingSeats': '暂无匹配座位',
   'reservation.hint.invalidTimeSlot': '该时间段不可预约',
   'reservation.hint.invalidCustomTime': '自定义时间必须晚于当前时间',
+  'reservation.hint.customTimeTooShort': '自定义时间段不得少于30分钟',
   'reservation.hint.customTimeSlotRange': '自定义时间必须在所选时间段范围内',
   'reservation.hint.customTimeSameAsSlot': '自定义时间不能等于完整时间段',
+  'reservation.hint.customTimeHelp': '自定义时间段不得少于30分钟，且必须在当前时段内',
 
   // 区域选项
   'reservation.area.all': '全部区域',
@@ -61,6 +63,7 @@ export default {
   'reservation.time.date.tomorrow': '明天',
   'reservation.time.date.dayAfter': '后天',
   'reservation.time.date.selectMore': '选择更多日期',
+  'reservation.time.noPeriods': '暂无可用预约时段，请选择其他日期',
   'reservation.time.custom.title': '自定义时间段',
   'reservation.time.custom.start': '开始时间',
   'reservation.time.custom.end': '结束时间',
@@ -83,6 +86,7 @@ export default {
   'reservation.hint.pleaseSelectDate': '请选择日期',
   'reservation.hint.pleaseSelectSeat': '请选择座位',
   'reservation.hint.reservationSuccess': '预约成功',
+  'reservation.hint.subscribeMessageDeclined': '您已拒绝订阅消息，预约通知可能无法及时收到',
   'reservation.hint.endTimeMustAfterStart': '结束时间必须晚于开始时间',
   'reservation.hint.customTimeBothRequired': '开始时间和结束时间必须同时填写',
   'reservation.hint.customTimeConfirmed': '时间段已确认',
@@ -98,5 +102,11 @@ export default {
   'reservation.seatMap.legend.selected.desc': '(您已选择的座位)',
   'reservation.seatMap.legend.mine.desc': '(您已预约的座位)',
   'reservation.seatMap.instruction': '点击可用座位进行选择，再次点击取消选择',
+  'reservation.seatMap.tooltip.basic': '普通座位，点击查看更多位置信息。',
+  'reservation.status.available': '可预约',
+  'reservation.status.booked': '已预约',
+  'reservation.status.maintenance': '维修中',
+  'reservation.status.selected': '已选择',
   'reservation.info.bookedTimeRange': '已预约时间段',
+  'reservation.info.timeRange': '时间段信息',
 };

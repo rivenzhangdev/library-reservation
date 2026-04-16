@@ -23,9 +23,12 @@ export default {
   'reservation.hint.noMatchingSeats': 'No matching seats',
   'reservation.hint.invalidTimeSlot': 'This time slot cannot be booked',
   'reservation.hint.invalidCustomTime': 'Custom time must be in the future',
+  'reservation.hint.customTimeTooShort': 'Custom time must be at least 30 minutes',
   'reservation.hint.customTimeSlotRange': 'Custom time must be within the selected time period',
   'reservation.hint.customTimeSameAsSlot': 'Custom time cannot equal the full time period',
   'reservation.hint.customTimeBothRequired': 'Both start time and end time are required',
+  'reservation.hint.customTimeHelp':
+    'Custom time must be at least 30 minutes and within the current time period',
 
   // Area options
   'reservation.area.all': 'All Areas',
@@ -62,6 +65,7 @@ export default {
   'reservation.time.date.tomorrow': 'Tomorrow',
   'reservation.time.date.dayAfter': 'Day After Tomorrow',
   'reservation.time.date.selectMore': 'Select More Dates',
+  'reservation.time.noPeriods': 'No available time slots, please choose another date',
   'reservation.time.custom.title': 'Custom Time Period',
   'reservation.time.custom.start': 'Start Time',
   'reservation.time.custom.end': 'End Time',
@@ -84,6 +88,8 @@ export default {
   'reservation.hint.pleaseSelectDate': 'Please select date',
   'reservation.hint.pleaseSelectSeat': 'Please select a seat',
   'reservation.hint.reservationSuccess': 'Reservation successful',
+  'reservation.hint.subscribeMessageDeclined':
+    'Subscription declined, reservation notifications may not arrive',
   'reservation.hint.endTimeMustAfterStart': 'End time must be after start time',
   'reservation.hint.customTimeConfirmed': 'Time period confirmed',
   'reservation.hint.customTimeCancelled': 'Custom period cancelled',
@@ -103,5 +109,11 @@ export default {
   'reservation.seatMap.legend.selected.desc': '(Seat you selected)',
   'reservation.seatMap.legend.mine.desc': '(Your booked seat)',
   'reservation.seatMap.instruction': 'Tap available seat to select, tap again to deselect',
+  'reservation.seatMap.tooltip.basic': 'Standard seat, tap to view more location details.',
+  'reservation.status.available': 'Available',
+  'reservation.status.booked': 'Booked',
+  'reservation.status.maintenance': 'Maintenance',
+  'reservation.status.selected': 'Selected',
   'reservation.info.bookedTimeRange': 'Booked Time',
+  'reservation.info.timeRange': 'Time Info',
 };

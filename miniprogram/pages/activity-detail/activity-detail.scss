@@ -31,6 +31,18 @@
   padding: 28rpx;
 }
 
+.hero-content {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 24rpx;
+}
+
+.hero-meta {
+  flex: 1;
+  min-width: 0;
+}
+
 .hero-title {
   color: #0f172a;
   font-weight: 700;
@@ -43,7 +55,6 @@
   gap: 16rpx;
   margin-top: 18rpx;
 }
-
 .stats-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -137,6 +148,16 @@
   flex-direction: column;
   gap: 20rpx;
   margin-top: 32rpx;
+  align-items: stretch;
+}
+
+.action-bar .action-button {
+  width: 100%;
+}
+
+.action-bar .cancel-button {
+  color: #ef4444;
+  border-color: #ef4444;
 }
 
 .empty-state {

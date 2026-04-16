@@ -1,8 +1,9 @@
 /* 座位选择组件样式 */
 .seat-map-container {
+  position: relative;
   box-sizing: border-box;
   width: 100%;
-  padding: var(--common-spacing-lg);
+  padding: var(--common-spacing-md);
   overflow: visible;
   background-color: var(--common-white-color);
   border: 1rpx solid var(--common-border-color);
@@ -45,9 +46,17 @@
 /* 座位网格容器 */
 .seat-grid-container {
   width: 100%;
-  padding: var(--common-spacing-sm);
+  height: auto;
+  max-height: none;
+  padding: var(--common-spacing-xs);
   overflow: auto;
   white-space: nowrap;
+}
+
+.seat-item.seat-empty {
+  background-color: transparent;
+  border-color: transparent;
+  cursor: default;
 }
 
 /* 座位网格 */
@@ -55,7 +64,228 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: var(--common-spacing-md);
+  padding: var(--common-spacing-sm);
+}
+
+.seat-item--active {
+  box-shadow: 0 0 0 2rpx rgba(64, 158, 255, 0.25);
+}
+
+.seat-tooltip {
+  position: absolute;
+  z-index: 1000;
+  min-width: 280rpx;
+  padding: 20rpx;
+  overflow: visible;
+  color: #111827;
+  background-color: #ffffff;
+  border-radius: var(--common-border-radius-lg);
+  box-shadow: 0 16rpx 32rpx rgba(0, 0, 0, 0.12);
+  opacity: 0.8;
+}
+
+.seat-tooltip-arrow {
+  position: absolute;
+  width: 0;
+  height: 0;
+  border-style: solid;
+}
+
+.seat-tooltip-arrow.down {
+  top: -8rpx;
+  left: calc(50% - 8rpx);
+  border-color: transparent transparent #ffffff transparent;
+  border-width: 0 8rpx 8rpx 8rpx;
+}
+
+.seat-tooltip-arrow.up {
+  bottom: -8rpx;
+  left: calc(50% - 8rpx);
+  border-color: #ffffff transparent transparent transparent;
+  border-width: 8rpx 8rpx 0 8rpx;
+}
+
+.seat-tooltip-arrow.left {
+  top: calc(50% - 8rpx);
+  left: -8rpx;
+  border-color: transparent #ffffff transparent transparent;
+  border-width: 8rpx 8rpx 8rpx 0;
+}
+
+.seat-tooltip-arrow.right {
+  top: calc(50% - 8rpx);
+  right: -8rpx;
+  left: auto;
+  border-color: transparent transparent transparent #ffffff;
+  border-width: 8rpx 0 8rpx 8rpx;
+}
+
+.seat-tooltip-panel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--common-spacing-xs);
+}
+
+
+.seat-tooltip-header-row {
+  display: flex;
+  align-items: center;
+  gap: 8rpx;
+}
+
+.seat-tooltip-header-dot {
+  width: 12rpx;
+  height: 12rpx;
+  border-radius: 50%;
+  background-color: var(--common-status-info-color);
+}
+
+.seat-tooltip-header-dot-available {
+  background-color: var(--common-status-success-color);
+}
+
+.seat-tooltip-header-dot-booked {
+  background-color: var(--common-status-danger-color);
+}
+
+.seat-tooltip-header-dot-maintenance {
+  background-color: #94a3b8;
+}
+
+.seat-tooltip-header-dot-selected {
+  background-color: var(--common-status-info-color);
+}
+
+.seat-tooltip-header-dot-mine {
+  background-color: var(--common-status-purple-color);
+}
+
+.seat-tooltip-header {
+  color: #111827;
+  font-weight: 700;
+  font-size: 28rpx;
+  line-height: 1.4;
+}
+
+.seat-tooltip-title {
+  margin-top: 6rpx;
+  color: rgba(0, 0, 0, .6);
+  font-weight: 700;
+  font-size: 28rpx;
+}
+
+.seat-tooltip-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--common-spacing-xs);
+  margin-top: var(--common-spacing-sm);
+}
+
+.seat-tooltip-tag {
+  padding: 4rpx 10rpx;
+  color: #374151;
+  font-size: 20rpx;
+  background-color: #f3f4f6;
+  border-radius: var(--common-border-radius-lg);
+}
+
+.seat-tooltip-status {
+  margin-top: var(--common-spacing-xs);
+  color: #6b7280;
+  font-size: var(--common-font-size-sm);
+}
+
+.seat-tooltip-row {
+  display: flex;
+  gap: 10rpx;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12rpx 14rpx;
+  background-color: #f8fafc;
+  border-radius: 16rpx;
+}
+
+
+.seat-tooltip-row-label {
+  color: #111827;
+  font-weight: 600;
+  font-size: 24rpx;
+}
+
+.seat-tooltip-row-time {
+  flex: 1;
+  color: #4b5563;
+  font-size: 24rpx;
+  text-align: center;
+}
+
+.seat-tooltip-row-status {
+  font-weight: 600;
+  font-size: 24rpx;
+  white-space: nowrap;
+}
+
+.seat-tooltip-row-booked {
+  background-color: #fef2f2;
+}
+
+.seat-tooltip-row-booked .seat-tooltip-row-label {
+  color: #b91c1c;
+  background-color: rgba(248, 113, 113, 0.12);
+}
+
+.seat-tooltip-row-booked .seat-tooltip-row-status {
+  color: #dc2626;
+  background-color: rgba(254, 226, 226, 0.9);
+}
+
+.seat-tooltip-row-available {
+  background-color: #ecfdf5;
+}
+
+.seat-tooltip-row-mine {
+  background-color: #f5f3ff;
+}
+
+.seat-tooltip-row-mine .seat-tooltip-row-label {
+  color: #7c3aed;
+  background-color: rgba(124, 58, 237, 0.12);
+}
+
+.seat-tooltip-row-mine .seat-tooltip-row-status {
+  color: #7c3aed;
+  background-color: rgba(245, 243, 255, 0.96);
+}
+
+.seat-tooltip-row-available .seat-tooltip-row-label {
+  color: #166534;
+  background-color: rgba(22, 163, 74, 0.12);
+}
+
+.seat-tooltip-row-available .seat-tooltip-row-status {
+  color: #15803d;
+  background-color: rgba(220, 252, 231, 0.96);
+}
+
+.seat-tooltip-row-maintenance {
+  background-color: #f1f5f9;
+}
+
+.seat-tooltip-row-maintenance .seat-tooltip-row-label {
+  color: #475569;
+  background-color: rgba(100, 116, 139, 0.12);
+}
+
+.seat-tooltip-row-maintenance .seat-tooltip-row-status {
+  color: #475569;
+  background-color: rgba(241, 245, 249, 0.96);
+}
+
+.seat-tooltip-desc {
+  margin-top: var(--common-spacing-xs);
+  color: #6b7280;
+  font-size: var(--common-font-size-sm);
+  line-height: 1.6;
 }
 
 /* 网格布局 */
@@ -127,7 +357,7 @@
 
 /* 维修中座位 */
 .seat-item.seat-maintenance {
-  background-color: var(--common-status-gray-color);
+  background-color: #e2e8f0;
   cursor: not-allowed;
 }
 
@@ -217,8 +447,8 @@
 }
 
 .legend-maintenance {
-  background-color: var(--common-status-gray-color);
-  border-color: var(--common-status-gray-border-color);
+  background-color: #e2e8f0;
+  border-color: #94a3b8;
 }
 
 .legend-selected {

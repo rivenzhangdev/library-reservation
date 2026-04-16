@@ -1,4 +1,5 @@
-﻿import { getProfile } from '../../apis/user';
+﻿import { getCredit, getProfile } from '../../apis/user';
+import { getMyBookings } from '../../apis/booking';
 import {
   getUserInfo,
   hasBoundStudentInfo,
@@ -22,77 +23,100 @@ interface ProfileMenuItem {
 interface ProfilePageData {
   currentLang: 'zh' | 'en';
   pageTitle: string;
-  sectionTitle: string;
   centerTitle: string;
+  serviceTitle: string;
+  activityTitle: string;
   settingsTitle: string;
   isLoggedIn: boolean;
-  userName: string;
-  userAccountLabel: string;
-  userAccount: string;
-  forgotPasswordText: string;
+  isAdmin: boolean;
   isStudentBound: boolean;
-  serviceNotice: string;
-  serviceItems: ProfileMenuItem[];
   centerItems: ProfileMenuItem[];
+  serviceItems: ProfileMenuItem[];
+  activityItems: ProfileMenuItem[];
   settingsItems: ProfileMenuItem[];
   langSwitchLabel: string;
   langSwitchDesc: string;
+  subtitleLoggedIn: string;
+  subtitleGuest: string;
+  userName: string;
+  userRole: string;
+  userStudentIdLabel: string;
+  userStudentId: string;
+  profileCompletionText: string;
+  creditScoreLabel: string;
+  creditScore: string | number;
+  bookingCountLabel: string;
+  bookingCount: string | number;
+  avatarUrl: string;
   loginTip: string;
   loginActionText: string;
-  avatarUrl?: string;
 }
 
 function normalizeUser(user: any) {
   if (!user) return null;
 
+  const avatarUrl = String(user.avatarUrl || '').trim();
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const { avatar: _avatar, ...rest } = user;
   return {
-    ...user,
+    ...rest,
     id: user.id || user._id,
     username: user.username || '',
     nickName: user.nickName || user.name || '',
-    name: user.name || user.nickName || user.username || '',
-    avatar: user.avatar || user.avatarUrl || '',
-    avatarUrl: user.avatarUrl || user.avatar || '',
+    name: user.name || user.nickName || '',
+    avatarUrl,
     studentId: user.studentId || '',
     phone: user.phone || '',
+    updatedAt: user.updatedAt || user.updated_at || user.updatedAt || '',
   };
+}
+
+function maskStudentId(studentId: string) {
+  const trimmed = String(studentId || '').trim();
+  if (!trimmed || trimmed.length < 6) return trimmed.replace(/.(?=.$)/g, '*');
+  const prefix = trimmed.slice(0, 4);
+  const suffix = trimmed.slice(-2);
+  return `${prefix}${'*'.repeat(Math.max(trimmed.length - 6, 4))}${suffix}`;
 }
 
 function getDisplayName(user: any) {
   if (!user) return t('profile.user.guest');
 
-  const studentId = String(user.studentId || '').trim();
-  const preferredName = user.nickName || user.name || '';
-
-  if (!studentId) {
-    return preferredName || user.username || t('profile.user.guest');
-  }
-
-  return preferredName || user.username || t('profile.user.guest');
+  const preferredName = user.username || user.nickName || user.name || '';
+  return preferredName || t('profile.user.guest');
 }
 
 Page({
   data: {
     currentLang: 'zh',
     pageTitle: '',
-    sectionTitle: '',
     centerTitle: '',
+    serviceTitle: '',
+    activityTitle: '',
     settingsTitle: '',
     isLoggedIn: false,
-    userName: '',
-    userAccountLabel: '',
-    userAccount: '',
-    avatarUrl: '',
-    forgotPasswordText: '',
     isStudentBound: false,
-    serviceNotice: '',
-    serviceItems: [],
     centerItems: [],
+    serviceItems: [],
+    activityItems: [],
     settingsItems: [],
     langSwitchLabel: '',
     langSwitchDesc: '',
-    loginTip: '',
-    loginActionText: '',
+    userName: t('profile.user.guest'),
+    isAdmin: false,
+    userRole: t('profile.user.guestRole'),
+    userStudentIdLabel: t('profile.user.studentId'),
+    userStudentId: '-',
+    profileCompletionText: '',
+    subtitleLoggedIn: t('profile.status.subtitle.loggedIn'),
+    subtitleGuest: t('profile.status.subtitle.guest'),
+    creditScoreLabel: t('common.field.creditScore'),
+    creditScore: '-',
+    bookingCountLabel: t('profile.user.bookingCount'),
+    bookingCount: '0',
+    avatarUrl: '',
+    loginTip: t('profile.login.tip'),
+    loginActionText: t('profile.login.action'),
   } as ProfilePageData,
 
   onLoad() {
@@ -105,45 +129,8 @@ Page({
     this.loadUserProfile();
   },
 
-  getServiceNotice(isLoggedIn: boolean, isStudentBound: boolean) {
-    if (!isLoggedIn) {
-      return t('profile.service.tip.loggedOut');
-    }
-    if (!isStudentBound) {
-      return t('profile.service.tip.unbound');
-    }
-    return t('profile.service.tip.bound');
-  },
-
   buildMenus(isLoggedIn: boolean, isStudentBound: boolean) {
     return {
-      serviceItems: [
-        {
-          label: t('profile.service.myReservation'),
-          iconName: 'calendar-o',
-          iconColor: '#2563eb',
-          iconBgColor: '#dbeafe',
-          badgeCount: 0,
-          action: 'onMyReservationTap',
-          disabled: !isLoggedIn || !isStudentBound,
-        },
-        {
-          label: t('profile.service.myCollection'),
-          iconName: 'star-o',
-          iconColor: '#d97706',
-          iconBgColor: '#fef3c7',
-          action: 'onMyCollectionTap',
-          disabled: !isLoggedIn,
-        },
-        {
-          label: t('profile.service.myActivity'),
-          iconName: 'todo-list-o',
-          iconColor: '#dc2626',
-          iconBgColor: '#fee2e2',
-          action: 'onMyActivityTap',
-          disabled: !isLoggedIn,
-        },
-      ],
       centerItems: [
         {
           label: t('profile.center.personalInfo'),
@@ -155,10 +142,38 @@ Page({
         },
         {
           label: t('profile.center.creditCenter'),
-          iconName: 'star',
+          iconName: 'trophy',
           iconColor: '#ca8a04',
           iconBgColor: '#fef9c3',
           action: 'onCreditCenterTap',
+          disabled: !isLoggedIn,
+        },
+      ],
+      serviceItems: [
+        {
+          label: t('profile.service.myReservation'),
+          iconName: 'calendar-o',
+          iconColor: '#2563eb',
+          iconBgColor: '#dbeafe',
+          action: 'onMyReservationTap',
+          disabled: !isLoggedIn || !isStudentBound,
+        },
+        {
+          label: t('profile.service.myCollection'),
+          iconName: 'star',
+          iconColor: '#f59e0b',
+          iconBgColor: '#fef3c7',
+          action: 'onMyCollectionTap',
+          disabled: !isLoggedIn,
+        },
+      ],
+      activityItems: [
+        {
+          label: t('profile.service.activityList'),
+          iconName: 'service',
+          iconColor: '#10b981',
+          iconBgColor: '#dcfce7',
+          action: 'onMyActivityTap',
           disabled: !isLoggedIn,
         },
         {
@@ -213,7 +228,7 @@ Page({
     const isZh = currentLang === 'zh';
     const isLoggedIn = isLogin();
     const isStudentBound = isLoggedIn && hasBoundStudentInfo();
-    const { serviceItems, centerItems, settingsItems } = this.buildMenus(
+    const { centerItems, serviceItems, activityItems, settingsItems } = this.buildMenus(
       isLoggedIn,
       isStudentBound
     );
@@ -221,19 +236,31 @@ Page({
     this.setData({
       currentLang,
       pageTitle: t('profile.pageTitle'),
-      sectionTitle: t('profile.sectionTitle'),
       centerTitle: t('profile.centerTitle'),
+      serviceTitle: t('profile.serviceTitle'),
+      activityTitle: t('profile.activityTitle'),
       settingsTitle: t('profile.settingsTitle'),
-      forgotPasswordText: t('profile.bindCard.forgetPassword'),
       langSwitchLabel: isZh ? t('common.lang.en') : t('common.lang.zh'),
-      langSwitchDesc: isZh ? 'Switch to English' : '切换到中文',
-      userAccountLabel: t('profile.user.wechatAccount'),
+      langSwitchDesc: isZh ? t('common.lang.en') : t('common.lang.zh'),
+      centerItems,
+      serviceItems,
+      activityItems,
+      settingsItems,
+      userName: t('profile.user.guest'),
+      isAdmin: false,
+      userRole: t('profile.user.guestRole'),
+      userStudentIdLabel: t('profile.user.studentId'),
+      userStudentId: '-',
+      profileCompletionText: '',
+      subtitleLoggedIn: t('profile.status.subtitle.loggedIn'),
+      subtitleGuest: t('profile.status.subtitle.guest'),
+      creditScoreLabel: t('common.field.creditScore'),
+      creditScore: '-',
+      bookingCountLabel: t('profile.user.bookingCount'),
+      bookingCount: '0',
+      avatarUrl: '',
       loginTip: t('profile.login.tip'),
       loginActionText: t('profile.login.action'),
-      serviceItems,
-      centerItems,
-      settingsItems,
-      serviceNotice: this.getServiceNotice(isLoggedIn, isStudentBound),
     });
   },
 
@@ -242,33 +269,51 @@ Page({
     if (!normalized) return;
 
     const bound = hasBoundStudentInfo(normalized);
-    const serviceState = this.buildMenus(true, bound);
+    const menuState = this.buildMenus(true, bound);
+    const fields = [normalized.name, normalized.studentId, normalized.phone, normalized.avatarUrl];
+    const completion = Math.round((fields.filter(Boolean).length / fields.length) * 100);
+    const completionText =
+      completion < 100
+        ? `${t('profile.user.profileCompletion')} ${completion}%`
+        : t('profile.user.profileCompletionFull');
+
     this.setData({
       isLoggedIn: true,
+      isAdmin: normalized.role === 1,
       isStudentBound: bound,
       userName: getDisplayName(normalized),
-      userAccount: normalized.username || normalized.nickName || '',
+      userRole: normalized.role === 1 ? t('profile.role.admin') : '',
+      userStudentIdLabel: t('profile.user.studentId'),
+      userStudentId: normalized.studentId ? maskStudentId(normalized.studentId) : '-',
+      profileCompletionText: completionText,
+      creditScoreLabel: t('common.field.creditScore'),
+      bookingCountLabel: t('profile.user.bookingCount'),
       avatarUrl: normalized.avatarUrl || '',
-      serviceItems: serviceState.serviceItems,
-      centerItems: serviceState.centerItems,
-      settingsItems: serviceState.settingsItems,
-      serviceNotice: this.getServiceNotice(true, bound),
+      centerItems: menuState.centerItems,
+      serviceItems: menuState.serviceItems,
+      activityItems: menuState.activityItems,
+      settingsItems: menuState.settingsItems,
     });
+    this.loadUserMetrics();
   },
 
   loadUserProfile() {
     if (!isLogin()) {
-      const serviceState = this.buildMenus(false, false);
+      const menuState = this.buildMenus(false, false);
       this.setData({
         isLoggedIn: false,
         isStudentBound: false,
         userName: t('profile.user.guest'),
-        userAccount: '',
+        userRole: t('profile.user.guestRole'),
+        creditScoreLabel: t('common.field.creditScore'),
+        creditScore: '-',
+        bookingCountLabel: t('profile.user.bookingCount'),
+        bookingCount: '0',
         avatarUrl: '',
-        serviceItems: serviceState.serviceItems,
-        centerItems: serviceState.centerItems,
-        settingsItems: serviceState.settingsItems,
-        serviceNotice: this.getServiceNotice(false, false),
+        centerItems: menuState.centerItems,
+        serviceItems: menuState.serviceItems,
+        activityItems: menuState.activityItems,
+        settingsItems: menuState.settingsItems,
       });
       return;
     }
@@ -280,7 +325,8 @@ Page({
 
     getProfile()
       .then((res) => {
-        const user = normalizeUser(res.data);
+        const payload = res?.data ?? res;
+        const user = normalizeUser(payload);
         if (!user) return;
 
         const nextUserInfo = {
@@ -293,21 +339,31 @@ Page({
       .catch(() => {});
   },
 
-  onLoginTap() {
-    redirectToLogin();
+  async loadUserMetrics() {
+    if (!isLogin()) return;
+
+    try {
+      const creditRes: any = await getCredit();
+      const summary = creditRes?.data ?? creditRes;
+      const score = Number(summary.creditScore ?? summary.score ?? 0);
+      this.setData({
+        creditScore: Number.isFinite(score) ? score : '-',
+      });
+    } catch {
+      this.setData({ creditScore: '-' });
+    }
+
+    try {
+      const bookingRes: any = await getMyBookings({ page: 1, limit: 1 });
+      const total = bookingRes?.data?.total ?? 0;
+      this.setData({ bookingCount: total });
+    } catch {
+      this.setData({ bookingCount: 0 });
+    }
   },
 
-  onForgotPasswordTap() {
-    const content =
-      this.data.currentLang === 'zh'
-        ? '当前小程序使用微信登录，仅支持通过微信账号恢复。若需要密码重置，请联系管理员或使用后台账号管理。'
-        : 'This mini program uses WeChat login and does not support password reset in-app. Please contact the administrator or use admin account management if needed.';
-
-    wx.showModal({
-      title: this.data.forgotPasswordText,
-      content,
-      showCancel: false,
-    });
+  onLoginTap() {
+    redirectToLogin();
   },
 
   onSectionItemTap(event: WechatMiniprogram.CustomEvent) {

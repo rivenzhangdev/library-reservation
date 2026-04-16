@@ -61,6 +61,84 @@
 // 通知列表
 .notification-list {
   padding: var(--common-spacing-lg) var(--common-page-padding);
+  display: flex;
+  flex-direction: column;
+  gap: var(--common-spacing-lg);
+}
+
+.notification-item-card {
+  padding: var(--common-spacing-4xl);
+  background: #ffffff;
+  border-radius: 28rpx;
+  box-shadow: 0 14rpx 32rpx rgba(15, 23, 42, 0.06);
+  overflow: hidden;
+}
+
+.notification-item-card--unread {
+  border: 1rpx solid rgba(64, 158, 255, 0.16);
+}
+
+.notification-item-header {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--common-spacing-md);
+  align-items: flex-start;
+  margin-bottom: var(--common-spacing-sm);
+}
+
+.notification-item-title-group {
+  flex: 1;
+  min-width: 0;
+}
+
+.notification-item-title {
+  display: block;
+  color: #0f172a;
+  font-weight: 700;
+  font-size: var(--common-font-size-lg);
+  line-height: 1.4;
+  margin-bottom: 10rpx;
+}
+
+.notification-item-subtitle {
+  display: block;
+  color: #475569;
+  font-size: var(--common-font-size-sm);
+  line-height: 1.6;
+  overflow-wrap: break-word;
+}
+
+.notification-item-tag {
+  align-self: flex-start;
+}
+
+.notification-item-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: var(--common-spacing-sm);
+}
+
+.notification-item-time {
+  color: #94a3b8;
+  font-size: var(--common-font-size-sm);
+}
+
+.notification-item-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--common-spacing-md);
+  margin-top: var(--common-spacing-md);
+  flex-wrap: wrap;
+}
+
+.notification-action {
+  color: #409eff;
+  font-size: var(--common-font-size-sm);
+}
+
+.notification-delete-icon {
+  margin-left: auto;
 }
 
 // 空状态

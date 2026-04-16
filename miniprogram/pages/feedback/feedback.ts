@@ -4,6 +4,7 @@ import { getMyFeedbacks, submitFeedback as submitFeedbackApi } from '../../apis/
 import { uploadDataUrl } from '../../apis/upload';
 import { readLocalImageAsDataUrl } from '../../utils/file';
 import { t } from '../../utils/i18n';
+import { formatDateTime } from '../../utils/time';
 
 interface FeedbackType {
   id: string;
@@ -72,19 +73,6 @@ const STATUS_MAP: Record<number, { style: string; textKey: string }> = {
   4: { style: 'danger', textKey: 'feedback.status.rejected' },
 };
 
-function formatDateTime(value?: string) {
-  if (!value) return '';
-  const date = new Date(value);
-  if (Number.isNaN(date.getTime())) return String(value);
-
-  const year = date.getFullYear();
-  const month = String(date.getMonth() + 1).padStart(2, '0');
-  const day = String(date.getDate()).padStart(2, '0');
-  const hour = String(date.getHours()).padStart(2, '0');
-  const minute = String(date.getMinutes()).padStart(2, '0');
-  return `${year}-${month}-${day} ${hour}:${minute}`;
-}
-
 Page({
   data: {
     navTitle: '',
@@ -109,6 +97,8 @@ Page({
     detailTypeText: '',
     detailSubmitTimeText: '',
     detailUrgencyText: '',
+    chatUserLabel: '',
+    chatSystemLabel: '',
     feedbackTypes: [] as FeedbackType[],
     urgencyLevels: [] as UrgencyLevel[],
     selectedType: '',
@@ -159,6 +149,8 @@ Page({
       detailTypeText: t('feedback.detail.type'),
       detailSubmitTimeText: t('feedback.detail.submitTime'),
       detailUrgencyText: t('feedback.detail.urgency'),
+      chatUserLabel: t('feedback.chat.user'),
+      chatSystemLabel: t('feedback.chat.system'),
       feedbackTypes: [
         {
           id: 'suggestion',

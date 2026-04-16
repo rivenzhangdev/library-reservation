@@ -1,8 +1,45 @@
 import { getFloors, getFloorSeats } from '../../apis/seats';
 import { createBooking } from '../../apis/booking';
+import { getWechatTemplateIds } from '../../apis/notification';
+import {
+  getBookingRules,
+  getSeatFacilityConfigs,
+  getSeatTypeConfigs,
+  getTimeSlotConfigs,
+} from '../../apis/config';
 import { ensureBoundStudentInfo, isLogin } from '../../utils/auth';
 import { consumePendingReservationParams } from '../../utils/reservationNavigator';
+import {
+  formatDateTime,
+  getCurrentTimeMinutes,
+  getToday,
+  toTimestamp,
+  toTimeMinutes,
+} from '../../utils/time';
 import { sortByFloorName, sortBySeatPosition } from '../../utils/sort';
+
+const MIN_CUSTOM_TIME_MINUTES = 30;
+const CHECKIN_WINDOW_MINUTES = 15;
+
+async function requestBookingSubscribeMessage(templateId: string) {
+  if (!templateId) return null;
+
+  return new Promise<Record<string, string> | null>((resolve) => {
+    wx.requestSubscribeMessage({
+      tmplIds: [templateId],
+      success(res) {
+        resolve(res as any);
+      },
+      fail(err) {
+        console.warn('requestSubscribeMessage failed', err);
+        resolve(null);
+      },
+      complete() {
+        // no-op
+      },
+    });
+  });
+}
 
 Page({
   /**
@@ -11,7 +48,7 @@ Page({
   data: {
     // 楼层数据（初始为空，在 initFloorData 中初始化）
     floors: [] as Array<{ id: number; name: string }>,
-    currentFloor: 1,
+    currentFloor: 0,
 
     // 搜索
     searchValue: '',
@@ -56,7 +93,31 @@ Page({
     currentTimePeriod: 'morning',
     selectedTimeSlot: 'morning',
     currentDuration: '2h',
-    timePeriods: [] as Array<{ label: string; value: string; start: string; end: string }>,
+    timePeriods: [] as Array<{
+      label: string;
+      value: string;
+      start: string;
+      end: string;
+      timeSlot?: number;
+      disabled?: boolean;
+    }>,
+    timeSlotConfigs: [] as Array<{
+      label: string;
+      value: string;
+      start: string;
+      end: string;
+      timeSlot: number;
+      enabled: boolean;
+    }>,
+    seatTypeConfigs: [] as Array<{
+      id?: number;
+      type: number;
+      value: string;
+      label: string;
+      enabled: boolean;
+    }>,
+    seatFacilityConfigs: [] as Array<{ id?: number; key: string; label: string; enabled: boolean }>,
+    facilityOptions: [] as Array<{ key: string; label: string; enabled: boolean }>,
     durations: [] as Array<{ label: string; value: string }>,
 
     // 自定义时间段
@@ -65,12 +126,13 @@ Page({
     showDatetimePicker: false,
     datetimePickerField: '',
     datetimePickerType: 'date',
-    datetimePickerValue: '',
+    datetimePickerValue: 0 as number | string,
     startTime: '08:00',
     endTime: '12:00',
     customStartTime: '',
     customEndTime: '',
     customTimePeriodText: '',
+    customTimeHintText: '',
 
     // 预约确认
     selectedSeatText: '',
@@ -78,6 +140,7 @@ Page({
     currentTimePeriodText: '',
     currentDurationText: '',
     reservationInfoItems: [] as Array<{ label: string; value: string; highlight?: boolean }>,
+    datePickerMinTimestamp: toTimestamp(getToday()),
 
     // 加载状态
     seatsLoading: false,
@@ -88,6 +151,7 @@ Page({
     navTitle: '',
     seatInfoPopoverStyle: '',
     popoverDirection: 'down' as 'down' | 'up',
+    seatMapWrapperRect: null as any,
 
     // 多语言文案
     floorSelectText: '',
@@ -104,7 +168,11 @@ Page({
     customTimeStartText: '',
     customTimeEndText: '',
     seatCount: 0,
+    minCustomTimeMinutes: MIN_CUSTOM_TIME_MINUTES,
+    checkinWindowMinutes: CHECKIN_WINDOW_MINUTES,
   },
+
+  pendingReservationParams: null as any,
 
   /**
    * 生命周期函数--监听页面加载
@@ -125,33 +193,44 @@ Page({
     this.initSeatTypeData();
     this.initFilterTexts();
 
-    // 初始化时段和时长选项（使用多语言）
-    this.initTimeOptions();
+    const today = getToday();
+    const pendingParams = consumePendingReservationParams();
+    const optionDate = options && typeof options.date === 'string' ? options.date : '';
+    const pendingDate =
+      pendingParams && typeof pendingParams.date === 'string' ? pendingParams.date : '';
+    const selectedDate = this.getValidReservationDate(optionDate || pendingDate || today);
 
-    // 初始化座位数据（示例）
-    this.initSeats();
+    this.setData(
+      {
+        selectedDate,
+      },
+      () => {
+        this.loadTimeSlotConfigs(selectedDate);
+      }
+    );
 
-    // 初始化默认日期为今天
-    const now = new Date();
-    const year = now.getFullYear();
-    const month = String(now.getMonth() + 1).padStart(2, '0');
-    const day = String(now.getDate()).padStart(2, '0');
-    const today = `${year}-${month}-${day}`;
-
-    this.setData({
-      selectedDate: today,
-    });
-    this.refreshTimePeriods(today);
-
-    // 初始化预约信息列表
-    this.updateReservationInfo();
-
-    // 处理从收藏页面传递的参数
+    // 处理页面参数
     if (options && Object.keys(options).length > 0) {
       this.handleFavoriteParams(options);
     }
+    if (pendingParams && Object.keys(pendingParams).length > 0) {
+      this.pendingReservationParams = pendingParams;
+      this.handleFavoriteParams(pendingParams);
+    }
 
-    this.consumePendingReservationParams();
+    this.updateReservationInfo();
+    this.loadSeatMapWrapperRect();
+  },
+
+  async loadSeatMapWrapperRect() {
+    const query = wx.createSelectorQuery();
+    query.select('#seatMapWrapper').boundingClientRect();
+    query.exec((res: any[]) => {
+      const rect = res && res[0] ? res[0] : null;
+      if (rect) {
+        this.setData({ seatMapWrapperRect: rect });
+      }
+    });
   },
 
   /**
@@ -162,6 +241,15 @@ Page({
     const t = app.t || ((key: string) => key);
 
     console.log('handleFavoriteParams 接收到参数:', options);
+
+    // 处理日期参数
+    const today = getToday();
+    const requestedDate = this.getValidReservationDate(
+      options.date || this.data.selectedDate || today
+    );
+    if (requestedDate !== this.data.selectedDate) {
+      this.setData({ selectedDate: requestedDate });
+    }
 
     // 处理座位参数
     if (options.seatId) {
@@ -243,13 +331,13 @@ Page({
         const seat = this.data.seats.find((s) => s.id === seatId || s.seatCode === seatCode);
         this.setData({
           selectedSeatIds: [String(seatId)],
-          selectedSeatText: seatName || seat?.id || String(seatId),
+          selectedSeatText: seatName || seat?.label || seat?.id || String(seatId),
         });
         if (seat) {
           this.updateReservationInfo();
 
           wx.showToast({
-            title: `已自动选择：${seatName || seatId}`,
+            title: `已自动选择：${seatName || seat?.label || seatId}`,
             icon: 'success',
             duration: 2000,
           });
@@ -263,16 +351,9 @@ Page({
 
       console.log('接收到时段参数:', { startTime, endTime, timeSlotName });
 
-      // 计算时长（小时）
-      const start = new Date(`2000-01-01 ${startTime}`);
-      const end = new Date(`2000-01-01 ${endTime}`);
-      const durationMs = end.getTime() - start.getTime();
-      const hours = durationMs / (1000 * 60 * 60);
-      const durationValue = `${Math.ceil(hours)}h`;
-
-      // 查找对应的时长文本
-      const duration = this.data.durations.find((d) => d.value === durationValue);
-      const durationText = duration ? duration.label : `${Math.ceil(hours)}小时`;
+      const durationMinutes = toTimeMinutes(endTime) - toTimeMinutes(startTime);
+      const durationText =
+        this.formatDurationText(startTime, endTime) || `${Math.ceil(durationMinutes / 60)}h`;
 
       // 设置为自定义时间段
       this.setData({
@@ -300,7 +381,96 @@ Page({
         icon: 'success',
         duration: 2000,
       });
+    } else if (options.timeSlotId || options.timeSlotName) {
+      const timePeriod = this.findTimePeriodByParams(options);
+      if (timePeriod) {
+        this.setData({
+          useCustomTime: false,
+          currentTimePeriod: timePeriod.value,
+          selectedTimeSlot: timePeriod.value,
+          currentTimePeriodText: timePeriod.label,
+          customTimePeriodText: `${timePeriod.start} - ${timePeriod.end}`,
+          showCustomTime: false,
+        });
+        this.updateReservationInfo();
+      } else {
+        this.pendingReservationParams = options;
+      }
     }
+  },
+
+  applyPendingReservationParamsAfterLoad() {
+    if (!this.pendingReservationParams) {
+      return;
+    }
+
+    const options = this.pendingReservationParams;
+    if (options.startTime && options.endTime) {
+      this.pendingReservationParams = null;
+      return;
+    }
+
+    if (options.timeSlotId || options.timeSlotName) {
+      const timePeriod = this.findTimePeriodByParams(options);
+      if (timePeriod) {
+        this.setData({
+          useCustomTime: false,
+          currentTimePeriod: timePeriod.value,
+          selectedTimeSlot: timePeriod.value,
+          currentTimePeriodText: timePeriod.label,
+          customTimePeriodText: `${timePeriod.start} - ${timePeriod.end}`,
+          showCustomTime: false,
+        });
+        this.updateReservationInfo();
+        this.pendingReservationParams = null;
+      }
+    }
+  },
+
+  findTimePeriodByParams(options: any) {
+    const matchId = String(options.timeSlotId ?? '').trim();
+    const matchName = String(options.timeSlotName ?? '').trim();
+    return this.data.timePeriods.find((p) => {
+      if (matchId && (p.value === matchId || String(p.timeSlot) === matchId)) {
+        return true;
+      }
+      if (matchName && p.label === matchName) {
+        return true;
+      }
+      return false;
+    });
+  },
+
+  getTomorrow() {
+    const today = new Date();
+    today.setDate(today.getDate() + 1);
+    const year = today.getFullYear();
+    const month = String(today.getMonth() + 1).padStart(2, '0');
+    const day = String(today.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  },
+
+  isSelectedDateExpired(date: string) {
+    if (date !== getToday()) {
+      return false;
+    }
+    const timePeriods = this.buildTimePeriods(date);
+    return timePeriods.length > 0 && timePeriods.every((item) => item.disabled);
+  },
+
+  getValidReservationDate(date: any) {
+    const today = getToday();
+    if (!date || typeof date !== 'string') {
+      return this.isSelectedDateExpired(today) ? this.getTomorrow() : today;
+    }
+    const normalized = date.trim();
+    if (normalized < today) {
+      return this.isSelectedDateExpired(today) ? this.getTomorrow() : today;
+    }
+    if (normalized === today && this.isSelectedDateExpired(today)) {
+      return this.getTomorrow();
+    }
+    return normalized;
   },
 
   getSelectedSlotValue() {
@@ -316,67 +486,221 @@ Page({
     return { start: '08:00', end: '12:00' };
   },
 
+  formatDurationText(startTime: string, endTime: string) {
+    const durationMinutes = toTimeMinutes(endTime) - toTimeMinutes(startTime);
+    if (durationMinutes <= 0) {
+      return '';
+    }
+    const hours = Math.floor(durationMinutes / 60);
+    const minutes = durationMinutes % 60;
+    if (this.data.currentLang === 'zh') {
+      if (minutes === 0) {
+        return `${hours} 小时`;
+      }
+      return `${hours} 小时 ${minutes} 分钟`;
+    }
+    if (minutes === 0) {
+      return `${hours}h`;
+    }
+    return `${hours}h ${minutes}m`;
+  },
+
+  getTodayTimeString() {
+    return formatDateTime(new Date(), 'HH:mm');
+  },
+
+  isSelectedDateToday() {
+    return this.data.selectedDate === getToday();
+  },
+
   /**
    * 初始化时段和时长选项
    */
   buildTimePeriods(selectedDate: string) {
     const app = getApp() as any;
     const t = app.t || ((key: string) => key);
-    const now = new Date();
-    const today = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+    const today = getToday();
     const isToday = selectedDate === today;
-    const currentMinutes = now.getHours() * 60 + now.getMinutes();
+    const currentMinutes = getCurrentTimeMinutes();
 
-    const slots = [
+    const validConfigs = Array.isArray(this.data.timeSlotConfigs)
+      ? this.data.timeSlotConfigs.filter(
+          (item) =>
+            item &&
+            item.enabled !== false &&
+            typeof item.label === 'string' &&
+            typeof item.value === 'string' &&
+            (typeof item.startTime === 'string' || typeof item.start === 'string') &&
+            (typeof item.endTime === 'string' || typeof item.end === 'string')
+        )
+      : [];
+
+    const fallbackConfigs = [
       {
         label: t('reservation.time.period.morning'),
         value: 'morning',
         start: '08:00',
         end: '12:00',
+        timeSlot: 0,
+        enabled: true,
       },
       {
         label: t('reservation.time.period.afternoon'),
         value: 'afternoon',
         start: '13:00',
         end: '17:00',
+        timeSlot: 1,
+        enabled: true,
       },
       {
         label: t('reservation.time.period.evening'),
         value: 'evening',
         start: '18:00',
         end: '22:00',
+        timeSlot: 2,
+        enabled: true,
       },
     ];
 
-    return slots.map((slot) => {
+    const configSlots = validConfigs.length ? validConfigs : fallbackConfigs;
+
+    return configSlots.map((slot) => {
+      const startValue = slot.startTime || slot.start || '';
+      const endValue = slot.endTime || slot.end || '';
       if (!isToday) {
-        return { ...slot, disabled: false };
+        return {
+          label: slot.label,
+          value: slot.value,
+          start: startValue,
+          end: endValue,
+          timeSlot: slot.timeSlot,
+          disabled: false,
+        };
       }
-      const [hour, minute] = slot.end.split(':').map(Number);
-      const slotEndMinutes = hour * 60 + minute;
-      return { ...slot, disabled: currentMinutes >= slotEndMinutes };
+      const slotEndMinutes = toTimeMinutes(endValue);
+      return {
+        label: slot.label,
+        value: slot.value,
+        start: startValue,
+        end: endValue,
+        timeSlot: slot.timeSlot,
+        disabled: currentMinutes >= slotEndMinutes,
+      };
     });
   },
 
   refreshTimePeriods(selectedDate: string) {
-    const timePeriods = this.buildTimePeriods(selectedDate);
-    const periodValue = this.data.useCustomTime
-      ? this.data.selectedTimeSlot
-      : this.data.currentTimePeriod || 'morning';
-    const currentPeriod = timePeriods.find((p) => p.value === periodValue) || timePeriods[0];
-    const activePeriod = currentPeriod.disabled
-      ? timePeriods.find((p) => !p.disabled) || currentPeriod
-      : currentPeriod;
+    let currentDate = selectedDate;
+    let timePeriods = this.buildTimePeriods(currentDate);
+
+    if (this.isSelectedDateExpired(currentDate)) {
+      currentDate = this.getTomorrow();
+      timePeriods = this.buildTimePeriods(currentDate);
+      this.setData({ selectedDate: currentDate });
+    }
+
+    const defaultPeriodValue = this.data.useCustomTime ? this.data.selectedTimeSlot : undefined;
+
+    const periodValue = defaultPeriodValue ?? this.data.currentTimePeriod;
+    const currentPeriod = timePeriods.find((p) => p.value === periodValue);
+    const firstEnabledPeriod = timePeriods.find((p) => !p.disabled);
+
+    const activePeriod = !this.data.useCustomTime
+      ? currentPeriod && !currentPeriod.disabled
+        ? currentPeriod
+        : firstEnabledPeriod
+      : currentPeriod && !currentPeriod.disabled
+        ? currentPeriod
+        : firstEnabledPeriod;
+
+    const selectedPeriodLabel = activePeriod?.label || '';
+    const selectedPeriodRange = activePeriod ? `${activePeriod.start} - ${activePeriod.end}` : '';
+    const selectedDurationText = activePeriod
+      ? this.formatDurationText(activePeriod.start, activePeriod.end) ||
+        `${Math.ceil((toTimeMinutes(activePeriod.end) - toTimeMinutes(activePeriod.start)) / 60)}h`
+      : '';
 
     this.setData({
       timePeriods,
-      currentTimePeriod: activePeriod.value,
-      selectedTimeSlot: activePeriod.value,
-      currentTimePeriodText: activePeriod.label,
-      customTimePeriodText: `${activePeriod.start} - ${activePeriod.end}`,
+      currentTimePeriod: activePeriod?.value || '',
+      selectedTimeSlot: activePeriod?.value || '',
+      currentTimePeriodText: selectedPeriodLabel,
+      customTimePeriodText: selectedPeriodRange,
+      currentDurationText: selectedDurationText,
       showCustomTime: false,
       useCustomTime: false,
     });
+  },
+
+  async loadTimeSlotConfigs(selectedDate: string) {
+    try {
+      const [slotRes, ruleRes] = await Promise.all([
+        getTimeSlotConfigs(),
+        getBookingRules().catch(() => null),
+      ]);
+      const configs = (slotRes.data || []) as Array<any>;
+      const bookingRules = (ruleRes?.data || {}) as {
+        minCustomBookingDurationMinutes?: number;
+        checkinWindowMinutes?: number;
+      };
+      const minCustomTimeMinutes = Number(
+        bookingRules.minCustomBookingDurationMinutes ?? MIN_CUSTOM_TIME_MINUTES
+      );
+      const checkinWindowMinutes = Number(
+        bookingRules.checkinWindowMinutes ?? CHECKIN_WINDOW_MINUTES
+      );
+      const timeSlotConfigs = configs
+        .filter(
+          (item) =>
+            item &&
+            item.enabled !== false &&
+            typeof item.label === 'string' &&
+            typeof item.value === 'string' &&
+            (typeof item.startTime === 'string' || typeof item.start === 'string') &&
+            (typeof item.endTime === 'string' || typeof item.end === 'string')
+        )
+        .sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
+      this.setData({
+        timeSlotConfigs,
+        minCustomTimeMinutes,
+        checkinWindowMinutes,
+      });
+    } catch (error) {
+      console.warn('加载时间段配置失败，使用默认时间段', error);
+      this.setData({
+        timeSlotConfigs: [],
+      });
+    }
+    await this.loadSeatOptionConfigs();
+    this.initTimeOptions();
+    this.initSeatTypeData();
+    this.initFilterTexts();
+    this.refreshTimePeriods(selectedDate);
+    this.applyPendingReservationParamsAfterLoad();
+    this.initSeats();
+  },
+
+  async loadSeatOptionConfigs() {
+    try {
+      const [typeRes, facilityRes] = await Promise.all([
+        getSeatTypeConfigs(),
+        getSeatFacilityConfigs(),
+      ]);
+      const seatTypeConfigs = (typeRes.data || []) as Array<any>;
+      const seatFacilityConfigs = (facilityRes.data || []) as Array<any>;
+      this.setData({
+        seatTypeConfigs,
+        seatFacilityConfigs,
+        facilityOptions: seatFacilityConfigs.filter((item) => item.enabled),
+      });
+    } catch (error) {
+      console.warn('加载座位配置失败，使用默认选项', error);
+      this.setData({
+        seatTypeConfigs: [],
+        seatFacilityConfigs: [],
+        facilityOptions: [],
+      });
+    }
   },
 
   initTimeOptions() {
@@ -392,15 +716,18 @@ Page({
       { label: t('reservation.time.duration.allday'), value: 'allday' },
     ];
 
+    const firstEnabledPeriod = timePeriods.find((p) => !p.disabled) || timePeriods[0] || null;
     this.setData({
       timePeriods,
       durations,
-      currentTimePeriod: timePeriods[0].value,
-      selectedTimeSlot: timePeriods[0].value,
+      currentTimePeriod: firstEnabledPeriod?.value || '',
+      selectedTimeSlot: firstEnabledPeriod?.value || '',
       useCustomTime: false,
-      currentTimePeriodText: timePeriods[0].label,
+      currentTimePeriodText: firstEnabledPeriod?.label || '',
       currentDurationText: durations[1].label,
-      customTimePeriodText: `${timePeriods[0].start} - ${timePeriods[0].end}`,
+      customTimePeriodText: firstEnabledPeriod
+        ? `${firstEnabledPeriod.start} - ${firstEnabledPeriod.end}`
+        : '',
       // 更新多语言文案
       floorSelectText: t('reservation.floor.select'),
       timeSelectText: t('reservation.time.select'),
@@ -453,13 +780,20 @@ Page({
           ? '筛选'
           : 'Filter';
 
+    const facilityPowerConfig = (this.data.seatFacilityConfigs || []).find(
+      (item: any) => item.key === 'power'
+    );
+    const facilityWindowConfig = (this.data.seatFacilityConfigs || []).find(
+      (item: any) => item.key === 'window'
+    );
+
     this.setData({
       filterConditionsText: t('reservation.filter.conditions'),
       filterAreaText: t('reservation.filter.area'),
       filterSeatTypeText: t('reservation.filter.seatType'),
       filterFacilityText: t('reservation.filter.facility'),
-      filterFacilityPowerText: t('reservation.filter.facility.power'),
-      filterFacilityWindowText: t('common.seat.facilities.window'),
+      filterFacilityPowerText: facilityPowerConfig?.label || t('reservation.filter.facility.power'),
+      filterFacilityWindowText: facilityWindowConfig?.label || t('common.seat.facilities.window'),
       filterResetText: t('reservation.filter.reset'),
       filterResultText,
       noSeatText,
@@ -468,7 +802,7 @@ Page({
       confirmTitleText: t('reservation.confirm.title'),
       confirmButtonText: t('reservation.confirm.button'),
       customTimeCancelText: t('reservation.hint.customTimeCancelled'),
-      customTimeConfirmText: t('reservation.hint.customTimeConfirmed'),
+      customTimeConfirmText: t('reservation.time.custom.confirm'),
       timeRangeLabelText: t('reservation.time.period.selectRange'),
     });
   },
@@ -504,9 +838,6 @@ Page({
    * 初始化楼层数据（从后端加载）
    */
   initFloorData() {
-    const app = getApp() as any;
-    const t = app.t || ((key: string) => key);
-
     getFloors()
       .then((res) => {
         const floorsData = res.data as any[];
@@ -515,18 +846,12 @@ Page({
           this.setData({ floors, currentFloor: floors[0]?.id ?? this.data.currentFloor });
           // 加载第一个楼层的座位
           this.loadSeats();
+        } else {
+          this.setData({ floors: [] });
         }
       })
       .catch(() => {
-        // fallback to hardcoded floors
-        const floors = [
-          { id: 1, name: t('reservation.floor.1f') },
-          { id: 2, name: t('reservation.floor.2f') },
-          { id: 3, name: t('reservation.floor.3f') },
-          { id: 4, name: t('reservation.floor.4f') },
-        ];
-        this.setData({ floors });
-        this.loadSeats();
+        this.setData({ floors: [] });
       });
   },
 
@@ -561,7 +886,7 @@ Page({
     const app = getApp() as any;
     const t = app.t || ((key: string) => key);
 
-    const seatTypes = [
+    const defaultSeatTypes = [
       { id: 'all', name: t('reservation.seatType.all') },
       { id: 'single', name: t('reservation.seatType.single') },
       { id: 'double', name: t('reservation.seatType.double') },
@@ -569,7 +894,17 @@ Page({
       { id: 'open', name: t('reservation.seatType.open') },
     ];
 
-    // 保持当前选中的座位类型
+    const seatTypes =
+      this.data.seatTypeConfigs && this.data.seatTypeConfigs.length > 0
+        ? [
+            { id: 'all', name: t('reservation.seatType.all') },
+            ...this.data.seatTypeConfigs
+              .filter((item: any) => item.enabled)
+              .sort((a: any, b: any) => (a.order ?? 0) - (b.order ?? 0))
+              .map((item: any) => ({ id: item.value, name: item.label })),
+          ]
+        : defaultSeatTypes;
+
     const selectedSeatType = this.data.selectedSeatType;
     const currentSeatType = seatTypes.find((s) => s.id === selectedSeatType.id) || seatTypes[0];
 
@@ -597,6 +932,22 @@ Page({
     }
 
     this.consumePendingReservationParams();
+    this.loadSeatMapWrapperRect();
+    this.loadWechatTemplateIdsIfNeeded();
+    this.refreshTimePeriods(this.data.selectedDate);
+    this.loadSeats();
+  },
+
+  async loadWechatTemplateIdsIfNeeded() {
+    if ((this.data as any).wechatBookingSuccessTemplateId || !isLogin()) {
+      return;
+    }
+
+    const response = await getWechatTemplateIds().catch(() => null);
+    const bookingTemplateId = (response?.data as any)?.BOOKING_SUCCESS;
+    if (bookingTemplateId && !bookingTemplateId.startsWith('TEMPLATE_ID_')) {
+      this.setData({ wechatBookingSuccessTemplateId: bookingTemplateId });
+    }
   },
 
   consumePendingReservationParams() {
@@ -611,19 +962,78 @@ Page({
   },
 
   resolveTimeSlotValue() {
-    const timeSlotMap: Record<string, number> = { morning: 0, afternoon: 1, evening: 2 };
-    return timeSlotMap[this.data.selectedTimeSlot || this.data.currentTimePeriod] ?? 0;
+    const slotValue = this.data.useCustomTime
+      ? this.data.selectedTimeSlot
+      : this.data.currentTimePeriod;
+    const period = this.data.timePeriods.find((p) => p.value === slotValue);
+    if (period?.timeSlot !== undefined) {
+      return period.timeSlot;
+    }
+    return this.data.timePeriods[0]?.timeSlot ?? 0;
   },
 
   /**
-   * 生命周期函数--监听页面隐藏
+   * 监听页面隐藏时重置预约状态
    */
-  onHide() {},
+  onHide() {
+    const seatSelectComp: any = this.selectComponent('#seatSelectComponent');
+    if (seatSelectComp && typeof seatSelectComp.hideSeatTooltip === 'function') {
+      seatSelectComp.hideSeatTooltip();
+    }
+    this.resetReservationState();
+  },
 
   /**
-   * 生命周期函数--监听页面卸载
+   * 监听页面卸载时重置预约状态
    */
-  onUnload() {},
+  onUnload() {
+    const seatSelectComp: any = this.selectComponent('#seatSelectComponent');
+    if (seatSelectComp && typeof seatSelectComp.hideSeatTooltip === 'function') {
+      seatSelectComp.hideSeatTooltip();
+    }
+    this.resetReservationState();
+  },
+
+  /**
+   * 重置预约页面状态到默认值
+   */
+  resetReservationState() {
+    this.setData({
+      searchValue: '',
+      showFilterPanel: false,
+      selectedArea: { id: 'all', name: '' },
+      selectedSeatType: { id: 'all', name: '' },
+      facilities: {
+        power: false,
+        window: false,
+      },
+      seats: [],
+      selectedSeatIds: [],
+      selectedSeatText: '',
+      selectedSeatInfo: null,
+      currentTimePeriod: 'morning',
+      selectedTimeSlot: 'morning',
+      currentDuration: '2h',
+      showCustomTime: false,
+      useCustomTime: false,
+      showDatetimePicker: false,
+      datetimePickerField: '',
+      datetimePickerType: 'date',
+      datetimePickerValue: 0,
+      startTime: '08:00',
+      endTime: '12:00',
+      customStartTime: '',
+      customEndTime: '',
+      customTimePeriodText: '',
+      currentTimePeriodText: '',
+      currentDurationText: '',
+      reservationInfoItems: [],
+      seatCount: 0,
+      seatsLoading: false,
+      seatInfoPopoverStyle: '',
+      popoverDirection: 'down',
+    });
+  },
 
   /**
    * 楼层选择事件
@@ -661,6 +1071,7 @@ Page({
     this.setData({
       searchValue: value,
     });
+    this.resetSeatSelection();
     this.debounceLoadSeats();
   },
 
@@ -678,6 +1089,7 @@ Page({
     this.setData({
       searchValue: keyword,
     });
+    this.resetSeatSelection();
     this.loadSeats();
   },
 
@@ -699,6 +1111,7 @@ Page({
         this.setData({
           selectedArea: this.data.areas[index],
         });
+        this.resetSeatSelection();
         this.loadSeats();
       },
     });
@@ -715,6 +1128,7 @@ Page({
         this.setData({
           selectedSeatType: this.data.seatTypes[index],
         });
+        this.resetSeatSelection();
         this.loadSeats();
       },
     });
@@ -732,6 +1146,7 @@ Page({
     this.setData({
       facilities,
     });
+    this.resetSeatSelection();
     this.loadSeats();
   },
 
@@ -739,14 +1154,20 @@ Page({
    * 重置筛选条件
    */
   onResetFilter() {
+    const defaultFacilities = {
+      power: false,
+      window: false,
+    } as { power: boolean; window: boolean } & Record<string, boolean>;
+    (this.data.facilityOptions || []).forEach((item: any) => {
+      defaultFacilities[item.key] = false;
+    });
+
     this.setData({
       selectedArea: { id: 'all', name: this.data.areas[0]?.name || '' },
       selectedSeatType: { id: 'all', name: this.data.seatTypes[0]?.name || '' },
-      facilities: {
-        power: false,
-        window: false,
-      },
+      facilities: defaultFacilities,
     });
+    this.resetSeatSelection();
     this.loadSeats();
   },
 
@@ -763,19 +1184,11 @@ Page({
   loadSeats() {
     const app = getApp() as any;
     const t = app.t || ((key: string) => key);
-    const {
-      currentFloor,
-      selectedDate,
-      currentTimePeriod,
-      selectedArea,
-      selectedSeatType,
-      facilities,
-      searchValue,
-    } = this.data;
+    const { currentFloor, selectedDate, selectedArea, selectedSeatType, facilities, searchValue } =
+      this.data;
 
     // 构造时段值
-    const timeSlotMap: Record<string, number> = { morning: 0, afternoon: 1, evening: 2 };
-    const timeSlot = timeSlotMap[currentTimePeriod];
+    const timeSlot = this.resolveTimeSlotValue();
 
     // 构造筛选条件
     const filters: any = {};
@@ -783,7 +1196,15 @@ Page({
       filters.zone = selectedArea.name;
     }
     if (selectedSeatType && selectedSeatType.id !== 'all') {
-      const typeMap: Record<string, number> = { single: 0, double: 1, group: 2, open: 0 };
+      const typeMap: Record<string, number> = (this.data.seatTypeConfigs || []).reduce(
+        (acc: Record<string, number>, item: any) => {
+          if (item && typeof item.value === 'string') {
+            acc[item.value] = item.type;
+          }
+          return acc;
+        },
+        { single: 0, double: 1, group: 2, open: 0 }
+      );
       filters.type = typeMap[selectedSeatType.id] ?? 0;
     }
     if (facilities.power) filters.hasSocket = true;
@@ -791,7 +1212,7 @@ Page({
 
     const params: any = {};
     if (selectedDate) params.date = selectedDate;
-    if (timeSlot !== undefined && currentTimePeriod !== 'custom') params.timeSlot = timeSlot;
+    if (timeSlot !== undefined) params.timeSlot = timeSlot;
     if (Object.keys(filters).length > 0) params.filters = JSON.stringify(filters);
 
     this.setData({ seatsLoading: true });
@@ -807,24 +1228,73 @@ Page({
             booked: 'booked',
             maintenance: 'maintenance',
           };
-          const typeMap: Record<string, string> = {
-            '0': 'single',
-            '1': 'double',
-            '2': 'group',
-          };
+          const configTypeMap: Record<string, string> = (this.data.seatTypeConfigs || []).reduce(
+            (acc: Record<string, string>, item: any) => {
+              acc[String(item.type)] = item.value;
+              return acc;
+            },
+            {
+              '0': 'single',
+              '1': 'double',
+              '2': 'group',
+            }
+          );
+          const typeLabelMap: Record<string, string> = (this.data.seatTypeConfigs || []).reduce(
+            (acc: Record<string, string>, item: any) => {
+              acc[item.value] = item.label;
+              return acc;
+            },
+            {
+              single: t('reservation.seatType.single'),
+              double: t('reservation.seatType.double'),
+              group: t('reservation.seatType.group'),
+              open: t('reservation.seatType.open'),
+            }
+          );
+          const facilityPowerLabel =
+            (this.data.seatFacilityConfigs || []).find((item: any) => item.key === 'power')
+              ?.label || t('common.seat.facilities.power');
+          const facilityWindowLabel =
+            (this.data.seatFacilityConfigs || []).find((item: any) => item.key === 'window')
+              ?.label || t('common.seat.facilities.window');
+
           let seats = responseData.seats.map((s: any) => {
-            const seatLabel = `R${s.row}C${s.col}`;
+            const row = Number(s.row);
+            const col = Number(s.col);
+            const seatLabel = `R${row}C${col}`;
+            const seatType = configTypeMap[String(s.type)] || 'single';
+            const typeText = typeLabelMap[seatType] || t('reservation.seatType.open');
+            const featureLabels = [
+              s.hasSocket ? facilityPowerLabel : '',
+              s.isWindow ? facilityWindowLabel : '',
+            ].filter(Boolean);
+
+            const booking = (s as any).booking;
             return {
               id: String(s.id),
-              row: s.row,
-              col: s.col,
+              row: Number.isFinite(row) ? row : 0,
+              col: Number.isFinite(col) ? col : 0,
               label: seatLabel,
               status: statusMap[String(s.status)] || 'available',
-              type: typeMap[String(s.type)] || 'single',
+              isMine: !!s.isMine,
+              type: seatType,
+              typeLabel: typeText,
               hasSocket: !!s.hasSocket,
               isWindow: !!s.isWindow,
               zone: s.zone || '',
+              tags: [typeText, ...featureLabels],
               bookedTimeRange: '',
+              bookings: booking
+                ? [
+                    {
+                      startTime: booking.startTime,
+                      endTime: booking.endTime,
+                      status: 'booked',
+                      timeSlot: booking.timeSlot,
+                    },
+                  ]
+                : [],
+              timeSlotStatus: (s as any).timeSlotStatus || undefined,
             };
           });
           const keyword = String(searchValue || '')
@@ -832,24 +1302,7 @@ Page({
             .toLowerCase();
           if (keyword) {
             seats = seats.filter((seat: any) => {
-              const searchable = [
-                seat.id,
-                seat.label,
-                seat.zone,
-                seat.row,
-                seat.col,
-                seat.type,
-                seat.type === 'single' ? t('reservation.seatType.single') : '',
-                seat.type === 'double' ? t('reservation.seatType.double') : '',
-                seat.type === 'group' ? t('reservation.seatType.group') : '',
-                seat.hasSocket ? 'power' : '',
-                seat.hasSocket ? t('common.seat.facilities.power') : '',
-                seat.isWindow ? 'window' : '',
-                seat.isWindow ? t('common.seat.facilities.window') : '',
-              ]
-                .join(' ')
-                .toLowerCase();
-              return searchable.includes(keyword);
+              return seat.label.toLowerCase().includes(keyword);
             });
           }
           seats = sortBySeatPosition(seats);
@@ -861,7 +1314,9 @@ Page({
             seats,
             seatCount: seats.length,
             selectedSeatIds: matchedSeat ? [matchedSeat.id] : [],
-            selectedSeatText: matchedSeat ? this.data.selectedSeatText || matchedSeat.id : '',
+            selectedSeatText: matchedSeat
+              ? this.data.selectedSeatText || matchedSeat.label || matchedSeat.id
+              : '',
           });
 
           if (seats.length === 0) {
@@ -900,16 +1355,13 @@ Page({
     const { seatId, seat } = e.detail;
 
     // 如果点击的是已预约的座位，只显示悬浮信息，不允许选择
-    if (seat.status === 'booked' || seat.status === 'mine') {
-      this.setData({
-        selectedSeatInfo: this.buildSeatInfo(seat),
-      });
-      return;
+    if (seat.status === 'booked' || seat.isMine) {
+      // 已预约座位不执行任何操作
     }
 
     // 每次只能选择一个座位
     const selectedSeatIds = [seatId];
-    const selectedSeatText = seatId;
+    const selectedSeatText = seat.label || seatId;
 
     this.setData({
       selectedSeatIds,
@@ -925,11 +1377,25 @@ Page({
 
   onSeatTap(e: any) {
     const { seat, rect } = e.detail;
-    const positioning = this.computeSeatPopoverPosition(rect);
+    if (!this.data.seatMapWrapperRect) {
+      this.loadSeatMapWrapperRect();
+    }
+
+    const fallbackWrapperRect = wx.getSystemInfoSync();
+    const wrapperRect =
+      this.data.seatMapWrapperRect ||
+      ({
+        left: 0,
+        top: 0,
+        width: fallbackWrapperRect.windowWidth,
+        height: fallbackWrapperRect.windowHeight,
+      } as any);
+
+    const positioning = this.computeSeatPopoverPosition(rect, wrapperRect);
     this.setData({
       selectedSeatInfo: this.buildSeatInfo(seat),
       seatInfoPopoverStyle: positioning.style,
-      popoverDirection: positioning.direction,
+      popoverDirection: positioning.direction as 'down' | 'up',
     });
   },
 
@@ -937,6 +1403,17 @@ Page({
     this.setData({
       selectedSeatInfo: null,
     });
+  },
+
+  onPageTap() {
+    const seatSelectComp: any = this.selectComponent('#seatSelectComponent');
+    if (seatSelectComp && typeof seatSelectComp.hideSeatTooltip === 'function') {
+      seatSelectComp.hideSeatTooltip();
+    }
+  },
+
+  noop() {
+    // 用于阻止点击冒泡到页面根容器，避免关闭 tooltip
   },
 
   buildSeatInfo(seat: any) {
@@ -955,29 +1432,38 @@ Page({
       statusText: statusMap[seat.status] || seat.status,
       hasSocketText: seat.hasSocket ? t('common.seat.facilities.power') : '',
       isWindowText: seat.isWindow ? t('reservation.seatMap.window') : '',
+      tags:
+        seat.tags ||
+        [
+          seat.typeLabel || '',
+          seat.hasSocket ? t('common.seat.facilities.power') : '',
+          seat.isWindow ? t('reservation.seatMap.window') : '',
+        ].filter(Boolean),
       bookedTimeRange: seat.bookedTimeRange || seat.timeRange || '',
     };
   },
 
-  computeSeatPopoverPosition(rect: any) {
-    const windowInfo = wx.getSystemInfoSync();
-    const cardWidth = Math.min(240, windowInfo.windowWidth - 24);
-    const cardHeight = 160;
-    const centerX = rect?.left ? rect.left + rect.width / 2 : windowInfo.windowWidth / 2;
+  computeSeatPopoverPosition(rect: any, wrapperRect: any) {
+    const cardWidth = 200;
+    const cardHeight = 140;
+    const offsetLeft = wrapperRect?.left || 0;
+    const offsetTop = wrapperRect?.top || 0;
+    const centerX = rect?.left ? rect.left + rect.width / 2 : cardWidth / 2;
+    const rawLeft = centerX - offsetLeft;
     const left = Math.min(
-      Math.max(centerX, cardWidth / 2 + 12),
-      windowInfo.windowWidth - cardWidth / 2 - 12
+      Math.max(rawLeft, cardWidth / 2 + 10),
+      (wrapperRect?.width || 0) - cardWidth / 2 - 10
     );
 
-    const belowTop = rect?.top ? rect.top + rect.height + 6 : 100;
+    const belowTop = rect?.top ? rect.top + rect.height + 6 : 90;
     const aboveTop = rect?.top ? rect.top - cardHeight - 6 : 12;
-    const useAbove = rect && belowTop + cardHeight > windowInfo.windowHeight - 60;
-    const top = useAbove
-      ? Math.max(12, aboveTop)
-      : Math.min(belowTop, windowInfo.windowHeight - cardHeight - 12);
+    const wrapperHeight = wrapperRect?.height || 0;
+    const useAbove = rect && belowTop + cardHeight > offsetTop + wrapperHeight;
+    const rawTop = useAbove ? aboveTop : belowTop;
+    const top = Math.max(10, rawTop - offsetTop);
 
     return {
-      style: `position: fixed; left: ${left}px; top: ${top}px; width: ${cardWidth}px; transform: translateX(-50%);`,
+      style: `left: ${left}px; top: ${top}px; width: ${cardWidth}px; transform: translateX(-50%);`,
       direction: useAbove ? 'up' : 'down',
     };
   },
@@ -990,7 +1476,8 @@ Page({
       showDatetimePicker: true,
       datetimePickerField: 'date',
       datetimePickerType: 'date',
-      datetimePickerValue: new Date(this.data.selectedDate).getTime(),
+      datetimePickerValue: toTimestamp(this.data.selectedDate),
+      datePickerMinTimestamp: toTimestamp(getToday()),
     });
   },
 
@@ -1015,9 +1502,32 @@ Page({
   onDatetimePickerConfirm(e: any) {
     const value = e.detail;
     if (this.data.datetimePickerField === 'date') {
-      const date = new Date(value);
-      const selectedDate = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+      let selectedDate = formatDateTime(value, 'YYYY-MM-DD');
+      const today = getToday();
+      if (selectedDate < today) {
+        wx.showToast({
+          title: '不能选择今天之前的日期',
+          icon: 'none',
+        });
+        this.setData({ showDatetimePicker: false });
+        return;
+      }
+      if (selectedDate === today && this.isSelectedDateExpired(today)) {
+        selectedDate = this.getTomorrow();
+        wx.showToast({
+          title: '今天时段已过期，已自动切换到明天',
+          icon: 'none',
+        });
+      }
+      if (selectedDate === today && this.isSelectedDateExpired(today)) {
+        selectedDate = this.getTomorrow();
+        wx.showToast({
+          title: '今天时段已过期，已自动切换到明天',
+          icon: 'none',
+        });
+      }
       this.setData({ selectedDate });
+      this.resetSeatSelection();
       this.refreshTimePeriods(selectedDate);
       this.updateReservationInfo();
       this.loadSeats();
@@ -1052,12 +1562,15 @@ Page({
       useCustomTime: false,
       currentTimePeriodText: periodText,
       customTimePeriodText: timeRangeText,
+      currentDurationText:
+        this.formatDurationText(period.start, period.end) ||
+        `${Math.ceil((toTimeMinutes(period.end) - toTimeMinutes(period.start)) / 60)}h`,
       showCustomTime: false,
       startTime: period.start,
       endTime: period.end,
     });
 
-    // 更新预约信息列表
+    this.resetSeatSelection();
     this.updateReservationInfo();
     this.loadSeats();
 
@@ -1089,22 +1602,26 @@ Page({
    * 切换自定义时间段
    */
   toggleCustomTime() {
+    const range = this.getSelectedSlotRange();
+    let startTime = range.start;
+    if (this.isSelectedDateToday()) {
+      const nowTime = this.getTodayTimeString();
+      if (nowTime > range.start && nowTime < range.end) {
+        startTime = nowTime;
+      }
+    }
     const app = getApp() as any;
     const t = app.t || ((key: string) => key);
-    const range = this.getSelectedSlotRange();
+    const currentHint =
+      t('reservation.hint.customTimeHelp') ||
+      `自定义时间段不得少于${this.data.minCustomTimeMinutes}分钟，且必须在当前时段 ${range.start} - ${range.end} 内`;
 
     this.setData({
       showCustomTime: !this.data.showCustomTime,
-      startTime: range.start,
+      startTime,
       endTime: range.end,
+      customTimeHintText: currentHint,
     });
-
-    if (!this.data.showCustomTime) {
-      wx.showToast({
-        title: t('reservation.hint.customTimeCancelled') || '已取消自定义时间段',
-        icon: 'none',
-      });
-    }
   },
 
   /**
@@ -1151,6 +1668,17 @@ Page({
       return;
     }
 
+    const durationMinutes = toTimeMinutes(endTime) - toTimeMinutes(startTime);
+    if (durationMinutes < this.data.minCustomTimeMinutes) {
+      wx.showToast({
+        title:
+          t('reservation.hint.customTimeTooShort') ||
+          `自定义时长不能少于 ${this.data.minCustomTimeMinutes} 分钟`,
+        icon: 'none',
+      });
+      return;
+    }
+
     if (startTime < range.start || endTime > range.end) {
       wx.showToast({
         title: t('reservation.hint.customTimeSlotRange') || '自定义时间必须在所选时间段范围内',
@@ -1159,13 +1687,9 @@ Page({
       return;
     }
 
-    if (startTime === range.start && endTime === range.end) {
-      wx.showToast({
-        title: t('reservation.hint.customTimeSameAsSlot') || '自定义时间不能等于完整时间段',
-        icon: 'none',
-      });
-      return;
-    }
+    const currentDurationText =
+      this.formatDurationText(startTime, endTime) ||
+      `${Math.ceil((toTimeMinutes(endTime) - toTimeMinutes(startTime)) / 60)}h`;
 
     this.setData({
       customStartTime: startTime,
@@ -1174,15 +1698,13 @@ Page({
       showCustomTime: false,
       useCustomTime: true,
       currentTimePeriodText: `${startTime} - ${endTime}`,
+      currentDurationText,
     });
 
     // 更新预约信息列表
     this.updateReservationInfo();
 
-    wx.showToast({
-      title: t('reservation.hint.customTimeConfirmed') || '时间段已确认',
-      icon: 'success',
-    });
+    // 不再显示确认提示，避免无意义 toast
   },
 
   /**
@@ -1193,9 +1715,7 @@ Page({
     const t = app.t || ((key: string) => key);
 
     // 使用实际的预约时间范围
-    const periodValue = this.data.useCustomTime
-      ? `${this.data.customStartTime} - ${this.data.customEndTime}`
-      : this.data.currentTimePeriodText;
+    const periodValue = this.data.customTimePeriodText || this.data.currentTimePeriodText;
 
     const items = [
       { label: t('reservation.confirm.seat'), value: this.data.selectedSeatText || '-' },
@@ -1209,14 +1729,27 @@ Page({
     });
   },
 
+  resetSeatSelection() {
+    const seatSelectComp: any = this.selectComponent('#seatSelectComponent');
+    if (seatSelectComp && typeof seatSelectComp.hideSeatTooltip === 'function') {
+      seatSelectComp.hideSeatTooltip();
+    }
+    this.setData({
+      selectedSeatIds: [],
+      selectedSeatText: '',
+      selectedSeatInfo: null,
+    });
+    this.updateReservationInfo();
+  },
+
   /**
    * 确认预约
    */
-  onConfirmReservation() {
+  async onConfirmReservation() {
     const app = getApp() as any;
     const t = app.t || ((key: string) => key);
 
-    const { selectedSeatIds, selectedDate, currentTimePeriodText, currentDurationText } = this.data;
+    const { selectedSeatIds, selectedDate, currentDurationText } = this.data;
 
     if (selectedSeatIds.length === 0) {
       wx.showToast({
@@ -1237,13 +1770,15 @@ Page({
     // 更新预约信息（确保是最新的）
     this.updateReservationInfo();
 
+    const periodValue = this.data.customTimePeriodText || this.data.currentTimePeriodText;
+
     // 显示确认对话框
     wx.showModal({
       title: t('reservation.confirm.title'),
-      content: `${t('reservation.confirm.seat')}: ${this.data.selectedSeatText}\n${t('reservation.confirm.date')}: ${selectedDate}\n${t('reservation.confirm.period')}: ${currentTimePeriodText}\n${t('reservation.confirm.duration')}: ${currentDurationText}`,
+      content: `${t('reservation.confirm.seat')}: ${this.data.selectedSeatText}\n${t('reservation.confirm.date')}: ${selectedDate}\n${t('reservation.confirm.period')}: ${periodValue}\n${t('reservation.confirm.duration')}: ${currentDurationText}`,
       confirmText: t('reservation.confirm.button'),
       cancelText: t('common.btn.cancel'),
-      success: (res) => {
+      success: async (res) => {
         if (res.confirm) {
           const selectedTimePeriod = this.data.timePeriods.find(
             (p: any) => p.value === this.data.selectedTimeSlot
@@ -1284,6 +1819,16 @@ Page({
               });
               return;
             }
+            const durationMinutes = toTimeMinutes(endTime) - toTimeMinutes(startTime);
+            if (durationMinutes < this.data.minCustomTimeMinutes) {
+              wx.showToast({
+                title:
+                  t('reservation.hint.customTimeTooShort') ||
+                  `自定义时间段不得少于${this.data.minCustomTimeMinutes}分钟`,
+                icon: 'none',
+              });
+              return;
+            }
             const range = this.getSelectedSlotRange();
             if (startTime < range.start || endTime > range.end) {
               wx.showToast({
@@ -1300,9 +1845,8 @@ Page({
               });
               return;
             }
-            if (this.data.selectedDate === new Date().toISOString().slice(0, 10)) {
-              const now = new Date();
-              const nowMinutes = now.getHours() * 60 + now.getMinutes();
+            if (this.data.selectedDate === getToday()) {
+              const nowMinutes = getCurrentTimeMinutes();
               const [startHour, startMin] = startTime.split(':').map(Number);
               const startMinutes = startHour * 60 + startMin;
               if (startMinutes <= nowMinutes) {
@@ -1324,6 +1868,21 @@ Page({
             return;
           }
 
+          const bookingTemplateId = (this.data as any).wechatBookingSuccessTemplateId;
+          if (bookingTemplateId) {
+            const result = await requestBookingSubscribeMessage(bookingTemplateId);
+            const status = result ? result[bookingTemplateId] : undefined;
+            if (status !== 'accept') {
+              wx.showToast({
+                title:
+                  t('reservation.hint.subscribeMessageDeclined') ||
+                  '您已拒绝订阅消息，预约通知可能无法及时收到',
+                icon: 'none',
+                duration: 2000,
+              });
+            }
+          }
+
           createBooking({
             seatId: parseInt(seatId),
             date: selectedDate,
@@ -1338,7 +1897,15 @@ Page({
                 duration: 1500,
               });
 
-              // 预约成功后重新加载座位并跳转
+              // 预约成功后清空本次选择状态，避免残留上次已选座位
+              this.setData({
+                selectedSeatIds: [],
+                selectedSeatText: '',
+                selectedSeatInfo: null,
+              });
+              this.updateReservationInfo();
+
+              // 重新加载座位并跳转
               this.loadSeats();
               setTimeout(() => {
                 wx.navigateTo({
@@ -1348,6 +1915,17 @@ Page({
             })
             .catch((err) => {
               console.error('预约失败:', err);
+              const message =
+                err?.message ||
+                err?.data?.message ||
+                err?.response?.data?.message ||
+                t('reservation.hint.reservationFailed') ||
+                '预约失败，请稍后重试';
+              wx.showToast({
+                title: message,
+                icon: 'none',
+                duration: 2500,
+              });
             });
         }
       },
@@ -1359,11 +1937,7 @@ Page({
    */
   onSeatError(e: any) {
     const { seatId, message } = e.detail;
-    console.error('座位选择错误:', seatId, message);
-
-    wx.showToast({
-      title: message,
-      icon: 'none',
-    });
+    console.warn('座位选择错误:', seatId, message);
+    // Tooltip already provides seat status information, avoid duplicate toast.
   },
 });

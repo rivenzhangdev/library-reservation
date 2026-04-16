@@ -84,6 +84,8 @@ function handleError(res: WechatMiniprogram.RequestSuccessCallbackResult) {
       SEAT_NOT_FOUND: '座位不存在',
       BOOKING_CONFLICT: '该时间段已被预约',
       ALREADY_BOOKED: '您已预约过该时间段',
+      USER_BLACKLISTED: '您的账号已被列入黑名单，无法继续操作',
+      '3008': '您的账号已被列入黑名单，无法继续操作',
       InvalidToken: '登录已过期，请重新登录',
       TokenExpired: 'Token 已过期',
       SeatNotAvailable: '座位当前不可用',
@@ -129,10 +131,14 @@ function request(options: RequestOptions): Promise<HttpResponse> {
       ...options.header,
     };
 
-    // 需要认证时添加 Token
-    if (options.needAuth && token) {
+    // 自动携带 Token（如果存在），同时支持 needAuth 强制认证
+    const hasAuthHeader =
+      header['Authorization'] || header['authorization'] || header['Authorization'.toLowerCase()];
+    if (!hasAuthHeader && token) {
       header['Authorization'] = `Bearer ${token}`;
-    } else if (options.needAuth && !token) {
+    }
+
+    if (options.needAuth && !token) {
       wx.showToast({ title: '请先登录', icon: 'none' });
       reject(new Error('未登录'));
       return;

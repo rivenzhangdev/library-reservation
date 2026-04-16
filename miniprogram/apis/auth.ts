@@ -5,6 +5,7 @@
 import { createApi } from '../utils/helpers';
 
 const authApi = createApi('/api/auth');
+const api = createApi('/api');
 
 /**
  * 微信登录
@@ -34,6 +35,30 @@ export const bindStudentId = (studentId: string, realName: string) =>
     }
   );
 
+export const requestStudentIdChange = (
+  newStudentId: string,
+  newRealName: string,
+  reason?: string,
+) =>
+  api.post(
+    '/student-id-change-requests',
+    { newStudentId, newRealName, reason },
+    {
+      needAuth: true,
+      showLoading: true,
+    }
+  );
+
+export const requestPhoneChange = (newPhone: string, reason?: string) =>
+  authApi.post(
+    '/phone-change-requests',
+    { newPhone, reason },
+    {
+      needAuth: true,
+      showLoading: true,
+    }
+  );
+
 /**
  * 检查登录状态
  * GET /api/auth/check
@@ -43,5 +68,7 @@ export const checkLogin = () => authApi.get('/check', null, { needAuth: true });
 export default {
   wxLogin,
   bindStudentId,
+  requestStudentIdChange,
+  requestPhoneChange,
   checkLogin,
 };

@@ -3,14 +3,7 @@ import { getFavorites, favoriteSeat } from '../../apis/user';
 import { isLogin } from '../../utils/auth';
 import { t } from '../../utils/i18n';
 import { openReservationWithParams } from '../../utils/reservationNavigator';
-
-function getToday() {
-  const now = new Date();
-  const year = now.getFullYear();
-  const month = String(now.getMonth() + 1).padStart(2, '0');
-  const day = String(now.getDate()).padStart(2, '0');
-  return `${year}-${month}-${day}`;
-}
+import { getToday } from '../../utils/time';
 
 function getSeatTypeLabel(type: any) {
   const key = String(type);
@@ -140,6 +133,7 @@ Page({
       floor: seat.floorName,
       type: seat.typeText,
       facilities: (seat.facilities || []).join(','),
+      date: this.data.currentDate,
     });
   },
 });

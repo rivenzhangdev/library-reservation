@@ -18,19 +18,46 @@
     </view>
 
     <view class="user-card {{!isLoggedIn ? 'user-card--guest' : ''}}">
-      <view class="user-avatar-wrapper">
-        <image wx:if="{{avatarUrl}}" class="user-avatar" src="{{avatarUrl}}" mode="aspectFill" />
-        <view wx:else class="user-avatar">
-          <uni-icon type="vant" name="user-o" size="80" color="#fff" />
+      <view class="user-card__hero">
+        <view class="user-avatar-wrapper">
+          <image wx:if="{{avatarUrl}}" class="user-avatar" src="{{avatarUrl}}" mode="aspectFill" />
+          <view wx:else class="user-avatar">
+            <uni-icon type="vant" name="user-o" size="80" color="#fff" />
+          </view>
+        </view>
+        <view class="user-hero-info">
+          <view class="user-name">{{userName}}</view>
+          <view class="profile-status-row">
+            <view class="user-account-row">
+              <text class="user-account-label">{{userStudentIdLabel}}</text>
+              <text class="user-account-value">{{userStudentId}}</text>
+            </view>
+            <view wx:if="{{isAdmin}}" class="user-account-row">
+              <text class="user-account-label">{{userRole}}</text>
+            </view>
+          </view>
+          <text class="user-subtitle">{{isLoggedIn ? profileCompletionText || subtitleLoggedIn : subtitleGuest}}</text>
         </view>
       </view>
 
-      <view class="user-info">
-        <view class="user-name">{{userName}}</view>
-
-        <view wx:if="{{isLoggedIn && userAccount}}" class="user-account-row">
-          <text class="user-account-label">{{userAccountLabel}}</text>
-          <text class="user-account-value">{{userAccount}}</text>
+      <view class="user-card__stats">
+        <view class="user-stat-mini">
+          <view class="user-stat-mini-icon">
+            <uni-icon type="vant" name="star" size="28" color="#fff" />
+          </view>
+          <view class="user-stat-mini-text">
+            <text class="user-stat-value">{{creditScore}}</text>
+            <text class="user-stat-label">{{creditScoreLabel}}</text>
+          </view>
+        </view>
+        <view class="user-stat-mini">
+          <view class="user-stat-mini-icon">
+            <uni-icon type="vant" name="calendar-o" size="28" color="#fff" />
+          </view>
+          <view class="user-stat-mini-text">
+            <text class="user-stat-value">{{bookingCount}}</text>
+            <text class="user-stat-label">{{bookingCountLabel}}</text>
+          </view>
         </view>
       </view>
 
@@ -40,16 +67,11 @@
       </view>
     </view>
 
-    <view class="section-block">
-      <section-list
-        title="{{sectionTitle}}"
-        items="{{serviceItems}}"
-        bind:itemTap="onSectionItemTap"
-      />
-      <view wx:if="{{serviceNotice}}" class="section-tip">{{serviceNotice}}</view>
-    </view>
-
     <section-list title="{{centerTitle}}" items="{{centerItems}}" bind:itemTap="onSectionItemTap" />
+
+    <section-list title="{{serviceTitle}}" items="{{serviceItems}}" bind:itemTap="onSectionItemTap" />
+
+    <section-list title="{{activityTitle}}" items="{{activityItems}}" bind:itemTap="onSectionItemTap" />
 
     <section-list
       title="{{settingsTitle}}"

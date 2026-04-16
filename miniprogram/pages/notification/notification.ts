@@ -1,4 +1,5 @@
 import { t } from '../../utils/i18n';
+import { formatDateTime } from '../../utils/time';
 import {
   getNotifications,
   markAsRead,
@@ -10,11 +11,30 @@ import { isLogin } from '../../utils/auth';
 interface NotificationItem {
   id: string;
   type: 'reservation' | 'system' | 'activity' | 'marketing';
+  typeText: string;
   icon: string;
   title: string;
   content: string;
   time: string;
   isRead: boolean;
+}
+
+function localizeNotificationText(
+  title: string,
+  content: string,
+  type: string,
+  currentLang: string
+) {
+  if (currentLang === 'zh' && type === 'reservation') {
+    if (/booking successful/i.test(title)) {
+      title = '预约成功';
+    }
+    const match = /You have successfully booked a seat on\s*(\d{4}-\d{2}-\d{2})/i.exec(content);
+    if (match) {
+      content = `您已成功预约座位，日期：${match[1]}`;
+    }
+  }
+  return { title, content };
 }
 
 Page({
@@ -75,15 +95,26 @@ Page({
           3: 'coupon-o',
         };
 
-        const notifications: NotificationItem[] = list.map((item: any) => ({
-          id: String(item._id || item.id),
-          type: typeNameMap[item.type] || 'system',
-          icon: iconMap[item.type] || 'info-o',
-          title: item.title,
-          content: item.content,
-          time: item.time || item.createdAt || '',
-          isRead: !!item.isRead,
-        }));
+        const currentLang = getApp<IAppOption>().globalData?.currentLang || 'zh';
+        const notifications: NotificationItem[] = list.map((item: any) => {
+          const type = typeNameMap[item.type] || 'system';
+          const localized = localizeNotificationText(
+            item.title || '',
+            item.content || '',
+            type,
+            currentLang
+          );
+          return {
+            id: String(item._id || item.id),
+            type,
+            typeText: t(`notification.type.${type}`),
+            icon: iconMap[item.type] || 'info-o',
+            title: localized.title,
+            content: localized.content,
+            time: formatDateTime(item.time || item.createdAt || ''),
+            isRead: !!item.isRead,
+          };
+        });
 
         (this as any)._allNotifications = notifications;
         this.applyFilter(this.data.currentFilter);
@@ -153,8 +184,8 @@ Page({
   onCardTap() {},
 
   onActionTap(event: WechatMiniprogram.CustomEvent) {
-    const action = event.detail.action as string;
-    const notifId = event.detail.id as string;
+    const action = (event.detail.action as string) || event.currentTarget.dataset.action;
+    const notifId = (event.detail.id as string) || event.currentTarget.dataset.id;
 
     if (action === 'viewDetail') {
       wx.navigateTo({

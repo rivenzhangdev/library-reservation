@@ -4,6 +4,7 @@ import { getMyBookings } from '../../apis/booking';
 import { isLogin } from '../../utils/auth';
 import { openReservationWithParams } from '../../utils/reservationNavigator';
 import { sortBySeatPosition } from '../../utils/sort';
+import { getToday } from '../../utils/time';
 
 function getStatusText(status: string) {
   const map: Record<string, string> = {
@@ -190,6 +191,7 @@ Page({
   onSelectTimeSlot(event: WechatMiniprogram.CustomEvent) {
     const dataset = event.currentTarget.dataset as any;
     openReservationWithParams({
+      date: getToday(),
       timeSlotId: dataset.id,
       timeSlotName: dataset.name,
       startTime: dataset.startTime,

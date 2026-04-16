@@ -1,68 +1,88 @@
 <page-meta>
-  <navigation-bar title="{{navTitle}}" back="{{true}}" />
+  <navigation-bar title="{{pageTitle}}" back="{{true}}" />
 </page-meta>
 
-<view class="page-container">
-  <view wx:if="{{summary}}" class="hero-card tone-{{summary.levelTone}}">
-    <view class="hero-decor">
-      <view class="decor-dot decor-dot--small"></view>
-      <view class="decor-dot decor-dot--large"></view>
+<view class="page-container {{languageClass}}">
+  <view class="credit-hero">
+    <view class="hero-top-row">
+      <van-tag type="primary" plain size="large">{{trustTag}}</van-tag>
+      <text class="hero-hint">{{summaryHint}}</text>
     </view>
 
-    <view class="hero-top">
+    <view class="hero-score-wrapper">
       <view>
-        <view class="hero-label">{{t('credit.summary')}}</view>
-        <view class="hero-score">{{summary.score}}</view>
+        <text class="hero-score">{{creditScore}}</text>
+        <text class="hero-score-label">{{scoreTip}}</text>
       </view>
-      <view class="level-pill">{{summary.levelLabel}}</view>
+      <view class="hero-status-card">
+        <view class="hero-status-left">
+          <view class="hero-status-icon">
+            <uni-icon type="vant" name="star" size="32" color="#ffffff" />
+          </view>
+          <view class="hero-status-texts">
+            <text class="hero-status-label">{{creditLevelLabel}}</text>
+            <text class="hero-status-value">{{creditLevelText}}</text>
+          </view>
+        </view>
+      </view>
     </view>
 
-    <view class="hero-score-panel">
-      <view class="hero-score-meta">
-        <text class="hero-score-tag">{{t('credit.summary')}}</text>
-        <text class="hero-score-chip">{{summary.levelLabel}}</text>
+    <view class="hero-progress">
+      <view class="hero-progress-bar">
+        <view class="hero-progress-fill" style="width: {{progressPercent}}%;" />
       </view>
-      <view class="hero-score-extra">
-        <view class="hero-score-badge">{{currentLang === 'zh' ? '信用分' : 'Credit Score'}}</view>
-      </view>
+      <text class="hero-progress-text">{{nextLevelHint}}</text>
     </view>
-
-    <view class="progress-track">
-      <view class="progress-fill" style="width: {{summary.scorePercent}};"></view>
-    </view>
-
-    <view class="hero-intro">{{summary.intro}}</view>
   </view>
 
-  <view class="stats-grid">
-    <view wx:for="{{statCards}}" wx:key="label" class="stat-card tone-{{item.tone}}">
-      <text class="stat-label">{{item.label}}</text>
-      <text class="stat-value">{{item.value}}</text>
+  <view class="info-cards">
+    <view class="info-card">
+      <view class="info-card-head">
+        <view class="info-card-icon info-card-icon--positive">
+          <uni-icon type="vant" name="star" size="28" color="#ffffff" />
+        </view>
+        <text class="info-card-title">{{benefitTitle}}</text>
+      </view>
+      <text class="info-card-text">{{benefitDesc}}</text>
+    </view>
+    <view class="info-card">
+      <view class="info-card-head">
+        <view class="info-card-icon info-card-icon--secondary">
+          <uni-icon type="vant" name="clock-o" size="28" color="#ffffff" />
+        </view>
+        <text class="info-card-title">{{ruleTitle}}</text>
+      </view>
+      <text class="info-card-text">{{ruleDesc}}</text>
     </view>
   </view>
 
   <view class="records-card">
     <view class="records-header">
-      <view class="records-title">{{t('credit.records')}}</view>
-      <view class="records-subtitle">{{records.length}}</view>
-    </view>
-
-    <view wx:if="{{records.length}}">
-      <view wx:for="{{records}}" wx:key="id" class="record-item">
-        <view class="record-marker {{item.pointsClass}}"></view>
-        <view class="record-body">
-          <view class="record-top">
-            <text class="record-reason">{{item.reason || item.type || '-'}}</text>
-            <text class="record-points {{item.pointsClass}}">{{item.pointsText}}</text>
-          </view>
-          <view class="record-date">{{item.date}}</view>
-        </view>
+      <view>
+        <text class="section-title">{{recordsTitle}}</text>
+        <text class="section-hint">{{summaryHint}}</text>
       </view>
     </view>
 
-    <view wx:else class="empty-state">
-      <uni-icon type="vant" name="notes-o" size="64" color="#d0d7de" />
-      <text class="empty-text">{{t('credit.empty')}}</text>
+    <view wx:if="{{records.length === 0 && !recordsLoading}}" class="empty-state">
+      <uni-icon type="vant" name="search" size="72" color="#d0d7de" />
+      <text class="empty-text">{{emptyText}}</text>
+    </view>
+
+    <block wx:for="{{records}}" wx:key="id">
+      <view class="record-item">
+        <view class="record-row">
+          <text class="record-type">{{item.typeLabel}}</text>
+          <text class="record-points {{item.pointsClass}}">{{item.pointsLabel}}</text>
+        </view>
+        <text class="record-reason">{{item.reason}}</text>
+        <text class="record-date">{{item.dateText}}</text>
+      </view>
+    </block>
+
+    <view wx:if="{{recordsLoading}}" class="empty-state">
+      <uni-icon type="vant" name="loading" size="72" color="#409eff" />
+      <text class="empty-text">{{loadingText}}</text>
     </view>
   </view>
 </view>

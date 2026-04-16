@@ -353,6 +353,12 @@ swiper {
       color: var(--common-regular-text-color);
       background-color: var(--common-hover-bg-color);
       border-radius: var(--common-border-radius-pill);
+      transition: background-color 0.2s ease;
+
+      &.active {
+        color: #f59e0b;
+        background-color: rgba(245, 158, 11, 0.15);
+      }
     }
   }
 }

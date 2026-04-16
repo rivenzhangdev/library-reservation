@@ -1,114 +1,227 @@
-import { getCredit, getCreditRecords } from '../../apis/user';
 import { t } from '../../utils/i18n';
+import { formatDateTime } from '../../utils/time';
+import { getCredit, getCreditRecords } from '../../apis/user';
+import { isLogin, redirectToLogin } from '../../utils/auth';
 
-function getLevelLabel(level: number) {
-  const map: Record<number, string> = {
-    0: t('credit.level.poor'),
-    1: t('credit.level.normal'),
-    2: t('credit.level.good'),
-    3: t('credit.level.excellent'),
-  };
-  return map[level] || t('credit.level.normal');
+interface CreditRecordItem {
+  id: string;
+  type: number;
+  typeLabel: string;
+  points: number;
+  pointsLabel: string;
+  pointsClass: string;
+  date: string;
+  dateText: string;
+  reason: string;
 }
 
-function getLevelTone(level: number) {
-  if (level >= 3) return 'excellent';
-  if (level === 2) return 'good';
-  if (level === 1) return 'normal';
-  return 'poor';
+interface CreditPageData {
+  currentLang: 'zh' | 'en';
+  languageClass: string;
+  pageTitle: string;
+  summaryLabel: string;
+  scoreTip: string;
+  benefitTitle: string;
+  benefitDesc: string;
+  ruleTitle: string;
+  ruleDesc: string;
+  summaryHint: string;
+  recordsTitle: string;
+  trustTag: string;
+  creditScore: string | number;
+  creditLevelLabel: string;
+  creditLevelText: string;
+  nextLevelHint: string;
+  progressPercent: number;
+  records: CreditRecordItem[];
+  page: number;
+  limit: number;
+  total: number;
+  loading: boolean;
+  recordsLoading: boolean;
+  hasMore: boolean;
+  emptyText: string;
+  loadingText: string;
+}
+
+function formatCreditType(type: number) {
+  if (type === 0) return t('credit.type.add');
+  if (type === 1) return t('credit.type.deduct');
+  return t('credit.type.unknown');
+}
+
+function getLevelText(level: number) {
+  if (level === 3) return t('credit.level.excellent');
+  if (level === 2) return t('credit.level.good');
+  if (level === 1) return t('credit.level.normal');
+  if (level === 0) return t('credit.level.poor');
+  return t('credit.level.normal');
+}
+
+function getNextLevelInfo(score: number) {
+  if (score >= 90) {
+    return {
+      progress: 100,
+      hint: t('credit.level.max'),
+    };
+  }
+  if (score >= 80) {
+    return {
+      progress: ((score - 80) / 10) * 100,
+      hint: t('credit.nextLevelHint', { count: String(90 - score) }),
+    };
+  }
+  if (score >= 60) {
+    return {
+      progress: ((score - 60) / 20) * 100,
+      hint: t('credit.nextLevelHint', { count: String(80 - score) }),
+    };
+  }
+  return {
+    progress: (score / 60) * 100,
+    hint: t('credit.nextLevelHint', { count: String(60 - score) }),
+  };
+}
+
+function getPointsLabel(type: number, points: number) {
+  const value = Math.abs(points);
+  if (type === 1) {
+    return `-${value}`;
+  }
+  return `+${value}`;
 }
 
 Page({
   data: {
-    navTitle: '',
-    currentLang: 'zh' as 'zh' | 'en',
-    summary: null as any,
-    records: [] as any[],
-    statCards: [] as Array<{ label: string; value: string; tone: string }>,
-  },
+    currentLang: 'zh',
+    languageClass: 'lang-zh',
+    pageTitle: t('credit.title'),
+    summaryLabel: t('credit.summary'),
+    scoreTip: t('credit.scoreTip'),
+    benefitTitle: t('credit.benefitTitle'),
+    benefitDesc: t('credit.benefitDesc'),
+    ruleTitle: t('credit.ruleTitle'),
+    ruleDesc: t('credit.ruleDesc'),
+    summaryHint: t('credit.summaryHint'),
+    recordsTitle: t('credit.records'),
+    trustTag: t('credit.trustTag'),
+    creditScore: '-',
+    creditLevelLabel: t('credit.level.label'),
+    creditLevelText: '',
+    nextLevelHint: '',
+    progressPercent: 0,
+    records: [],
+    page: 1,
+    limit: 10,
+    total: 0,
+    loading: false,
+    recordsLoading: false,
+    hasMore: true,
+    emptyText: t('credit.empty'),
+    loadingText: t('common.hint.loading'),
+  } as CreditPageData,
 
   onLoad() {
-    this.refreshLanguage();
-    this.loadCredit();
+    this.updateLanguage();
   },
 
   onShow() {
-    this.refreshLanguage();
+    this.updateLanguage();
+    this.loadPageData();
   },
 
-  refreshLanguage() {
+  onReachBottom() {
+    if (!this.data.hasMore || this.data.recordsLoading) return;
+    this.loadCreditRecords(this.data.page + 1);
+  },
+
+  updateLanguage() {
     const currentLang = getApp<IAppOption>().globalData?.currentLang || 'zh';
     this.setData({
       currentLang,
-      navTitle: t('credit.title'),
+      languageClass: currentLang === 'en' ? 'lang-en' : 'lang-zh',
+      pageTitle: t('credit.title'),
+      summaryLabel: t('credit.summary'),
+      scoreTip: t('credit.scoreTip'),
+      benefitTitle: t('credit.benefitTitle'),
+      benefitDesc: t('credit.benefitDesc'),
+      ruleTitle: t('credit.ruleTitle'),
+      ruleDesc: t('credit.ruleDesc'),
+      summaryHint: t('credit.summaryHint'),
+      recordsTitle: t('credit.records'),
+      trustTag: t('credit.trustTag'),
+      emptyText: t('credit.empty'),
+      loadingText: t('common.hint.loading'),
     });
   },
 
-  buildStatCards(records: any[]) {
-    const positiveCount = records.filter((item) => Number(item.points) >= 0).length;
-    const negativeCount = records.length - positiveCount;
-    const latestDate = records[0]?.date || '-';
-
-    return [
-      {
-        label: this.data.currentLang === 'zh' ? '累计记录' : 'Records',
-        value: String(records.length),
-        tone: 'neutral',
-      },
-      {
-        label: this.data.currentLang === 'zh' ? '加分次数' : 'Positive',
-        value: String(positiveCount),
-        tone: 'good',
-      },
-      {
-        label: this.data.currentLang === 'zh' ? '扣分次数' : 'Deductions',
-        value: String(negativeCount),
-        tone: negativeCount > 0 ? 'warning' : 'neutral',
-      },
-      {
-        label: this.data.currentLang === 'zh' ? '最近更新' : 'Updated',
-        value: latestDate ? String(latestDate).split('T')[0] : '-',
-        tone: 'neutral',
-      },
-    ];
+  loadPageData() {
+    if (!isLogin()) {
+      redirectToLogin('/pages/credit/credit');
+      return;
+    }
+    this.loadCredit();
+    this.setData({ page: 1, records: [], hasMore: true });
+    this.loadCreditRecords(1);
   },
 
-  loadCredit() {
-    Promise.all([getCredit(), getCreditRecords({ page: 1, limit: 50 })])
-      .then(([summaryRes, recordsRes]: any) => {
-        const summary = summaryRes.data || {};
-        const recordData = recordsRes.data?.records || summary.records || [];
-        const score = Number(summary.creditScore ?? summary.score ?? 0);
-        const level = Number(summary.level ?? 1);
-        const normalizedRecords = recordData.map((item: any) => {
-          const points = Number(item.points || 0);
-          return {
-            ...item,
-            points,
-            date: item.date ? String(item.date).split('T')[0] : '-',
-            pointsText: `${points >= 0 ? '+' : ''}${points}`,
-            pointsClass: points >= 0 ? 'plus' : 'minus',
-          };
-        });
-
-        this.setData({
-          summary: {
-            score,
-            level,
-            levelLabel: getLevelLabel(level),
-            levelTone: getLevelTone(level),
-            scorePercent: `${Math.max(0, Math.min(100, score))}%`,
-            intro:
-              this.data.currentLang === 'zh'
-                ? '按时签到、正常结束预约和参与活动都会影响信用分。'
-                : 'Check-ins, completed bookings and activity participation all affect your credit score.',
-          },
-          records: normalizedRecords,
-          statCards: this.buildStatCards(normalizedRecords),
-        });
-      })
-      .catch(() => {
-        wx.showToast({ title: t('common.hint.loadFailed'), icon: 'none' });
+  async loadCredit() {
+    this.setData({ loading: true });
+    try {
+      const res: any = await getCredit();
+      const data = res?.data ?? res;
+      const score = Number(data.creditScore ?? data.score ?? 0);
+      const level = Number(data.level ?? 0);
+      const nextInfo = getNextLevelInfo(score);
+      this.setData({
+        creditScore: Number.isFinite(score) ? score : '-',
+        creditLevelText: getLevelText(level),
+        progressPercent: Math.min(Math.max(nextInfo.progress, 0), 100),
+        nextLevelHint: nextInfo.hint,
       });
+    } catch (_error) {
+      this.setData({ creditScore: '-', creditLevelLabel: t('credit.level.normal') });
+    } finally {
+      this.setData({ loading: false });
+    }
+  },
+
+  async loadCreditRecords(page: number) {
+    if (!isLogin()) return;
+    this.setData({ recordsLoading: true });
+    try {
+      const res: any = await getCreditRecords({ page, limit: this.data.limit });
+      const payload = res?.data ?? res;
+      const list = Array.isArray(payload?.list) ? payload.list : [];
+      const total = Number(payload?.total ?? 0);
+      const mapped = list.map((item: any) => {
+        const type = Number(item.type);
+        const points = Number(item.points || 0);
+        return {
+          id: item.id || item._id,
+          type,
+          typeLabel: formatCreditType(type),
+          points,
+          pointsLabel: getPointsLabel(type, points),
+          pointsClass: type === 1 ? 'record-points--deduct' : 'record-points--add',
+          date: item.date || item.createdAt || '',
+          dateText: formatDateTime(item.date || item.createdAt || ''),
+          reason: item.reason || item.typeLabel || '-',
+        };
+      });
+      this.setData({
+        records: page === 1 ? mapped : [...this.data.records, ...mapped],
+        page,
+        total,
+        hasMore:
+          mapped.length >= this.data.limit && this.data.records.length + mapped.length < total,
+      });
+    } catch (_error) {
+      if (page === 1) {
+        this.setData({ records: [], total: 0, hasMore: false });
+      }
+    } finally {
+      this.setData({ recordsLoading: false });
+    }
   },
 });

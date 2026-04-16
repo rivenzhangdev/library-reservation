@@ -1,26 +1,19 @@
 import { cancelActivity, getActivities, joinActivity } from '../../apis/activity';
 import { isLogin } from '../../utils/auth';
 import { resolveAssetUrl } from '../../utils/assets';
+import { formatDateTime } from '../../utils/time';
 import { getLangClassName, t } from '../../utils/i18n';
+
+function resolveActivityPublisher(activity: any): string {
+  if (!activity) return '-';
+  return activity.createdByName || '-';
+}
 
 const ACTIVITY_STATUS_MAP: Record<number, string> = {
   0: 'upcoming',
   1: 'ongoing',
   2: 'ended',
 };
-
-function formatDateTime(value?: string) {
-  if (!value) return '';
-  const date = new Date(value);
-  if (Number.isNaN(date.getTime())) return String(value);
-
-  const year = date.getFullYear();
-  const month = String(date.getMonth() + 1).padStart(2, '0');
-  const day = String(date.getDate()).padStart(2, '0');
-  const hour = String(date.getHours()).padStart(2, '0');
-  const minute = String(date.getMinutes()).padStart(2, '0');
-  return `${year}-${month}-${day} ${hour}:${minute}`;
-}
 
 interface ActivityItem {
   id: string;
@@ -178,7 +171,7 @@ Page({
             participants: participants.length,
             maxParticipants: Number(activity.maxParticipants || 0),
             description: activity.description || t('common.empty.noDescription'),
-            publisher: activity.createdByName || activity.updatedByName || '-',
+            publisher: resolveActivityPublisher(activity),
             status,
             tags,
             buttons: this.data.activityButtons[status] || this.data.activityButtons.ended || [],
@@ -199,7 +192,8 @@ Page({
   },
 
   onSearchChange(e: WechatMiniprogram.CustomEvent) {
-    this.setData({ searchValue: e.detail });
+    const value = typeof e.detail === 'string' ? e.detail : e.detail?.value || '';
+    this.setData({ searchValue: String(value) });
     clearTimeout((this as any).searchTimer);
     (this as any).searchTimer = setTimeout(() => {
       this.filterActivities();

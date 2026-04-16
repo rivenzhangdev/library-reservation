@@ -27,4 +27,12 @@ export default {
   'notification.detail.publisher': 'Publisher',
   'notification.detail.updatedBy': 'Updated By',
   'notification.detail.relatedId': 'Related ID',
+  'notification.detail.publisherSystem': 'System',
+  'notification.detail.basicInfo': 'Basic Info',
+  'notification.detail.extraInfo': 'Extra Info',
+  'notification.detail.bookingId': 'Booking ID',
+  'notification.detail.seatId': 'Seat ID',
+  'notification.detail.bookingInfo': 'Booking Info',
+  'notification.detail.date': 'Date',
+  'notification.detail.timeSlot': 'Time Slot',
 };

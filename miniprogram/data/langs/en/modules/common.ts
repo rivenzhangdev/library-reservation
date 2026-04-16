@@ -22,6 +22,7 @@ export default {
   'common.btn.checkOut': 'Check Out',
   'common.btn.renew': 'Renew',
   'common.btn.retry': 'Retry',
+  'common.btn.refresh': 'Refresh',
 
   // Status
   'common.status.all': 'All',

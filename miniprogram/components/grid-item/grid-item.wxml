@@ -30,7 +30,7 @@
 
     <!-- 第二行：属性标签 -->
     <view class="grid-item__attributes" wx:if="{{attributes.length > 0}}">
-      <view class="grid-item__attribute" wx:for="{{attributes}}" wx:key="*this">
+      <view class="grid-item__attribute" wx:for="{{attributes}}" wx:key="*this" wx:if="{{item}}">
         <text class="grid-item__attribute-text">{{item}}</text>
       </view>
     </view>

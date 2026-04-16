@@ -1,78 +1,201 @@
-﻿<page-meta>
+<page-meta>
   <navigation-bar title="{{navTitle}}" back="{{true}}" />
 </page-meta>
 
 <view class="page-container {{languageClass}}">
-  <view class="hero-card">
-    <view class="hero-main">
-      <view class="avatar-block">
-        <text class="avatar-label">{{avatarLabel}}</text>
-        <view class="avatar-shell">
-          <image
-            wx:if="{{form.avatarUrl}}"
-            class="avatar-image"
-            src="{{form.avatarUrl}}"
-            mode="aspectFill"
-          />
-          <view wx:else class="avatar-placeholder">
-            <uni-icon type="vant" name="user-o" size="72" color="#ffffff" />
-          </view>
+  <view class="profile-card">
+    <view class="card-header">
+      <button
+        class="avatar-shell"
+        open-type="chooseAvatar"
+        bind:chooseavatar="onChooseAvatar"
+        hover-class="none"
+      >
+        <image
+          wx:if="{{avatarUrl}}"
+          class="avatar-image"
+          src="{{avatarUrl}}"
+          mode="aspectFill"
+        />
+        <view wx:else class="avatar-placeholder">
+          <uni-icon type="vant" name="user-o" size="80" color="#ffffff" />
         </view>
-      </view>
-
-      <view class="hero-copy">
-        <view class="hero-title">{{form.name || '-'}}</view>
-        <view class="hero-subtitle">{{subtitle}}</view>
+        <view class="avatar-upload-overlay">
+          <uni-icon type="vant" name="plus" size="34" color="#ffffff" />
+        </view>
+      </button>
+      <view class="user-info">
+        <text class="user-name">{{userName}}</text>
+        <text wx:if="{{isAdmin}}" class="user-role">{{userRole}}</text>
       </view>
     </view>
 
-    <button class="avatar-action" open-type="chooseAvatar" bind:chooseavatar="onChooseAvatar">
-      {{chooseAvatarText}}
-    </button>
-  </view>
+    <view class="profile-details">
+      <view class="detail-row">
+        <text class="detail-label">{{creditScoreLabel}}</text>
+        <text class="detail-value">{{creditScore}}</text>
+      </view>
+      <view class="detail-row">
+        <text class="detail-label">{{registerDateLabel}}</text>
+        <text class="detail-value">{{registerDate}}</text>
+      </view>
+      <view class="detail-row">
+        <text class="detail-label">{{bookingCountLabel}}</text>
+        <text class="detail-value">{{bookingCount}}</text>
+      </view>
+    </view>
 
-  <view class="bind-card">
-    <view class="bind-card-header">{{identityTitle}}</view>
-    <van-cell-group inset="{{false}}">
+    
+    <view class="profile-edit-card">
       <van-field
-        value="{{form.studentId}}"
-        label="{{studentIdLabel}}"
-        placeholder="{{studentIdPlaceholder}}"
-        readonly="{{studentIdReadonly}}"
-        bind:change="onStudentIdChange"
+        label="{{usernameLabel}}"
+        value="{{usernameField}}"
+        placeholder="{{usernamePlaceholder}}"
+        bind:change="onUsernameChange"
+        input-align="right"
       />
-    </van-cell-group>
-    <view class="identity-status">{{studentIdStatusText}}</view>
-    <view class="readonly-hint">{{profileHint}}</view>
-  </view>
-
-  <view class="form-card">
-    <view class="form-card-header">{{personalInfoTitle}}</view>
-    <van-cell-group inset="{{false}}">
       <van-field
-        value="{{form.name}}"
+        label="{{phoneLabel}}"
+        value="{{phoneField}}"
+        placeholder="{{phonePlaceholder}}"
+        type="number"
+        bind:change="onPhoneChange"
+        input-align="right"
+        disabled="{{phoneBound}}"
+      />
+      <view wx:if="{{phoneBound}}" class="phone-bound-hint">
+        <text class="tip-text">{{phoneChangeHint}}</text>
+        <van-button
+          class="change-phone-button"
+          type="{{showPhoneRequestForm ? 'warning' : 'info'}}"
+          plain="{{!showPhoneRequestForm}}"
+          bind:tap="onRequestPhoneChangeTap"
+        >
+          {{showPhoneRequestForm ? cancelPhoneChangeText : phoneChangeText}}
+        </van-button>
+      </view>
+      <van-button
+        custom-class="save-profile-button"
+        type="primary"
+        loading="{{savingProfile}}"
+        bind:tap="onSaveProfile"
+      >
+        {{saveProfileText}}
+      </van-button>
+    </view>
+
+    <view wx:if="{{showPhoneRequestForm}}" class="bind-form">
+      <van-field
+        value="{{requestPhone}}"
+        label="{{phoneChangeNewLabel}}"
+        placeholder="{{phoneChangeNewPlaceholder}}"
+        type="number"
+        bind:change="onRequestPhoneFieldChange"
+        input-align="right"
+      />
+      <van-field
+        value="{{requestPhoneReason}}"
+        label="{{changeReasonLabel}}"
+        placeholder="{{changeReasonPlaceholder}}"
+        type="textarea"
+        autosize
+        bind:change="onRequestPhoneReasonChange"
+      />
+      <van-button
+        custom-class="bind-button"
+        type="primary"
+        loading="{{requestingChange}}"
+        bind:tap="onSavePhoneChangeRequest"
+      >
+        {{savePhoneChangeText}}
+      </van-button>
+    </view>
+
+    <view class="school-card">
+      <view class="student-id-row">
+          <van-field
+            class="student-id-field"
+            label="{{studentIdLabel}}"
+            value="{{studentId}}"
+            placeholder="{{studentIdPlaceholder}}"
+            disabled
+          />
+        <van-button
+          wx:if="{{!isStudentBound}}"
+          custom-class="detail-action"
+          type="primary"
+          bind:tap="onBindStudentIdTap"
+        >
+          {{bindStudentIdText}}
+        </van-button>
+        <van-button
+          wx:elif="{{isStudentBound}}"
+          custom-class="detail-action"
+          type="{{showRequestForm ? 'warning' : 'info'}}"
+          plain="{{!showRequestForm}}"
+          bind:tap="onRequestChangeTap"
+        >
+          {{showRequestForm ? cancelStudentIdChangeText : requestChangeText}}
+        </van-button>
+      </view>
+      <view wx:if="{{isStudentBound}}" class="tip-box">
+        <uni-icon type="vant" name="info-o" size="24" color="#64748b" />
+        <text class="tip-text">{{requestChangeHint}}</text>
+      </view>
+    </view>
+    <view wx:if="{{showBindForm}}" class="bind-form">
+      <van-field
+        value="{{bindName}}"
         label="{{nameLabel}}"
         placeholder="{{nameLabel}}"
-        bind:change="onNameChange"
-        maxlength="30"
+        bind:change="onBindNameChange"
       />
       <van-field
-        value="{{form.phone}}"
-        label="{{phoneLabel}}"
-        placeholder="{{phonePlaceholder}}"
-        bind:change="onPhoneChange"
-        maxlength="20"
+        value="{{bindStudentId}}"
+        label="{{studentIdLabel}}"
+        placeholder="{{studentIdPlaceholder}}"
+        bind:change="onBindStudentIdChange"
       />
-    </van-cell-group>
-  </view>
+      <van-button
+        custom-class="bind-button"
+        type="primary"
+        loading="{{binding}}"
+        bind:tap="onSaveBinding"
+      >
+        {{bindStudentIdText}}
+      </van-button>
+    </view>
 
-  <van-button
-    custom-class="save-button"
-    type="primary"
-    block
-    loading="{{saving}}"
-    bind:click="onSave"
-  >
-    {{saveText}}
-  </van-button>
+    <view wx:if="{{showRequestForm}}" class="bind-form">
+      <van-field
+        value="{{requestRealName}}"
+        label="{{nameLabel}}"
+        placeholder="{{nameLabel}}"
+        bind:change="onRequestRealNameChange"
+      />
+      <van-field
+        value="{{requestStudentId}}"
+        label="{{studentIdLabel}}"
+        placeholder="{{studentIdPlaceholder}}"
+        bind:change="onRequestStudentIdChange"
+      />
+      <van-field
+        value="{{requestReason}}"
+        label="{{changeReasonLabel}}"
+        placeholder="{{changeReasonPlaceholder}}"
+        type="textarea"
+        autosize
+        bind:change="onRequestReasonChange"
+      />
+      <van-button
+        custom-class="bind-button"
+        type="primary"
+        loading="{{requestingChange}}"
+        bind:tap="onSaveChangeRequest"
+      >
+        {{requestChangeText}}
+      </van-button>
+    </view>
+
+  </view>
 </view>

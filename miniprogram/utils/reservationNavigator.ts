@@ -1,6 +1,12 @@
 const PENDING_RESERVATION_PARAMS_KEY = 'reservation_pending_params';
 
-export type ReservationPendingParams = Record<string, any>;
+export type ReservationPendingParams = Record<string, any> & {
+  date?: string;
+  timeSlotId?: string;
+  timeSlotName?: string;
+  startTime?: string;
+  endTime?: string;
+};
 
 export function setPendingReservationParams(params: ReservationPendingParams) {
   wx.setStorageSync(PENDING_RESERVATION_PARAMS_KEY, params);

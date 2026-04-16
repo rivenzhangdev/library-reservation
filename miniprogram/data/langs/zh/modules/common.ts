@@ -22,6 +22,7 @@ export default {
   'common.btn.checkOut': '签退',
   'common.btn.renew': '续约',
   'common.btn.retry': '重试',
+  'common.btn.refresh': '刷新',
 
   // 状态通用文案
   'common.status.all': '全部',

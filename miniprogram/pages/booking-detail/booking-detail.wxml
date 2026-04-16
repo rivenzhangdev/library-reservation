@@ -4,86 +4,47 @@
 
 <view class="page-container">
   <view wx:if="{{booking}}" class="hero-card">
-    <view class="hero-title">{{booking.seatName}}</view>
-    <view class="hero-subtitle">{{booking.description || t('common.empty.noDescription')}}</view>
-    <van-tag type="{{booking.statusType}}" size="large" class="hero-tag"
-      >{{booking.statusText}}</van-tag
-    >
-  </view>
+    <view class="hero-card-row">
+      <view class="hero-text">
+        <text class="hero-title">{{booking.seatName}}</text>
+        <text class="hero-subtitle">{{booking.description || t('common.empty.noDescription')}}</text>
+      </view>
+      <view class="hero-badges">
+        <van-tag type="{{booking.statusType}}" size="large" class="hero-status-tag"
+          >{{booking.statusText}}</van-tag
+        >
+      </view>
+    </view>
+    <view class="hero-meta-row">
+      <view class="hero-meta-item">
+        <text class="hero-meta-label">{{t('myReservation.field.bookingDate')}}</text>
+        <text class="hero-meta-value">{{booking.date}}</text>
+      </view>
+      <view class="hero-meta-item">
+        <text class="hero-meta-label">{{t('myReservation.field.bookingTime')}}</text>
+        <text class="hero-meta-value">{{booking.startTime}} - {{booking.endTime}}</text>
+      </view>
+    </view>
 
-  <view wx:if="{{booking}}" class="section-card">
-    <view class="section-title">{{t('myReservation.detail.seatInfo')}}</view>
-    <view class="info-row"
-      ><text class="label">{{t('common.field.floor')}}</text
-      ><text>{{booking.floorName}}</text></view
-    >
-    <view class="info-row"
-      ><text class="label">{{t('common.field.zone')}}</text><text>{{booking.zone}}</text></view
-    >
-    <view class="info-row"
-      ><text class="label">{{t('common.field.type')}}</text><text>{{booking.type}}</text></view
-    >
-    <view class="info-row"
-      ><text class="label">{{t('common.field.facilities')}}</text
-      ><text
-        >{{booking.facilities.length ? booking.facilities.join(' / ') :
-        t('common.empty.noDescription')}}</text
-      ></view
-    >
-  </view>
+    <view class="hero-attr-row">
+      <view class="hero-attr-item">
+        <text class="hero-attr-label">{{t('myReservation.field.region')}}</text>
+        <text class="hero-attr-value">{{booking.regionLabel}}</text>
+      </view>
+      <view class="hero-attr-item">
+        <text class="hero-attr-label">{{t('myReservation.field.seatType')}}</text>
+        <text class="hero-attr-value">{{booking.seatType}}</text>
+      </view>
+      <view wx:if="{{booking.signInTime}}" class="hero-attr-item">
+        <text class="hero-attr-label">{{t('myReservation.field.signInTime')}}</text>
+        <text class="hero-attr-value">{{booking.signInTime}}</text>
+      </view>
+    </view>
 
-  <view wx:if="{{booking}}" class="section-card">
-    <view class="section-title">{{t('myReservation.detail.bookingInfo')}}</view>
-    <view class="info-row"
-      ><text class="label">{{t('common.field.date')}}</text><text>{{booking.date}}</text></view
-    >
-    <view class="info-row"
-      ><text class="label">{{t('common.field.time')}}</text
-      ><text>{{booking.startTime}} - {{booking.endTime}}</text></view
-    >
-    <view class="info-row"
-      ><text class="label">{{t('myReservation.time.period')}}</text
-      ><text>{{booking.timeSlotText}}</text></view
-    >
-    <view class="info-row"
-      ><text class="label">{{t('common.field.status')}}</text
-      ><text>{{booking.statusText}}</text></view
-    >
-  </view>
-
-  <view wx:if="{{booking}}" class="section-card">
-    <view class="section-title">{{t('myReservation.detail.auditInfo')}}</view>
-    <view class="info-row"
-      ><text class="label">{{t('common.field.publisher')}}</text
-      ><text>{{booking.createdByName || '-'}}</text></view
-    >
-    <view class="info-row"
-      ><text class="label">{{t('common.field.updatedBy')}}</text
-      ><text>{{booking.updatedByName || '-'}}</text></view
-    >
-    <view class="info-row"
-      ><text class="label">{{t('common.field.createdAt')}}</text
-      ><text>{{booking.createdAt || '-'}}</text></view
-    >
-    <view class="info-row"
-      ><text class="label">{{t('common.field.updatedAt')}}</text
-      ><text>{{booking.updatedAt || '-'}}</text></view
-    >
-  </view>
-
-  <view wx:if="{{booking}}" class="action-bar">
-    <van-button wx:if="{{booking.canCheckin}}" type="primary" round bind:tap="onCheckin"
-      >{{t('myReservation.action.checkin')}}</van-button
-    >
-    <van-button wx:if="{{booking.canCheckout}}" type="primary" round bind:tap="onCheckout"
-      >{{t('actions.checkout')}}</van-button
-    >
-    <van-button wx:if="{{booking.canRenew}}" type="primary" round bind:tap="onRenew"
-      >{{t('myReservation.action.renew')}}</van-button
-    >
-    <van-button wx:if="{{booking.canCancel}}" plain round bind:tap="onCancel"
-      >{{t('common.btn.cancel')}}</van-button
-    >
+    <view class="hero-actions">
+      <van-button wx:if="{{booking.canRenew}}" type="primary" round bind:tap="onRenew">{{t('myReservation.action.renew')}}</van-button>
+      <van-button wx:if="{{booking.canCancel}}" plain round bind:tap="onCancel">{{t('myReservation.action.cancel')}}</van-button>
+    </view>
   </view>
 
   <view wx:if="{{!booking}}" class="empty-state">

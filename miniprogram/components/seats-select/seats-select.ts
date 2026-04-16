@@ -1,3 +1,5 @@
+import * as dayjsImport from 'dayjs';
+const dayjs = (dayjsImport as any).default || dayjsImport;
 import { Seat, SeatsSelectData } from '../../types/seats-select.types';
 import { t } from '../../utils/i18n';
 
@@ -35,6 +37,21 @@ Component({
       type: String,
       value: 'zh',
     },
+    // 当前日期，用于获取座位当天时段状态
+    selectedDate: {
+      type: String,
+      value: '',
+    },
+    // 当前所选时间段
+    currentTimePeriod: {
+      type: String,
+      value: 'morning',
+    },
+    // 时间段配置
+    timePeriods: {
+      type: Array,
+      value: [],
+    },
   },
 
   /**
@@ -45,6 +62,21 @@ Component({
     rows: 0,
     cols: 0,
     gridWidth: 0,
+    seatMatrix: [] as Array<Array<Seat | null>>,
+    activeSeatId: '',
+    activeSeat: null,
+    seatTooltipStyle: '',
+    seatTooltipArrowStyle: '',
+    tooltipDirection: 'down',
+    seatTooltipHeader: '',
+    seatTooltipStatus: '',
+    seatTooltipRows: [] as Array<{
+      key: string;
+      label: string;
+      timeLabel: string;
+      statusText: string;
+      type: string;
+    }>,
 
     // 多语言文本
     seatMapTitle: '',
@@ -119,6 +151,10 @@ Component({
         this.initLanguage();
       }
     },
+
+    selectedDate(newDate: string) {
+      console.log('[seats-select] selectedDate changed:', newDate);
+    },
   },
 
   /**
@@ -137,25 +173,53 @@ Component({
           cols: 0,
           seatSize: 80,
           gridWidth: 0,
+          seatMatrix: [],
         });
         return;
       }
 
-      // 获取实际最大行列数
-      const rows = Math.max(...seats.map((seat) => seat.row));
-      const cols = Math.max(...seats.map((seat) => seat.col));
+      const normalizeCoordinate = (value: any) => {
+        const numberValue = Number(value);
+        return Number.isFinite(numberValue) && numberValue > 0 ? numberValue : 1;
+      };
 
-      // 计算最佳座位大小（考虑屏幕宽度，并避免座位过大导致布局过空）
-      const gap = 8; // var(--common-spacing-sm) = 8rpx
-      const availableWidth = 750 - 128; // 750rpx 设计稿宽度，减去左右边距 128rpx
-      const computedSize = Math.floor((availableWidth - (cols - 1) * gap) / cols);
-      const seatSize = Math.min(Math.max(computedSize, 80), 110); // 保持座位大小在 80~110rpx 范围内
+      // 获取实际行列区间，去除完全空白的前置/后置行列
+      const rows = seats.map((seat) => normalizeCoordinate(seat.row));
+      const cols = seats.map((seat) => normalizeCoordinate(seat.col));
+      const minRow = Math.min(...rows);
+      const maxRow = Math.max(...rows);
+      const minCol = Math.min(...cols);
+      const maxCol = Math.max(...cols);
+      const safeRows = Math.max(maxRow - minRow + 1, 1);
+      const safeCols = Math.max(maxCol - minCol + 1, 1);
+
+      // 固定座位大小，不再动态计算宽高
+      const gap = 6;
+      const seatSize = 80;
+
+      const sortedSeats = [...seats].sort((a, b) => {
+        const rowA = normalizeCoordinate(a.row);
+        const rowB = normalizeCoordinate(b.row);
+        if (rowA !== rowB) return rowA - rowB;
+        return normalizeCoordinate(a.col) - normalizeCoordinate(b.col);
+      });
+      const seatMatrix: Array<Array<Seat | null>> = Array.from({ length: safeRows }, () =>
+        Array.from({ length: safeCols }, () => null)
+      );
+      sortedSeats.forEach((seat) => {
+        const rowIndex = normalizeCoordinate(seat.row) - minRow;
+        const colIndex = normalizeCoordinate(seat.col) - minCol;
+        if (rowIndex >= 0 && rowIndex < safeRows && colIndex >= 0 && colIndex < safeCols) {
+          seatMatrix[rowIndex][colIndex] = seat;
+        }
+      });
 
       this.setData({
-        rows,
-        cols,
+        rows: safeRows,
+        cols: safeCols,
         seatSize,
-        gridWidth: cols * seatSize + (cols - 1) * gap, // 座位总宽 + gap 总宽
+        gridWidth: safeCols * seatSize + (safeCols - 1) * gap,
+        seatMatrix,
       });
     },
 
@@ -163,10 +227,14 @@ Component({
      * 处理座位点击
      */
     handleSeatClick(e: any) {
+      e.stopPropagation?.();
       if (this.data.disabled) {
         console.log('座位选择已禁用');
         return;
       }
+
+      // 点击任何座位时，先隐藏当前 tooltip，避免旧 tooltip 残留
+      this.hideSeatTooltip();
 
       const seatId = e.currentTarget.dataset.id;
       const seat = this.data.seats.find((s) => s.id === seatId);
@@ -178,21 +246,57 @@ Component({
 
       console.log('点击座位:', seatId, '状态:', seat.status);
 
-      const query = this.createSelectorQuery();
-      query.select(`#${seatId}`).boundingClientRect();
-      query.selectViewport().scrollOffset();
-      query.exec((res: any[]) => {
-        const rect = res && res[0] ? res[0] : null;
-        this.triggerEvent('seatTap', {
-          seatId: seat.id,
-          seat: seat,
-          rect,
-        });
-      });
+      const seatTooltipRows = this.buildTooltipRows(seat);
+      const hasBookedRows =
+        Array.isArray(seatTooltipRows) && seatTooltipRows.some((row) => row.type === 'booked');
+      const tooltipHeaderKey = hasBookedRows
+        ? 'reservation.info.bookedTimeRange'
+        : 'reservation.info.timeRange';
+      const tooltipStatus = this.buildTooltipStatus(seat);
+
+      this.setData(
+        {
+          activeSeatId: seat.id,
+          activeSeat: seat,
+          seatTooltipHeader: t(tooltipHeaderKey),
+          seatTooltipStatus: tooltipStatus,
+          seatTooltipRows,
+          seatTooltipStyle: 'visibility:hidden;',
+        },
+        () => {
+          const query = this.createSelectorQuery();
+          query.select('#seatMapContainer').boundingClientRect();
+          query.select(`#seat-${seatId}`).boundingClientRect();
+          query.select('.seat-tooltip').boundingClientRect();
+          query.exec((res: any[]) => {
+            const wrapperRect = res && res[0] ? res[0] : null;
+            const rect = res && res[1] ? res[1] : null;
+            const tooltipRect = res && res[2] ? res[2] : null;
+            if (wrapperRect && rect && tooltipRect) {
+              const positioning = this.computeTooltipPosition(
+                rect,
+                wrapperRect,
+                seatTooltipRows.length,
+                tooltipRect
+              );
+              this.setData({
+                seatTooltipStyle: `${positioning.style} visibility: visible;`,
+                seatTooltipArrowStyle: positioning.arrowStyle,
+                tooltipDirection: positioning.direction,
+              });
+            }
+
+            this.triggerEvent('seatTap', {
+              seatId: seat.id,
+              seat: seat,
+              rect,
+            });
+          });
+        }
+      );
 
       // 不能选择已预约、维修中的座位
       if (seat.status === 'booked' || seat.status === 'maintenance') {
-        // 触发表单错误事件
         this.triggerEvent('error', {
           seatId: seat.id,
           message: '该座位无法选择',
@@ -207,11 +311,317 @@ Component({
       });
     },
 
+    hideSeatTooltip() {
+      if (!this.data.activeSeat) return;
+      this.setData({
+        activeSeatId: '',
+        activeSeat: null,
+        seatTooltipStyle: '',
+        seatTooltipArrowStyle: '',
+        seatTooltipHeader: '',
+        seatTooltipRows: [],
+        seatTooltipStatus: '',
+      });
+    },
+
+    handleGridScroll() {
+      if (!this.data.activeSeatId) {
+        return;
+      }
+      this.updateTooltipPosition();
+    },
+
+    updateTooltipPosition() {
+      const seatId = this.data.activeSeatId;
+      if (!seatId) {
+        return;
+      }
+      const query = this.createSelectorQuery();
+      query.select('#seatMapContainer').boundingClientRect();
+      query.select(`#seat-${seatId}`).boundingClientRect();
+      query.exec((res: any[]) => {
+        const wrapperRect = res && res[0] ? res[0] : null;
+        const rect = res && res[1] ? res[1] : null;
+        if (wrapperRect && rect) {
+          const positioning = this.computeTooltipPosition(
+            rect,
+            wrapperRect,
+            this.data.seatTooltipRows.length
+          );
+          this.setData({
+            seatTooltipStyle: positioning.style,
+            seatTooltipArrowStyle: positioning.arrowStyle,
+            tooltipDirection: positioning.direction,
+          });
+        }
+      });
+    },
+
+    buildTooltipDescription(seat: Seat) {
+      const features = [];
+      if (seat.hasSocket) {
+        features.push(t('common.seat.facilities.power'));
+      }
+      if (seat.isWindow) {
+        features.push(t('common.seat.facilities.window'));
+      }
+      if (seat.zone) {
+        features.push(seat.zone);
+      }
+      if (features.length > 0) {
+        return features.join(' · ');
+      }
+      return t('reservation.seatMap.tooltip.basic');
+    },
+
+    buildTooltipStatus(seat: Seat) {
+      if (seat.status === 'maintenance' || (seat.status === 'booked' && !seat.isMine)) {
+        return t('common.status.booked');
+      }
+      if (seat.status === 'selected' || seat.isMine) {
+        return t('common.status.selected');
+      }
+      return t('common.status.available');
+    },
+
+    buildTooltipRows(seatDetail: any) {
+      const timePeriods =
+        Array.isArray(this.data.timePeriods) && this.data.timePeriods.length > 0
+          ? this.data.timePeriods
+          : [
+              {
+                value: 'morning',
+                label: t('reservation.time.period.morning'),
+                start: '08:00',
+                end: '12:00',
+              },
+              {
+                value: 'afternoon',
+                label: t('reservation.time.period.afternoon'),
+                start: '13:00',
+                end: '17:00',
+              },
+              {
+                value: 'evening',
+                label: t('reservation.time.period.evening'),
+                start: '18:00',
+                end: '22:00',
+              },
+            ];
+
+      const bookings = Array.isArray(seatDetail.bookings) ? seatDetail.bookings : [];
+      const rows: Array<any> = [];
+      const currentTimePeriod = this.data.currentTimePeriod || '';
+      const isMineSeat = seatDetail.isMine === true;
+
+      const normalizeTimeValue = (value: any) => {
+        if (value === null || value === undefined) return '';
+        const parsed = dayjs(value);
+        if (parsed.isValid()) {
+          return parsed.format('HH:mm');
+        }
+        const trimmed = String(value).trim();
+        const match = trimmed.match(/^(\d{2}:\d{2})/);
+        return match ? match[1] : trimmed;
+      };
+
+      const formatInterval = (start: string, end: string) =>
+        `${normalizeTimeValue(start)}-${normalizeTimeValue(end)}`;
+      const statusLabel = (status: string) =>
+        status === 'booked' || status === 'mine'
+          ? t('common.status.booked')
+          : status === 'maintenance'
+            ? t('common.status.maintenance')
+            : t('common.status.available');
+
+      const compareTime = (a: string, b: string) => {
+        const normalizedA = normalizeTimeValue(a);
+        const normalizedB = normalizeTimeValue(b);
+        return normalizedA < normalizedB ? -1 : normalizedA > normalizedB ? 1 : 0;
+      };
+
+      const bookingMatchesPeriod = (booking: any, period: any) => {
+        const bookingSlot = String(booking.timeSlot ?? '').trim();
+        const periodValue = String(period.value ?? '').trim();
+        const periodSlot = String(period.timeSlot ?? '').trim();
+        if (bookingSlot && (bookingSlot === periodValue || bookingSlot === periodSlot)) {
+          return true;
+        }
+        if (booking.startTime && booking.endTime) {
+          const start = String(booking.startTime);
+          const end = String(booking.endTime);
+          return !(compareTime(end, period.start) <= 0 || compareTime(start, period.end) >= 0);
+        }
+        return false;
+      };
+
+      if (bookings.length === 0 && !seatDetail.timeSlotStatus) {
+        const statusMap: Record<string, string> = {
+          '0': 'available',
+          '1': 'booked',
+          '2': 'maintenance',
+          available: 'available',
+          booked: 'booked',
+          maintenance: 'maintenance',
+        };
+        const seatStatus = statusMap[String(seatDetail.status)] || 'available';
+        timePeriods.forEach((period: any) => {
+          const isCurrentBooked = seatStatus === 'booked' && period.value === currentTimePeriod;
+          const type =
+            seatStatus === 'maintenance'
+              ? 'maintenance'
+              : isCurrentBooked
+                ? isMineSeat
+                  ? 'mine'
+                  : 'booked'
+                : 'available';
+          rows.push({
+            key: period.value,
+            label: period.label,
+            timeLabel: formatInterval(period.start, period.end),
+            statusText: statusLabel(type),
+            type,
+          });
+        });
+        return rows;
+      }
+
+      timePeriods.forEach((period: any) => {
+        const periodBookings = bookings
+          .filter((booking: any) => bookingMatchesPeriod(booking, period))
+          .map((booking: any) => ({
+            startTime: booking.startTime || period.start,
+            endTime: booking.endTime || period.end,
+            status: 'booked',
+          }))
+          .sort((a: any, b: any) => compareTime(a.startTime, b.startTime));
+
+        if (periodBookings.length > 0) {
+          let currentStart = period.start;
+          periodBookings.forEach((booking: any, index: number) => {
+            if (compareTime(currentStart, booking.startTime) < 0) {
+              rows.push({
+                key: `${period.value}-avail-${index}`,
+                label: period.label,
+                timeLabel: formatInterval(currentStart, booking.startTime),
+                statusText: statusLabel('available'),
+                type: 'available',
+              });
+            }
+            rows.push({
+              key: `${period.value}-booked-${index}`,
+              label: period.label,
+              timeLabel: formatInterval(booking.startTime, booking.endTime),
+              statusText: statusLabel(booking.status),
+              type:
+                booking.status === 'available'
+                  ? 'available'
+                  : booking.status === 'maintenance'
+                    ? 'maintenance'
+                    : isMineSeat
+                      ? 'mine'
+                      : 'booked',
+            });
+            currentStart = booking.endTime;
+          });
+          if (compareTime(currentStart, period.end) < 0) {
+            rows.push({
+              key: `${period.value}-avail-end`,
+              label: period.label,
+              timeLabel: formatInterval(currentStart, period.end),
+              statusText: statusLabel('available'),
+              type: 'available',
+            });
+          }
+        } else {
+          const status = String(seatDetail.timeSlotStatus?.[period.value] ?? 'available');
+          rows.push({
+            key: period.value,
+            label: period.label,
+            timeLabel: formatInterval(period.start, period.end),
+            statusText: statusLabel(status),
+            type:
+              status === 'available' || status === '0'
+                ? 'available'
+                : status === 'maintenance' || status === '2'
+                  ? 'maintenance'
+                  : isMineSeat
+                    ? 'mine'
+                    : 'booked',
+          });
+        }
+      });
+
+      return rows;
+    },
+
+    computeTooltipPosition(
+      rect: any,
+      wrapperRect: any,
+      rowCount: number = 0,
+      tooltipRect?: { width: number; height: number }
+    ) {
+      const cardWidth = tooltipRect?.width ?? Math.min(this.data.seatSize * 2 + 20, 220);
+      const cardHeight = tooltipRect?.height ?? 140 + Math.max(rowCount, 1) * 58;
+      const offsetX = rect.left - wrapperRect.left;
+      const offsetY = rect.top - wrapperRect.top;
+      const centerX = offsetX + rect.width / 2;
+      const centerY = offsetY + rect.height / 2;
+      const margin = 12;
+      const maxLeft = Math.max(wrapperRect.width - cardWidth - margin, margin);
+      const maxTop = Math.max(wrapperRect.height - cardHeight - margin, margin);
+
+      const canPlaceRight = wrapperRect.width - (offsetX + rect.width) - margin > cardWidth;
+      const canPlaceLeft = offsetX - margin > cardWidth;
+      const shouldUseRight = offsetX < cardWidth + margin && canPlaceRight;
+      const shouldUseLeft =
+        wrapperRect.width - (offsetX + rect.width) < cardWidth + margin && canPlaceLeft;
+
+      let tooltipLeft = 0;
+      let tooltipTop = 0;
+      let direction: 'left' | 'right' | 'up' | 'down' = 'down';
+
+      if (shouldUseRight) {
+        tooltipLeft = Math.min(offsetX + rect.width + margin, maxLeft);
+        tooltipTop = Math.min(Math.max(centerY - cardHeight / 2, margin), maxTop);
+        direction = 'left';
+      } else if (shouldUseLeft) {
+        tooltipLeft = Math.max(offsetX - cardWidth - margin, margin);
+        tooltipTop = Math.min(Math.max(centerY - cardHeight / 2, margin), maxTop);
+        direction = 'right';
+      } else {
+        const belowTop = offsetY + rect.height + margin;
+        const aboveTop = offsetY - cardHeight - margin;
+        const useAbove = belowTop + cardHeight > wrapperRect.height;
+        tooltipTop = useAbove
+          ? Math.max(margin, aboveTop)
+          : Math.min(Math.max(belowTop, margin), maxTop);
+        direction = useAbove ? 'up' : 'down';
+        tooltipLeft = Math.min(Math.max(centerX - cardWidth / 2, margin), maxLeft);
+      }
+
+      const arrowPadding = 18;
+      const arrowStyle =
+        direction === 'left' || direction === 'right'
+          ? `top: ${Math.min(Math.max(centerY - tooltipTop, arrowPadding), cardHeight - arrowPadding)}px;`
+          : `left: ${Math.min(Math.max(centerX - tooltipLeft, arrowPadding), cardWidth - arrowPadding)}px;`;
+
+      return {
+        style: `left: ${tooltipLeft}px; top: ${tooltipTop}px; width: ${cardWidth}px;`,
+        direction,
+        arrowStyle,
+      };
+    },
+
+    noop() {
+      // 用于阻止 tooltip 内部点击冒泡，避免外部容器隐藏弹窗
+    },
+
     /**
      * 判断座位是否可选择
      */
     isSeatSelectable(seat: Seat): boolean {
-      return seat.status === 'available' || seat.status === 'selected' || seat.status === 'mine';
+      return seat.status === 'available' || seat.status === 'selected';
     },
 
     /**

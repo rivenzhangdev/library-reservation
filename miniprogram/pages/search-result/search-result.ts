@@ -3,6 +3,7 @@ import { searchSeats } from '../../apis/seats';
 import { t, getLangClassName } from '../../utils/i18n';
 import { openReservationWithParams } from '../../utils/reservationNavigator';
 import { sortBySeatPosition } from '../../utils/sort';
+import { getToday } from '../../utils/time';
 
 function decodeKeyword(value?: string) {
   if (!value) return '';
@@ -183,6 +184,7 @@ Page({
       floor: seatInfo?.floor,
       type: seatInfo?.type,
       facilities: (seatInfo?.facilities || []).join(','),
+      date: getToday(),
     });
   },
 

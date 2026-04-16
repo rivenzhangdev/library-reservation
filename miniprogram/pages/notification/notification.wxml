@@ -46,26 +46,53 @@
 
   <!-- 通知列表 -->
   <view class="notification-list">
-    <content-card
+    <view
       wx:for="{{notificationList}}"
       wx:key="id"
-      mode="message"
-      type="{{item.type}}"
-      icon="{{item.icon}}"
-      title="{{item.title}}"
-      time="{{item.time}}"
-      desc="{{item.content}}"
-      show-view-detail="{{true}}"
-      show-mark-read="{{!item.isRead}}"
-      show-delete="{{true}}"
-      view-detail-text="{{viewDetailText}}"
-      mark-read-text="{{markReadText}}"
-      btn-data-id="{{item.id}}"
-      custom-class="notification-item"
-      enable-hover="{{false}}"
-      bind:tap="onCardTap"
-      bind:actionTap="onActionTap"
-    />
+      class="notification-item-card {{!item.isRead ? 'notification-item-card--unread' : ''}}"
+    >
+      <view class="notification-item-header">
+        <view class="notification-item-title-group">
+          <text class="notification-item-title">{{item.title}}</text>
+          <text class="notification-item-subtitle">{{item.content}}</text>
+        </view>
+        <van-tag type="primary" size="small" class="notification-item-tag">
+          {{item.typeText}}
+        </van-tag>
+      </view>
+      <view class="notification-item-info">
+        <text class="notification-item-time">{{item.time}}</text>
+      </view>
+      <view class="notification-item-actions">
+        <text
+          class="notification-action"
+          data-id="{{item.id}}"
+          data-action="viewDetail"
+          bindtap="onActionTap"
+        >
+          {{viewDetailText}}
+        </text>
+        <text
+          wx:if="{{!item.isRead}}"
+          class="notification-action"
+          data-id="{{item.id}}"
+          data-action="markRead"
+          bindtap="onActionTap"
+        >
+          {{markReadText}}
+        </text>
+        <uni-icon
+          type="vant"
+          name="delete-o"
+          size="34"
+          color="#999"
+          bindtap="onActionTap"
+          data-action="delete"
+          data-id="{{item.id}}"
+          class="notification-delete-icon"
+        />
+      </view>
+    </view>
 
     <!-- 空状态提示 -->
     <view class="empty-state" wx:if="{{notificationList.length === 0}}">

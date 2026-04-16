@@ -1,6 +1,6 @@
 // 活动页面中文语言包
 export default {
-  'activity.title': '我的活动',
+  'activity.title': '活动列表',
   'activity.search.placeholder': '搜索活动',
   'activity.status.registered': '已报名',
   'activity.status.ended': '已结束',

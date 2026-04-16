@@ -1,4 +1,4 @@
-<view class="seat-map-container">
+<view class="seat-map-container" id="seatMapContainer">
   <view class="seat-map-header">
     <view class="flex items-center">
       <text class="iconfont icon-chair seat-icon"></text>
@@ -7,7 +7,7 @@
     </view>
   </view>
 
-  <view class="seat-map-content">
+  <view class="seat-map-content" bindtap="hideSeatTooltip">
     <!-- 座位网格区域（可滚动） -->
     <view wx:if="{{seats.length === 0}}" class="seat-grid empty-state-wrapper">
       <view class="empty-state">
@@ -19,9 +19,10 @@
     <scroll-view
       wx:elif="{{seats.length > 0}}"
       scroll-x="{{true}}"
-      scroll-y="{{false}}"
+      scroll-y="{{true}}"
       class="seat-grid-container"
       show-scrollbar="{{false}}"
+      bindscroll="handleGridScroll"
     >
       <view class="seat-grid" style="width: {{gridWidth}}rpx;">
         <!-- 座位网格 -->
@@ -29,29 +30,55 @@
           class="grid-layout"
           style="grid-template-columns: repeat({{cols}}, {{seatSize}}rpx); grid-template-rows: repeat({{rows}}, {{seatSize}}rpx);"
         >
-          <view
-            wx:for="{{seats}}"
-            wx:key="id"
-            id="{{item.id}}"
-            class="seat-item seat-{{item.status}}"
-            style="width: {{seatSize}}rpx; height: {{seatSize}}rpx;"
-            data-id="{{item.id}}"
-            bindtap="handleSeatClick"
-          >
-            <!-- 座位号 -->
-            <text class="seat-number">{{item.row}}-{{item.col}}</text>
-
-            <!-- 插座图标 -->
-            <view wx:if="{{item.hasSocket}}" class="socket-icon">
-              <text class="iconfont icon-plug"></text>
-            </view>
-
-            <!-- 靠窗标记 -->
-            <view wx:if="{{item.isWindow}}" class="window-label">{{seatMapWindow}}</view>
-          </view>
+          <block wx:for="{{seatMatrix}}" wx:for-item="row" wx:key="index">
+            <block wx:for="{{row}}" wx:for-item="cell" wx:key="index">
+              <view
+                wx:if="{{cell}}"
+                id="seat-{{cell.id}}"
+                class="seat-item seat-{{cell.status}} {{cell.isMine ? 'seat-mine' : ''}} {{activeSeatId === cell.id ? 'seat-item--active' : ''}}"
+                style="width: {{seatSize}}rpx; height: {{seatSize}}rpx;"
+                data-id="{{cell.id}}"
+                catchtap="handleSeatClick"
+              >
+                <text class="seat-number">{{cell.row}}-{{cell.col}}</text>
+                <view wx:if="{{cell.hasSocket}}" class="socket-icon">
+                  <text class="iconfont icon-plug"></text>
+                </view>
+                <view wx:if="{{cell.isWindow}}" class="window-label">{{seatMapWindow}}</view>
+              </view>
+              <view
+                wx:elif="{{!cell}}"
+                class="seat-item seat-empty"
+                style="width: {{seatSize}}rpx; height: {{seatSize}}rpx;"
+              />
+            </block>
+          </block>
         </view>
       </view>
     </scroll-view>
+
+    <view wx:if="{{activeSeat}}" class="seat-tooltip" style="{{seatTooltipStyle}}" catchtap="noop">
+      <view class="seat-tooltip-arrow {{tooltipDirection}}" style="{{seatTooltipArrowStyle}}"></view>
+      <view class="seat-tooltip-panel">
+        <view class="seat-tooltip-header-row">
+          <view class="seat-tooltip-header-dot seat-tooltip-header-dot-{{activeSeat.isMine ? 'mine' : activeSeat.status}}"></view>
+          <text class="seat-tooltip-header">{{seatTooltipHeader}}</text>
+        </view>
+        <text class="seat-tooltip-title">{{activeSeat.zone || '区'}} {{activeSeat.row}} - {{activeSeat.col}}</text>
+        <view wx:if="{{activeSeat.tags && activeSeat.tags.length > 0}}" class="seat-tooltip-tags">
+          <text wx:for="{{activeSeat.tags}}" wx:key="index" class="seat-tooltip-tag">{{item}}</text>
+        </view>
+        <text wx:if="{{seatTooltipRows.length === 0}}" class="seat-tooltip-status">{{seatTooltipStatus}}</text>
+        <block wx:for="{{seatTooltipRows}}" wx:key="key">
+          <view class="seat-tooltip-row seat-tooltip-row-{{item.type}}">
+            <text class="seat-tooltip-row-label">{{item.label}}</text>
+            <text class="seat-tooltip-row-time">{{item.timeLabel}}</text>
+            <text class="seat-tooltip-row-status">{{item.statusText}}</text>
+          </view>
+        </block>
+        <text wx:if="{{seatTooltipRows.length === 0}}" class="seat-tooltip-desc">{{seatTooltipDescription}}</text>
+      </view>
+    </view>
 
     <view class="legend-container">
       <view class="legend-item">

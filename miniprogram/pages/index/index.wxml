@@ -175,7 +175,7 @@
         mode="card"
         name="{{item.seatName}}"
         statusText="{{item.statusText}}"
-        attributes="{{[item.seatLabel, item.seatType, item.distance]}}"
+        attributes="{{item.attributes}}"
         showFooter="{{true}}"
         clickable="{{false}}"
       >
@@ -190,8 +190,17 @@
             >
               {{reserveButtonText}}
             </van-button>
-            <view class="seat-footer__favorite" bind:tap="onSeatFavorite" data-index="{{index}}">
-              <uni-icon type="vant" name="star-o" size="32" />
+            <view
+              class="seat-footer__favorite {{item.isFavorite ? 'active' : ''}}"
+              bind:tap="onSeatFavorite"
+              data-index="{{index}}"
+            >
+              <uni-icon
+                type="vant"
+                name="{{item.isFavorite ? 'star' : 'star-o'}}"
+                size="32"
+                color="{{item.isFavorite ? '#f59e0b' : '#909399'}}"
+              />
             </view>
           </view>
           <view class="seat-footer__arrow" bind:tap="onSeatReserve" data-index="{{index}}">

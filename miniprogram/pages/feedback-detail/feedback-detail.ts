@@ -3,19 +3,7 @@
 import { t } from '../../utils/i18n';
 import { getFeedbackDetail } from '../../apis/feedback';
 import { resolveAssetUrl } from '../../utils/assets';
-
-function formatDateTime(value?: string) {
-  if (!value) return '';
-  const date = new Date(value);
-  if (Number.isNaN(date.getTime())) return String(value);
-
-  const year = date.getFullYear();
-  const month = String(date.getMonth() + 1).padStart(2, '0');
-  const day = String(date.getDate()).padStart(2, '0');
-  const hour = String(date.getHours()).padStart(2, '0');
-  const minute = String(date.getMinutes()).padStart(2, '0');
-  return `${year}-${month}-${day} ${hour}:${minute}`;
-}
+import { toTimestamp, formatDateTime } from '../../utils/time';
 
 interface FeedbackInfo {
   id: string;
@@ -120,8 +108,8 @@ Page({
         const comments = Array.isArray(detail.comments) ? detail.comments : [];
         const officialComments = comments.filter((comment: any) => comment.isOfficial);
         const latestOfficialComment = officialComments.slice().sort((a: any, b: any) => {
-          const ta = new Date(a.date).getTime() || 0;
-          const tb = new Date(b.date).getTime() || 0;
+          const ta = toTimestamp(a.date) || 0;
+          const tb = toTimestamp(b.date) || 0;
           return tb - ta;
         })[0];
 
@@ -138,7 +126,7 @@ Page({
           userName: comment.operator || '',
           userRole: comment.isOfficial ? t('feedback.detail.official') : '',
           content: comment.content,
-          processTime: comment.date ? new Date(comment.date).toLocaleString() : '',
+          processTime: comment.date ? formatDateTime(comment.date) : '',
         }));
 
         const timelineItems: TimelineItem[] = [
@@ -180,7 +168,7 @@ Page({
           status: detail.status || 'pending',
           statusStyle: status.style,
           statusText: status.text,
-          createTime: detail.createdAt ? new Date(detail.createdAt).toLocaleString() : '',
+          createTime: detail.createdAt ? formatDateTime(detail.createdAt) : '',
           images: (detail.images || []).map((image: string) => resolveAssetUrl(image)),
           processRecords,
           timelineItems,

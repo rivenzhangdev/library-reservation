@@ -8,14 +8,6 @@
     current-status="{{currentStatus}}"
     bind:status-change="onStatusChange"
   />
-  <view class="search-wrap">
-    <van-search
-      value="{{searchValue}}"
-      shape="round"
-      placeholder="{{searchPlaceholder}}"
-      bind:change="onSearchChange"
-    />
-  </view>
 
   <view class="activity-list">
     <view wx:for="{{filteredActivities}}" wx:key="id" class="activity-item">

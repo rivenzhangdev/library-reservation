@@ -40,6 +40,8 @@ export default {
   'feedback.detail.type': 'Type',
   'feedback.detail.submitTime': 'Submitted',
   'feedback.detail.urgency': 'Urgency',
+  'feedback.chat.user': 'User Message',
+  'feedback.chat.system': 'System Reply',
   'feedback.detail.contact': 'Contact',
   'feedback.detail.content': 'Feedback Content',
   'feedback.detail.images': 'Images',

@@ -12,7 +12,7 @@
     placeholder="{{searchPlaceholder}}"
   />
 
-  <view class="result-summary">
+  <view wx:if="{{searchValue}}" class="result-summary">
     <text class="result-title">{{resultCount}} {{t('common.number.results')}}</text>
     <van-tag type="primary" size="medium">{{hintText}}</van-tag>
   </view>
