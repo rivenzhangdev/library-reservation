@@ -5,6 +5,7 @@ export default {
 
   // 楼层选择
   'reservation.floor.select': '选择楼层',
+  'reservation.floor.all': '全部楼层',
   'reservation.floor.1f': '1 楼',
   'reservation.floor.2f': '2 楼',
   'reservation.floor.3f': '3 楼',
@@ -109,4 +110,5 @@ export default {
   'reservation.status.selected': '已选择',
   'reservation.info.bookedTimeRange': '已预约时间段',
   'reservation.info.timeRange': '时间段信息',
+  'reservation.hint.reservationFailed': '预约失败，请稍后重试',
 };

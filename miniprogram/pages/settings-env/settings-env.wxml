@@ -1,6 +1,9 @@
+<page-meta>
+  <navigation-bar title="{{pageTitle}}" back="true" />
+</page-meta>
+
 <view class="page">
   <view class="section">
-    <view class="title">{{pageTitle}}</view>
     <view class="list">
       <block wx:for="{{envs}}" wx:key="key">
         <view class="item" data-key="{{item.key}}" bindtap="onEnvTap">

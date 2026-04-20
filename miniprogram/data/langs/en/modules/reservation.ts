@@ -5,6 +5,7 @@ export default {
 
   // Floor selection
   'reservation.floor.select': 'Select Floor',
+  'reservation.floor.all': 'All Floors',
   'reservation.floor.1f': '1F',
   'reservation.floor.2f': '2F',
   'reservation.floor.3f': '3F',
@@ -116,4 +117,5 @@ export default {
   'reservation.status.selected': 'Selected',
   'reservation.info.bookedTimeRange': 'Booked Time',
   'reservation.info.timeRange': 'Time Info',
+  'reservation.hint.reservationFailed': 'Reservation failed, please try again',
 };

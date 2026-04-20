@@ -4,7 +4,6 @@ import { getMyFeedbacks, submitFeedback as submitFeedbackApi } from '../../apis/
 import { uploadDataUrl } from '../../apis/upload';
 import { readLocalImageAsDataUrl } from '../../utils/file';
 import { t } from '../../utils/i18n';
-import { formatDateTime } from '../../utils/time';
 
 interface FeedbackType {
   id: string;
@@ -209,7 +208,7 @@ Page({
         limit: 20,
       });
       const raw = res?.data || {};
-      const list = Array.isArray(raw.feedbacks) ? raw.feedbacks : [];
+      const list = Array.isArray(raw.list) ? raw.list : [];
 
       const feedbackRecords: FeedbackRecord[] = list.map((record: any) => {
         const typeMeta = TYPE_MAP[Number(record.typeId)] || TYPE_MAP[4];
@@ -226,7 +225,7 @@ Page({
           : '';
 
         return {
-          id: String(record.id || record._id),
+          id: String(record.id),
           title: record.title || '-',
           description: record.description || '',
           contact: record.contact || '',
@@ -240,7 +239,7 @@ Page({
           status: String(record.status || ''),
           statusStyle: statusMeta.style,
           statusText: t(statusMeta.textKey),
-          createTime: formatDateTime(record.createdAt),
+          createTime: record.createdAt || '',
           commentsCount: Number(record.commentsCount) || 0,
         };
       });
@@ -281,15 +280,18 @@ Page({
   },
 
   onTitleChange(e: WechatMiniprogram.CustomEvent) {
-    this.setData({ title: e.detail });
+    const value = String((e.detail as any)?.value ?? e.detail ?? '');
+    this.setData({ title: value });
   },
 
   onDescriptionChange(e: WechatMiniprogram.CustomEvent) {
-    this.setData({ description: e.detail });
+    const value = String((e.detail as any)?.value ?? e.detail ?? '');
+    this.setData({ description: value });
   },
 
   onContactChange(e: WechatMiniprogram.CustomEvent) {
-    this.setData({ contact: e.detail });
+    const value = String((e.detail as any)?.value ?? e.detail ?? '');
+    this.setData({ contact: value });
   },
 
   async onImageUpload() {
@@ -350,10 +352,15 @@ Page({
   },
 
   onSubmitTap() {
-    const { selectedType, title, description } = this.data;
+    const { selectedType, selectedUrgency, title, description } = this.data;
 
     if (!selectedType) {
       wx.showToast({ title: t('feedback.toast.selectType'), icon: 'none' });
+      return;
+    }
+
+    if (!selectedUrgency) {
+      wx.showToast({ title: t('feedback.toast.selectUrgency'), icon: 'none' });
       return;
     }
 
@@ -385,7 +392,11 @@ Page({
       this.data;
 
     const typeId = FEEDBACK_TYPE_REVERSE_MAP[selectedType] || 4;
-    const urgencyId = selectedUrgency ? URGENCY_LEVEL_REVERSE_MAP[selectedUrgency] : undefined;
+    const urgencyId = URGENCY_LEVEL_REVERSE_MAP[selectedUrgency];
+    if (!urgencyId) {
+      wx.showToast({ title: t('feedback.toast.selectUrgency'), icon: 'none' });
+      return;
+    }
 
     try {
       await submitFeedbackApi({

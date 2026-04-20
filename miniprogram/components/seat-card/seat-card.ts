@@ -20,11 +20,15 @@ Component({
         name: '',
         zone: '',
         floor: '',
+        floorId: '',
         description: '',
         status: 'available', // available, booked, maintenance
         facilities: [],
+        facilityFlags: {},
         distance: '',
-        tags: [],
+        type: '',
+        typeValue: '',
+        typeLabel: '',
       },
     },
     // 是否显示收藏按钮

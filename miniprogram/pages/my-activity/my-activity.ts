@@ -1,7 +1,6 @@
 import { cancelActivity, getActivities, joinActivity } from '../../apis/activity';
-import { isLogin } from '../../utils/auth';
+import { getUserInfo, isLogin, redirectToLogin } from '../../utils/auth';
 import { resolveAssetUrl } from '../../utils/assets';
-import { formatDateTime } from '../../utils/time';
 import { getLangClassName, t } from '../../utils/i18n';
 
 function resolveActivityPublisher(activity: any): string {
@@ -120,23 +119,18 @@ Page({
   },
 
   loadActivities() {
-    if (!isLogin()) return;
-
     wx.showLoading({ title: this.data.searchingHint });
 
     getActivities()
       .then((res: any) => {
-        const list = Array.isArray(res.data)
-          ? res.data
-          : res.data?.list || res.data?.activities || [];
-        const userId = getApp<IAppOption>().globalData?.userInfo?.id || '';
+        const list = Array.isArray(res?.data?.list) ? res.data.list : [];
+        const userId = getUserInfo()?.id || '';
 
         const activities: ActivityItem[] = list.map((activity: any) => {
           const participants = Array.isArray(activity.participants) ? activity.participants : [];
           const isJoined = participants.some(
             (item: any) =>
-              String(typeof item === 'string' ? item : item?._id || item?.id || '') ===
-              String(userId)
+              String(typeof item === 'string' ? item : item?.id || '') === String(userId)
           );
 
           const rawStatus = (ACTIVITY_STATUS_MAP[activity.status] ||
@@ -157,11 +151,11 @@ Page({
             tags.push({ text: t('activity.status.ended'), position: 'right', type: 'default' });
           }
 
-          const startDate = formatDateTime(activity.startTime);
-          const endDate = formatDateTime(activity.endTime);
+          const startDate = activity.startTime || '';
+          const endDate = activity.endTime || '';
 
           return {
-            id: String(activity._id || activity.id),
+            id: String(activity.id),
             title: activity.title || '-',
             image: resolveAssetUrl(activity.coverImage),
             startDate,
@@ -189,6 +183,12 @@ Page({
       .finally(() => {
         wx.hideLoading();
       });
+  },
+
+  ensureLogin() {
+    if (isLogin()) return true;
+    redirectToLogin('/pages/my-activity/my-activity');
+    return false;
   },
 
   onSearchChange(e: WechatMiniprogram.CustomEvent) {
@@ -248,6 +248,7 @@ Page({
   },
 
   onRegisterTap(e: WechatMiniprogram.TouchEvent) {
+    if (!this.ensureLogin()) return;
     const { id } = e.currentTarget.dataset;
     wx.showModal({
       title: t('activity.confirm.registerTitle'),
@@ -267,6 +268,7 @@ Page({
   },
 
   onCancelTap(e: WechatMiniprogram.TouchEvent) {
+    if (!this.ensureLogin()) return;
     const { id } = e.currentTarget.dataset;
     wx.showModal({
       title: t('activity.action.cancel'),

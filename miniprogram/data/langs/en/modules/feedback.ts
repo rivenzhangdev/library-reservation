@@ -30,6 +30,7 @@ export default {
   'feedback.status.resolved': 'Resolved',
   'feedback.status.rejected': 'Rejected',
   'feedback.toast.selectType': 'Please select feedback type',
+  'feedback.toast.selectUrgency': 'Please select urgency level',
   'feedback.toast.fillTitle': 'Please fill in the title',
   'feedback.toast.fillDescription': 'Please fill in the description',
   'feedback.toast.confirmSubmit': 'Confirm to submit this feedback?',
@@ -53,7 +54,21 @@ export default {
   'feedback.detail.processRecords': 'Process Records',
   'feedback.detail.noRecords': 'No process records',
   'feedback.detail.timelineTitle': 'Processing Timeline',
+  'feedback.detail.currentStatus': 'Current Status',
+  'feedback.detail.latestUpdate': 'Latest Update',
   'feedback.detail.timelineSubmitted': 'Feedback Submitted',
+  'feedback.detail.timelinePending': 'Received',
+  'feedback.detail.timelineProcessing': 'In Progress',
+  'feedback.detail.timelineResolved': 'Completed',
+  'feedback.detail.timelineRejected': 'Result: Rejected',
+  'feedback.detail.timelinePendingText':
+    'We have received your feedback and assigned it for review.',
+  'feedback.detail.timelineProcessingText':
+    'The official team is processing your feedback. Please wait.',
+  'feedback.detail.timelineResolvedText':
+    'This issue has been handled. You can still add more details if needed.',
+  'feedback.detail.timelineRejectedText':
+    'This feedback is not accepted for now. You can add more details and resubmit.',
   'feedback.detail.timelineReply': 'Official Reply',
   'feedback.detail.timelineComment': 'User Comment',
   'feedback.detail.submitter': 'Submitter',

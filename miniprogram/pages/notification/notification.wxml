@@ -8,6 +8,7 @@
 <view class="page-container {{languageClass}}">
   <!-- 筛选标签栏 -->
   <van-tabs
+    wx:if="{{hasNotifications}}"
     sticky
     animated
     color="#409eff"
@@ -32,7 +33,7 @@
   </van-tabs>
 
   <!-- 全部已读按钮 -->
-  <view class="actions-bar" wx:if="{{hasUnread}}">
+  <view class="actions-bar" wx:if="{{hasNotifications && hasUnread}}">
     <view
       class="mark-all-read-btn"
       hover-class="button-hover"

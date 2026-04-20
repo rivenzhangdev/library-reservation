@@ -1,16 +1,31 @@
 import { t } from '../../utils/i18n';
-import { formatDateTime } from '../../utils/time';
 import {
   getNotifications,
   markAsRead,
   markAllAsRead,
   deleteNotification,
 } from '../../apis/notification';
-import { isLogin } from '../../utils/auth';
+import { isLogin, redirectToLogin } from '../../utils/auth';
+
+const NotificationType = {
+  SYSTEM: 0,
+  RESERVATION: 1,
+  ACTIVITY: 2,
+  MARKETING: 3,
+} as const;
+
+type NotificationTypeValue = (typeof NotificationType)[keyof typeof NotificationType];
+
+const NotificationTypeName: Record<NotificationTypeValue, string> = {
+  [NotificationType.SYSTEM]: 'system',
+  [NotificationType.RESERVATION]: 'reservation',
+  [NotificationType.ACTIVITY]: 'activity',
+  [NotificationType.MARKETING]: 'marketing',
+};
 
 interface NotificationItem {
   id: string;
-  type: 'reservation' | 'system' | 'activity' | 'marketing';
+  type: NotificationTypeValue;
   typeText: string;
   icon: string;
   title: string;
@@ -22,10 +37,10 @@ interface NotificationItem {
 function localizeNotificationText(
   title: string,
   content: string,
-  type: string,
+  type: NotificationTypeValue,
   currentLang: string
 ) {
-  if (currentLang === 'zh' && type === 'reservation') {
+  if (currentLang === 'zh' && type === NotificationType.RESERVATION) {
     if (/booking successful/i.test(title)) {
       title = '预约成功';
     }
@@ -49,13 +64,14 @@ Page({
     unreadText: '',
     emptyText: '',
     hasUnread: false,
+    hasNotifications: false,
     currentFilter: 'all',
     filterTabs: [
       { label: '全部', value: 'all' },
       { label: '未读', value: 'unread' },
-      { label: '系统通知', value: 'system' },
-      { label: '活动通知', value: 'activity' },
-      { label: '预约通知', value: 'reservation' },
+      { label: '系统通知', value: NotificationType.SYSTEM },
+      { label: '活动通知', value: NotificationType.ACTIVITY },
+      { label: '预约通知', value: NotificationType.RESERVATION },
     ],
     notificationList: [] as NotificationItem[],
   },
@@ -73,31 +89,32 @@ Page({
   },
 
   loadNotifications() {
-    if (!isLogin()) return;
+    if (!isLogin()) {
+      redirectToLogin('/pages/notification/notification');
+      return;
+    }
 
     getNotifications({ page: 1, limit: 50 })
       .then((res: any) => {
         const responseData = res.data as any;
-        const list = Array.isArray(responseData)
-          ? responseData
-          : responseData?.notifications || responseData?.list || [];
+        const list = Array.isArray(responseData?.list) ? responseData.list : [];
 
-        const typeNameMap: Record<number, NotificationItem['type']> = {
-          0: 'system',
-          1: 'reservation',
-          2: 'activity',
-          3: 'marketing',
-        };
-        const iconMap: Record<number, string> = {
-          1: 'success',
-          0: 'warning-o',
-          2: 'gift-o',
-          3: 'coupon-o',
+        const iconMap: Record<NotificationTypeValue, string> = {
+          [NotificationType.SYSTEM]: 'warning-o',
+          [NotificationType.RESERVATION]: 'success',
+          [NotificationType.ACTIVITY]: 'gift-o',
+          [NotificationType.MARKETING]: 'coupon-o',
         };
 
         const currentLang = getApp<IAppOption>().globalData?.currentLang || 'zh';
         const notifications: NotificationItem[] = list.map((item: any) => {
-          const type = typeNameMap[item.type] || 'system';
+          const rawType = Number(item.type);
+          const type: NotificationTypeValue =
+            rawType === NotificationType.RESERVATION ||
+            rawType === NotificationType.ACTIVITY ||
+            rawType === NotificationType.MARKETING
+              ? rawType
+              : NotificationType.SYSTEM;
           const localized = localizeNotificationText(
             item.title || '',
             item.content || '',
@@ -105,13 +122,13 @@ Page({
             currentLang
           );
           return {
-            id: String(item._id || item.id),
+            id: String(item.id),
             type,
-            typeText: t(`notification.type.${type}`),
-            icon: iconMap[item.type] || 'info-o',
+            typeText: t(`notification.type.${NotificationTypeName[type]}`),
+            icon: iconMap[type] || 'info-o',
             title: localized.title,
             content: localized.content,
-            time: formatDateTime(item.time || item.createdAt || ''),
+            time: item.time || item.createdAt || '',
             isRead: !!item.isRead,
           };
         });
@@ -139,27 +156,34 @@ Page({
       filterTabs: [
         { label: t('notification.filter.all'), value: 'all' },
         { label: t('notification.filter.unread'), value: 'unread' },
-        { label: t('notification.filter.system'), value: 'system' },
-        { label: t('notification.filter.activity'), value: 'activity' },
-        { label: t('notification.filter.reservation'), value: 'reservation' },
+        { label: t('notification.filter.system'), value: NotificationType.SYSTEM },
+        { label: t('notification.filter.activity'), value: NotificationType.ACTIVITY },
+        { label: t('notification.filter.reservation'), value: NotificationType.RESERVATION },
       ],
     });
   },
 
-  applyFilter(filterValue: string) {
+  applyFilter(filterValue: string | number) {
     const allList = (this as any)._allNotifications || [];
     let filteredList = allList;
 
     if (filterValue === 'unread') {
       filteredList = allList.filter((item: NotificationItem) => !item.isRead);
     } else if (filterValue !== 'all') {
-      filteredList = allList.filter((item: NotificationItem) => item.type === filterValue);
+      if (typeof filterValue === 'number') {
+        filteredList = allList.filter((item: NotificationItem) => item.type === filterValue);
+      } else {
+        filteredList = allList.filter(
+          (item: NotificationItem) => item.type === Number(filterValue)
+        );
+      }
     }
 
     this.setData({
-      currentFilter: filterValue,
+      currentFilter: String(filterValue),
       notificationList: filteredList,
       hasUnread: allList.some((item: NotificationItem) => !item.isRead),
+      hasNotifications: allList.length > 0,
     });
   },
 

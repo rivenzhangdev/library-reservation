@@ -28,6 +28,8 @@ module.exports = {
     '@typescript-eslint/ban-ts-comment': 'off',
     '@typescript-eslint/no-this-alias': 'off',
     'semi': ['error', 'always'],
+    // 禁用基础的 no-unused-vars，使用 TypeScript 的版本
+    'no-unused-vars': 'off',
     // 更严格地处理未使用的变量，包括导入
     '@typescript-eslint/no-unused-vars': ['error', { 
       argsIgnorePattern: '^_', 

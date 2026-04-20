@@ -40,23 +40,50 @@
           <view class="reservation-actions">
             <view class="reservation-action-group">
               <block wx:if="{{item.status === 'ongoing'}}">
-                <van-button size="small" type="primary" plain bind:tap="onCheckinTap" data-id="{{item.id}}">{{actionCheckinText}}</van-button>
-                <van-button size="small" type="info" plain bind:tap="onCancelTap" data-id="{{item.id}}">{{actionCancelText}}</van-button>
+                <van-button
+                  size="small"
+                  type="primary"
+                  plain
+                  bind:tap="onCheckinTap"
+                  data-id="{{item.id}}"
+                  >{{actionCheckinText}}</van-button
+                >
+                <van-button
+                  size="small"
+                  type="info"
+                  plain
+                  bind:tap="onCancelTap"
+                  data-id="{{item.id}}"
+                  >{{actionCancelText}}</van-button
+                >
               </block>
               <block wx:if="{{item.status === 'upcoming'}}">
-                <van-button size="small" type="primary" plain bind:tap="onRenewTap" data-id="{{item.id}}">{{actionRenewText}}</van-button>
-                <van-button size="small" type="info" plain bind:tap="onCancelTap" data-id="{{item.id}}">{{actionCancelText}}</van-button>
+                <van-button
+                  size="small"
+                  type="primary"
+                  plain
+                  bind:tap="onRenewTap"
+                  data-id="{{item.id}}"
+                  wx:if="{{item.canRenew}}"
+                >
+                  {{actionRenewText}}
+                </van-button>
+                <van-button
+                  size="small"
+                  type="info"
+                  plain
+                  bind:tap="onCancelTap"
+                  data-id="{{item.id}}"
+                >
+                  {{actionCancelText}}
+                </van-button>
               </block>
             </view>
           </view>
         </view>
 
-        <view wx:if="{{item.region || item.seatType || item.booking.checkinTime || item.booking.checkedInAt}}" class="reservation-additional">
-          <text wx:if="{{item.region}}">{{item.region}}</text>
-          <text wx:if="{{item.region && item.seatType}}"> · </text>
-          <text wx:if="{{item.seatType}}">{{item.seatType}}</text>
-          <text wx:if="{{(item.region || item.seatType) && (item.booking.checkinTime || item.booking.checkedInAt)}}"> · </text>
-          <text wx:if="{{item.booking.checkinTime || item.booking.checkedInAt}}">{{item.booking.checkinTime || item.booking.checkedInAt}}</text>
+        <view wx:if="{{item.warningText}}" class="reservation-warning">
+          <text class="reservation-warning__text">{{item.warningText}}</text>
         </view>
       </common-card>
     </block>

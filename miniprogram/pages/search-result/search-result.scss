@@ -46,7 +46,7 @@
   flex-shrink: 0;
   padding: var(--common-spacing-sm) var(--common-spacing-xl);
   color: var(--common-text-color-regular);
-  font-size: var(--common-font-size-lg);
+  font-size: var(--common-font-size-md);
   white-space: nowrap;
   background-color: var(--common-background-color-light);
   border-radius: var(--common-border-radius-pill);
@@ -107,7 +107,7 @@
 
   .result-hint {
     color: var(--common-text-color-secondary);
-    font-size: var(--common-font-size-sm);
+    font-size: var(--common-font-size-md);
   }
 }
 
@@ -118,5 +118,251 @@
 }
 
 .result-item {
+  margin-bottom: var(--common-spacing-md);
+}
+
+// 筛选按钮
+.filter-toggle {
+  display: flex;
+  gap: 4rpx;
+  align-items: center;
+  padding: 4rpx 12rpx;
+  color: var(--common-primary-color);
+  font-size: var(--common-font-size-sm);
+
+  .filter-arrow {
+    transition: transform 0.2s;
+
+    &.open {
+      transform: rotate(180deg);
+    }
+  }
+}
+
+// 高级筛选面板
+.advanced-filter-panel {
+  padding: var(--common-spacing-md) var(--common-spacing-lg);
+  background-color: var(--common-white-color);
+  border-top: 1rpx solid var(--common-border-color);
+
+  .filter-section {
+    margin-bottom: var(--common-spacing-md);
+
+    .filter-label {
+      display: block;
+      margin-bottom: var(--common-spacing-sm);
+      color: var(--common-text-color-secondary);
+      font-size: var(--common-font-size-sm);
+    }
+
+    .filter-options {
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--common-spacing-sm);
+    }
+
+    .filter-option {
+      padding: 6rpx 20rpx;
+      color: var(--common-text-color-regular);
+      font-size: var(--common-font-size-sm);
+      background-color: var(--common-background-color-light);
+      border-radius: var(--common-border-radius-pill);
+      transition: all 0.2s;
+
+      &.active {
+        color: var(--common-primary-color);
+        background-color: #e8f3ff;
+      }
+    }
+  }
+
+  .filter-toggles {
+    display: flex;
+    gap: var(--common-spacing-xl);
+
+    .filter-toggle-item {
+      display: flex;
+      gap: var(--common-spacing-sm);
+      align-items: center;
+      color: var(--common-text-color-regular);
+      font-size: var(--common-font-size-sm);
+
+      .toggle-indicator {
+        width: 32rpx;
+        height: 32rpx;
+        background-color: var(--common-white-color);
+        border: 2rpx solid var(--common-border-color);
+        border-radius: 6rpx;
+        transition: all 0.2s;
+
+        &.active {
+          background-color: var(--common-primary-color);
+          border-color: var(--common-primary-color);
+        }
+      }
+    }
+  }
+
+  .filter-actions {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: var(--common-spacing-sm);
+  }
+}
+
+/* Search-result refactor overrides */
+.search-bar {
+  margin: 0 -20rpx;
+  padding: var(--common-spacing-sm) 0;
+  background-color: var(--common-white-color);
+}
+
+.result-summary {
+  gap: var(--common-spacing-lg);
+  align-items: center;
+}
+
+.result-title {
+  color: var(--common-text-color-primary);
+  font-weight: var(--common-font-weight-bold);
+  font-size: var(--common-font-size-lg);
+}
+
+.result-hint {
+  color: var(--common-text-color-secondary);
+  font-size: var(--common-font-size-md);
+}
+
+.filter-toggle {
+  display: inline-flex;
+  gap: var(--common-spacing-xs);
+  align-items: center;
+  padding: 8rpx 16rpx;
+  color: var(--common-primary-color);
+  font-size: var(--common-font-size-sm);
+  background-color: var(--common-primary-bg-color);
+  border-radius: var(--common-border-radius-pill);
+}
+
+.filter-badge {
+  min-width: 34rpx;
+  height: 34rpx;
+  padding: 0 8rpx;
+  color: var(--common-white-color);
+  font-weight: var(--common-font-weight-bold);
+  font-size: var(--common-font-size-xs);
+  line-height: 34rpx;
+  text-align: center;
+  background-color: var(--common-primary-color);
+  border-radius: var(--common-border-radius-pill);
+}
+
+.filter-panel {
+  .common-card {
+    border-radius: var(--common-border-radius-xl);
+  }
+
+  .common-card__content {
+    padding: var(--common-spacing-4xl) var(--common-spacing-3xl);
+  }
+}
+
+.filter-panel-title {
+  margin-bottom: var(--common-spacing-3xl);
+  color: var(--common-dark-text-color);
+  font-weight: var(--common-font-weight-bold);
+  font-size: var(--common-font-size-lg);
+}
+
+.filter-row {
+  display: flex;
+  gap: var(--common-spacing-2xl);
+  margin-bottom: var(--common-spacing-3xl);
+}
+
+.filter-item {
+  flex: 1;
+}
+
+.filter-label {
+  margin-bottom: var(--common-spacing-md);
+  color: var(--common-hint-text-color);
+  font-size: var(--common-font-size-md);
+}
+
+.filter-selector {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 76rpx;
+  padding: 0 var(--common-spacing-xl);
+  background-color: var(--common-gray-color);
+  border-radius: var(--common-border-radius-lg);
+}
+
+.selector-text {
+  color: var(--common-dark-text-color);
+  font-size: var(--common-font-size-md);
+}
+
+.facility-options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--common-spacing-lg);
+  margin-top: var(--common-spacing-sm);
+}
+
+.facility-item {
+  display: flex;
+  gap: var(--common-spacing-md);
+  align-items: center;
+  padding: 10rpx 14rpx;
+  border: 1rpx solid transparent;
+  border-radius: var(--common-border-radius-lg);
+
+  &.active {
+    background-color: rgba(35, 151, 255, 0.08);
+    border-color: rgba(35, 151, 255, 0.3);
+  }
+}
+
+.facility-checkbox .van-checkbox__label {
+  display: none;
+}
+
+.facility-label {
+  color: var(--common-dark-text-color);
+  font-size: var(--common-font-size-md);
+}
+
+.filter-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: var(--common-spacing-xl);
+  padding-top: var(--common-spacing-xl);
+  border-top: 1rpx solid var(--common-border-color);
+}
+
+.reset-button {
+  color: var(--common-primary-color);
+  font-size: var(--common-font-size-md);
+}
+
+.filter-summary {
+  padding: 0 var(--common-spacing-lg) var(--common-spacing-sm);
+}
+
+.filter-summary-text {
+  color: var(--common-text-color-secondary);
+  font-size: var(--common-font-size-md);
+}
+
+.status-scroll {
+  margin-bottom: var(--common-spacing-sm);
+}
+
+.result-item {
+  display: block;
   margin-bottom: var(--common-spacing-md);
 }

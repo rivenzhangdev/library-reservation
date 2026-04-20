@@ -18,6 +18,8 @@
         icon="{{item.iconName || ''}}"
         iconColor="{{item.iconColor}}"
         iconBgColor="{{item.iconBgColor}}"
+        titleIcon="{{item.titleIconName || ''}}"
+        titleIconColor="{{item.titleIconColor || item.iconColor || '#409eff'}}"
         title="{{item.label}}"
         badgeCount="{{item.badgeCount || 0}}"
         clickable="false"

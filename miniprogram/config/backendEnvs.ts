@@ -5,7 +5,7 @@ export interface MiniProgramBackendEnv {
   lanBaseUrl?: string;
 }
 
-const defaultLanBaseUrl = 'http://192.168.18.60:3000';
+const defaultLanBaseUrl = 'http://192.168.18.60:3002';
 
 export const PROJECT_BACKEND_ENVS: MiniProgramBackendEnv[] = [
   {

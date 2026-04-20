@@ -14,6 +14,22 @@ export const getFloors = (requestOptions?: { showLoading?: boolean }) =>
   seatsApi.get('/floors', null, { showLoading: requestOptions?.showLoading ?? true });
 
 /**
+ * 获取区域列表
+ * GET /api/seats/zones
+ */
+export const getSeatZones = (requestOptions?: { showLoading?: boolean }) =>
+  seatsApi.get('/zones', null, { showLoading: requestOptions?.showLoading ?? true });
+
+/**
+ * 获取首页座位概览统计
+ * GET /api/seats/overview
+ */
+export const getSeatOverview = (
+  params?: { date?: string },
+  requestOptions?: { showLoading?: boolean }
+) => seatsApi.get('/overview', params, { showLoading: requestOptions?.showLoading ?? true });
+
+/**
  * 获取楼层座位
  * GET /api/seats/floor/:floorId
  */
@@ -34,11 +50,19 @@ export const getSeatDetail = (seatId: string, params?: any) => seatsApi.get(`/${
  * 搜索座位
  * GET /api/seats/search
  */
-export const searchSeats = (keyword: string, params?: any) =>
-  seatsApi.get('/search', { keyword, ...params }, { showLoading: true });
+export const searchSeats = (keyword = '', params?: any) => {
+  const normalizedKeyword = String(keyword || '').trim();
+  const requestParams = {
+    ...(normalizedKeyword ? { keyword: normalizedKeyword } : {}),
+    ...(params || {}),
+  };
+  return seatsApi.get('/search', requestParams, { showLoading: true });
+};
 
 export default {
   getFloors,
+  getSeatZones,
+  getSeatOverview,
   getFloorSeats,
   getSeatDetail,
   searchSeats,

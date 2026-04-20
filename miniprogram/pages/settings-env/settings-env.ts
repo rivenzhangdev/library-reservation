@@ -1,5 +1,5 @@
 import { t } from '../../utils/i18n';
-import config from '../../config';
+import config from '../../config/index';
 
 Page({
   data: {

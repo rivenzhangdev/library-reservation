@@ -33,9 +33,9 @@
 
 .hero-content {
   display: flex;
+  gap: 24rpx;
   align-items: flex-end;
   justify-content: space-between;
-  gap: 24rpx;
 }
 
 .hero-meta {
@@ -55,6 +55,13 @@
   gap: 16rpx;
   margin-top: 18rpx;
 }
+
+.hero-action-group {
+  display: flex;
+  gap: var(--common-spacing-sm);
+  align-items: center;
+}
+
 .stats-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -143,12 +150,25 @@
   font-size: 26rpx;
 }
 
+.activity-warning {
+  margin-bottom: 24rpx;
+  padding: 18rpx 24rpx;
+  background: #fff7ed;
+  border-radius: 22rpx;
+}
+
+.activity-warning__text {
+  color: #b45309;
+  font-weight: 600;
+  font-size: 26rpx;
+}
+
 .action-bar {
   display: flex;
   flex-direction: column;
   gap: 20rpx;
-  margin-top: 32rpx;
   align-items: stretch;
+  margin-top: 32rpx;
 }
 
 .action-bar .action-button {
@@ -169,4 +189,13 @@
   display: block;
   margin-top: 24rpx;
   color: #94a3b8;
+}
+
+// 签到记录
+.checkin-record {
+  .info-row {
+    display: flex;
+    justify-content: space-between;
+    padding: var(--common-spacing-xs) 0;
+  }
 }

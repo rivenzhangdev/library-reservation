@@ -56,9 +56,12 @@ export default {
   'common.hint.activityNotStarted': 'Activity has not started yet',
   'common.hint.activityCannotCheckIn': 'Activity cannot be checked in at this time',
   'common.hint.activityNotCheckedIn': 'Not checked in yet',
+  'common.hint.bookingViolated': 'Booking has been violated and cannot be processed',
   'common.hint.invalidQrCode': 'Invalid QR code content',
   'common.hint.processing': 'Processing...',
   'common.hint.uploadFailed': 'Upload failed',
+  'common.hint.noFacilities': 'No facility information',
+  'common.hint.noBookingsToday': 'No bookings today',
 
   // Time
   'common.time.days': 'days',
@@ -91,6 +94,7 @@ export default {
   'common.field.description': 'Description',
   'common.field.floor': 'Floor',
   'common.field.zone': 'Area',
+  'common.field.seatCode': 'Seat Code',
   'common.field.type': 'Type',
   'common.field.contact': 'Contact',
   'common.field.facilities': 'Facilities',
@@ -105,7 +109,25 @@ export default {
   'common.field.images': 'Images',
   'common.field.reason': 'Reason',
   'common.field.range': 'Range',
+  'common.field.timeSlots': 'Time Slot Status',
+  'common.field.todayBookings': "Today's Bookings",
   'common.field.relatedId': 'Related ID',
+  'common.page.seatDetail.title': 'Seat Detail',
+  'common.page.seatDetail.reserveNow': 'Reserve Now',
+  'common.page.seatDetail.favorite': 'Favorite Seat',
+  'common.page.seatDetail.unfavorite': 'Remove Favorite',
+  'common.page.seatDetail.basicInfo': 'Seat Information',
+  'common.page.seatDetail.todayAvailability': 'Today Availability',
+  'common.page.seatDetail.mineTag': 'My Booking',
+  'common.page.seatDetail.bookingCount': '{count} bookings today',
+  'common.page.seatDetail.reserveHint':
+    'This seat is available. Please choose a time slot to reserve.',
+  'common.page.seatDetail.reserveMaintenanceHint':
+    'This seat is currently under maintenance and cannot be reserved.',
+  'common.page.seatDetail.reserveUnavailableHint':
+    'No available reservation slots for this seat today. Please choose another seat or date.',
+  'common.page.seatDetail.maintenanceButton': 'Under Maintenance',
+  'common.page.seatDetail.bookedButton': 'Booked',
 
   // Empty states
   'common.empty.notFound': 'No matching data found',

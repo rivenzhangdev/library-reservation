@@ -228,7 +228,6 @@
 
 .facility-item {
   display: flex;
-  gap: var(--common-spacing-xs);
   align-items: center;
   padding: 14rpx 18rpx;
   white-space: nowrap;
@@ -236,7 +235,6 @@
   border-radius: var(--common-border-radius-lg);
   transition: all var(--transition-fast);
 }
-
 
 .seat-map-content {
   position: relative;
@@ -499,9 +497,9 @@
 .time-period-empty {
   margin-top: var(--common-spacing-lg);
   padding: var(--common-spacing-xl);
-  text-align: center;
   color: var(--common-hint-text-color);
   font-size: var(--common-font-size-md);
+  text-align: center;
   background-color: var(--common-gray-color);
   border-radius: var(--common-border-radius-lg);
 }
@@ -576,16 +574,16 @@
 
 .custom-time-hint {
   display: flex;
-  align-items: center;
   gap: var(--common-spacing-sm);
+  align-items: center;
   margin-bottom: var(--common-spacing-3xl);
 }
 
 .custom-time-hint-text {
+  flex: 1;
   color: var(--common-primary-color);
   font-size: var(--common-font-size-sm);
   line-height: 1.6;
-  flex: 1;
 }
 
 .time-picker {

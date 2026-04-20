@@ -40,6 +40,15 @@ Component({
       type: String,
       value: '',
     },
+    // 标题内联图标
+    titleIcon: {
+      type: String,
+      value: '',
+    },
+    titleIconColor: {
+      type: String,
+      value: '#409eff',
+    },
     // 描述/副标题
     desc: {
       type: String,

@@ -1,6 +1,5 @@
 import { getLangClassName, t } from '../../utils/i18n';
 import { getMyBookings, cancelBooking, checkin, checkout, renewBooking } from '../../apis/booking';
-import { formatDateTime } from '../../utils/time';
 import { isLogin } from '../../utils/auth';
 
 function getStatusName(status: string, statusList: Array<{ id: string; name: string }>) {
@@ -104,6 +103,7 @@ Page({
       cancelSuccessHint: t('myReservation.hint.cancelSuccess'),
       actionCheckinText: t('myReservation.action.checkin'),
       actionCheckoutText: t('myReservation.action.checkout'),
+      violatedPenaltyHint: t('myReservation.hint.violatedPenalty'),
       actionRenewText: t('myReservation.action.renew'),
       actionCancelText: t('common.btn.cancel'),
       actionDetailText: t('common.btn.detail'),
@@ -126,10 +126,10 @@ Page({
 
     wx.showLoading({ title: this.data.searchingHint });
 
-    getMyBookings({ page: 1, limit: 50 })
+    getMyBookings({ page: 1, pageSize: 50 })
       .then((res: any) => {
         const responseData = res.data as any;
-        const list = responseData?.bookings || [];
+        const list = Array.isArray(responseData?.list) ? responseData.list : [];
         const timeSlotNames: Record<number, string> = {
           0: t('reservation.time.period.morning'),
           1: t('reservation.time.period.afternoon'),
@@ -149,6 +149,12 @@ Page({
               ? statusNames[booking.status]
               : String(booking.status || 'upcoming');
           const timeSlot = Number.isFinite(booking.timeSlot) ? Number(booking.timeSlot) : -1;
+          const renewableTimeSlots = Array.isArray(booking.renewableTimeSlots)
+            ? booking.renewableTimeSlots.filter((slot: any) => Number.isFinite(slot)).map(Number)
+            : [];
+          const canRenew = bookingStatus === 'upcoming' && renewableTimeSlots.length > 0;
+          const warningText =
+            bookingStatus === 'violated' ? t('myReservation.hint.violatedPenalty') : '';
           const normalizeTime = (value: string) => {
             if (!value) return '';
             return value.length >= 5 ? value.slice(0, 5) : value;
@@ -163,7 +169,7 @@ Page({
             id: String(booking.id),
             seatName,
             description: booking.description || booking.seatDescription || '',
-            date: booking.date || formatDateTime(booking.createdAt || '', 'YYYY-MM-DD'),
+            date: booking.date || String(booking.createdAt || '').slice(0, 10),
             timeRange,
             region: booking.zone || booking.area || '',
             seatType:
@@ -172,7 +178,10 @@ Page({
             tagType: getTagTypeByStatus(bookingStatus),
             statusName: getStatusName(bookingStatus, this.data.statusList),
             timeSlot,
+            renewableTimeSlots,
+            canRenew,
             booking,
+            warningText,
           };
         });
 
@@ -297,35 +306,72 @@ Page({
   onRenewTap(e: any) {
     const { id } = e.currentTarget.dataset;
     const reservation = this.data.reservations.find((item) => item.id === id);
-    const currentTimeSlot = Number.isFinite(reservation?.timeSlot)
-      ? Number(reservation?.timeSlot)
-      : 0;
+    const renewableTimeSlots: number[] = Array.isArray(reservation?.renewableTimeSlots)
+      ? reservation.renewableTimeSlots
+      : [];
 
-    if (currentTimeSlot >= 2) {
+    if (renewableTimeSlots.length === 0) {
       wx.showToast({ title: t('myReservation.hint.renewFailed'), icon: 'none' });
       return;
     }
 
-    const nextTimeSlot = currentTimeSlot + 1;
-    const nextTimeSlotText = this.getTimeSlotText(nextTimeSlot);
+    const slotNames: Record<number, string> = {
+      0: t('reservation.time.period.morning'),
+      1: t('reservation.time.period.afternoon'),
+      2: t('reservation.time.period.evening'),
+    };
+    const timeSlotTexts: string[] = renewableTimeSlots.map((slot) => slotNames[slot] || `${slot}`);
+    const timeSlotValues = renewableTimeSlots;
 
-    wx.showModal({
-      title: this.data.confirmRenewTitle,
-      content: `${this.data.confirmRenewContent}\n${t('reservation.time.period.selectRange')}: ${nextTimeSlotText}`,
-      confirmText: t('common.btn.confirm'),
-      cancelText: t('common.btn.cancel'),
-      success: (res) => {
-        if (!res.confirm) return;
-        renewBooking(id, nextTimeSlot)
-          .then(() => {
-            wx.showToast({ title: this.data.renewSuccessHint, icon: 'success' });
-            this.loadReservations();
-          })
-          .catch(() => {
-            wx.showToast({ title: t('myReservation.hint.renewFailed'), icon: 'none' });
+    if (timeSlotValues.length === 1) {
+      // 只有一个可选时段，直接确认
+      const nextTimeSlot = timeSlotValues[0];
+      const nextTimeSlotText = timeSlotTexts[0];
+      wx.showModal({
+        title: this.data.confirmRenewTitle,
+        content: `${this.data.confirmRenewContent}\n${t('myReservation.renew.targetSlot', { slot: nextTimeSlotText })}`,
+        confirmText: t('common.btn.confirm'),
+        cancelText: t('common.btn.cancel'),
+        success: (res) => {
+          if (!res.confirm) return;
+          renewBooking(id, nextTimeSlot)
+            .then(() => {
+              wx.showToast({ title: this.data.renewSuccessHint, icon: 'success' });
+              this.loadReservations();
+            })
+            .catch(() => {
+              wx.showToast({ title: t('myReservation.hint.renewFailed'), icon: 'none' });
+            });
+        },
+      });
+    } else {
+      // 多个可选时段，让用户选择
+      wx.showActionSheet({
+        itemList: timeSlotTexts,
+        success: (sheetRes) => {
+          const selectedIndex = sheetRes.tapIndex;
+          const selectedSlot = timeSlotValues[selectedIndex];
+          const selectedSlotText = timeSlotTexts[selectedIndex];
+          wx.showModal({
+            title: this.data.confirmRenewTitle,
+            content: `${this.data.confirmRenewContent}\n${t('myReservation.renew.targetSlot', { slot: selectedSlotText })}`,
+            confirmText: t('common.btn.confirm'),
+            cancelText: t('common.btn.cancel'),
+            success: (res) => {
+              if (!res.confirm) return;
+              renewBooking(id, selectedSlot)
+                .then(() => {
+                  wx.showToast({ title: this.data.renewSuccessHint, icon: 'success' });
+                  this.loadReservations();
+                })
+                .catch(() => {
+                  wx.showToast({ title: t('myReservation.hint.renewFailed'), icon: 'none' });
+                });
+            },
           });
-      },
-    });
+        },
+      });
+    }
   },
 
   onCancelTap(e: any) {

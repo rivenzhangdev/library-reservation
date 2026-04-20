@@ -5,9 +5,8 @@
   checkinActivity,
   checkoutActivity,
 } from '../../apis/activity';
-import { isLogin } from '../../utils/auth';
+import { isLogin, redirectToLogin } from '../../utils/auth';
 import { resolveAssetUrl } from '../../utils/assets';
-import { formatDateTime } from '../../utils/time';
 import { t } from '../../utils/i18n';
 
 function getStatusMeta(status: any) {
@@ -104,8 +103,7 @@ Page({
         const currentUserId = getApp<IAppOption>().globalData?.userInfo?.id || '';
         const isJoined = participants.some(
           (item: any) =>
-            String(typeof item === 'string' ? item : item?._id || item?.id || '') ===
-            String(currentUserId)
+            String(typeof item === 'string' ? item : item?.id || '') === String(currentUserId)
         );
         const statusMeta = getStatusMeta(detail.status);
         const maxParticipants = Number(detail.maxParticipants || 0);
@@ -127,13 +125,12 @@ Page({
           : isCheckedIn
             ? t('activity.detail.signedIn')
             : '';
+        const signOutWarningText =
+          Number(detail.status) === 2 && isCheckedIn && !isCheckedOut
+            ? t('activity.detail.lateCheckoutWarning')
+            : '';
 
-        const fallbackPublisherName =
-          detail.createdByName ||
-          (detail.createdBy &&
-            typeof detail.createdBy === 'object' &&
-            (detail.createdBy.username || detail.createdBy.name)) ||
-          '-';
+        const fallbackPublisherName = detail.createdByName || '-';
 
         this.setData({
           activity: {
@@ -146,16 +143,23 @@ Page({
             participantRate,
             statusText: statusMeta.text,
             statusType: statusMeta.type,
-            canJoin: String(detail.status) === '0' && !isJoined,
+            canJoin:
+              String(detail.status) === '0' &&
+              !isJoined &&
+              !(maxParticipants > 0 && participantCount >= maxParticipants),
             canCancel: isJoined && String(detail.status) !== '2',
             canSignIn,
             canSignOut,
             signStatusText,
-            scheduleText: `${formatDateTime(detail.startTime)} - ${formatDateTime(detail.endTime)}`,
+            signOutWarningText,
             locationText: [detail.floorName, detail.location].filter(Boolean).join(' / ') || '-',
             publisherName: fallbackPublisherName,
             updaterName: detail.updatedByName || '',
             descriptionText: detail.description || t('common.empty.noDescription'),
+            // 签到记录时间
+            checkinTimeText: detail.checkinTime ? detail.checkinTime : '',
+            checkoutTimeText: detail.checkoutTime ? detail.checkoutTime : '',
+            scheduleText: `${detail.startTime || ''} - ${detail.endTime || ''}`,
           },
         });
       })
@@ -166,7 +170,7 @@ Page({
 
   ensureLogin() {
     if (isLogin()) return true;
-    wx.showToast({ title: t('common.hint.pleaseLogin'), icon: 'none' });
+    redirectToLogin(`/pages/activity-detail/activity-detail?id=${this.data.activityId}`);
     return false;
   },
 

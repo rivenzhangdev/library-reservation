@@ -28,6 +28,11 @@ export default {
   'activity.detail.updatedBy': 'Updated By',
   'activity.detail.signedIn': 'Signed In',
   'activity.detail.signedOut': 'Signed Out',
+  'activity.detail.lateCheckoutWarning':
+    'Activity has ended; please check out as soon as possible to avoid credit impact',
   'activity.detail.signStatus': 'Attendance Status',
   'activity.empty': 'No activities',
+  'activity.detail.checkinTime': 'Check-in Time',
+  'activity.detail.checkoutTime': 'Check-out Time',
+  'activity.detail.checkinRecord': 'Attendance Record',
 };

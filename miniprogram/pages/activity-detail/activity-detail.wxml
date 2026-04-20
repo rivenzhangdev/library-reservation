@@ -24,16 +24,40 @@
         </view>
       </view>
       <view class="hero-action-group">
-        <van-button wx:if="{{activity.canJoin}}" size="small" class="action-button" type="primary" bind:tap="onJoin">
+        <van-button
+          wx:if="{{activity.canJoin}}"
+          size="small"
+          class="action-button"
+          type="primary"
+          bind:tap="onJoin"
+        >
           {{joinNowText}}
         </van-button>
-        <van-button wx:if="{{activity.canCancel}}" size="small" class="action-button cancel-button" type="danger" bind:tap="onCancelJoin">
+        <van-button
+          wx:if="{{activity.canCancel}}"
+          size="small"
+          class="action-button cancel-button"
+          type="danger"
+          bind:tap="onCancelJoin"
+        >
           {{cancelJoinText}}
         </van-button>
-        <van-button wx:if="{{activity.canSignIn}}" size="small" class="action-button" type="primary" bind:tap="onSignIn">
+        <van-button
+          wx:if="{{activity.canSignIn}}"
+          size="small"
+          class="action-button"
+          type="primary"
+          bind:tap="onSignIn"
+        >
           {{checkInText}}
         </van-button>
-        <van-button wx:if="{{activity.canSignOut}}" size="small" class="action-button" type="warning" bind:tap="onSignOut">
+        <van-button
+          wx:if="{{activity.canSignOut}}"
+          size="small"
+          class="action-button"
+          type="warning"
+          bind:tap="onSignOut"
+        >
           {{checkOutText}}
         </van-button>
       </view>
@@ -53,6 +77,26 @@
 
   <view wx:if="{{activity.signStatusText}}" class="sign-status">
     <text class="sign-status__text">{{activity.signStatusText}}</text>
+  </view>
+
+  <!-- 签到记录显示 -->
+  <view
+    wx:if="{{activity.isJoined && (activity.checkinTimeText || activity.checkoutTimeText)}}"
+    class="section-card checkin-record"
+  >
+    <view class="section-title">签到记录</view>
+    <view wx:if="{{activity.checkinTimeText}}" class="info-row">
+      <text class="label">签到时间</text>
+      <text class="value">{{activity.checkinTimeText}}</text>
+    </view>
+    <view wx:if="{{activity.checkoutTimeText}}" class="info-row">
+      <text class="label">签退时间</text>
+      <text class="value">{{activity.checkoutTimeText}}</text>
+    </view>
+  </view>
+
+  <view wx:if="{{activity.signOutWarningText}}" class="activity-warning">
+    <text class="activity-warning__text">{{activity.signOutWarningText}}</text>
   </view>
 
   <view wx:if="{{activity}}" class="section-card">

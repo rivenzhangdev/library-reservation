@@ -21,15 +21,13 @@ function normalizeUserInfo(userInfo: any) {
         : false;
   const blacklistReason =
     safeString(userInfo.blacklistReason) || safeString(existing.blacklistReason);
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const { avatar: _avatar1, ...existingRest } = existing;
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const { avatar: _avatar2, ...userInfoRest } = userInfo;
 
   return {
     ...existingRest,
     ...userInfoRest,
-    id: userInfo.id || userInfo._id || existing.id || existing._id,
+    id: userInfo.id || existing.id,
     name,
     nickName,
     avatarUrl,

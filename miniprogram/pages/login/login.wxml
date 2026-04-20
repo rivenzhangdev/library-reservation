@@ -21,6 +21,11 @@
       </view>
     </button>
 
+    <view wx:if="{{showEnvSwitch}}" class="login-env-entry" bindtap="onEnvTap">
+      <text class="login-env-entry-text">环境：{{currentEnvLabel}}</text>
+      <text class="login-env-entry-action">切换</text>
+    </view>
+
     <view class="login-agreement">
       <text>{{agreementText}}</text>
       <text class="login-link" bindtap="onAgreementTap">《用户协议》</text>

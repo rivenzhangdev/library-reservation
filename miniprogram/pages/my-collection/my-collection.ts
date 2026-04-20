@@ -1,7 +1,7 @@
 import { t, getLangClassName } from '../../utils/i18n';
 import { getFavorites, favoriteSeat } from '../../apis/user';
 import { getMyBookings } from '../../apis/booking';
-import { isLogin } from '../../utils/auth';
+import { isLogin, redirectToLogin } from '../../utils/auth';
 import { openReservationWithParams } from '../../utils/reservationNavigator';
 import { sortBySeatPosition } from '../../utils/sort';
 import { getToday } from '../../utils/time';
@@ -63,14 +63,17 @@ Page({
   },
 
   loadFavorites() {
-    if (!isLogin()) return;
+    if (!isLogin()) {
+      redirectToLogin('/pages/my-collection/my-collection');
+      return;
+    }
 
     wx.showLoading({ title: t('common.hint.loading') });
 
-    Promise.all([getFavorites(), getMyBookings({ page: 1, limit: 50 })])
+    Promise.all([getFavorites(), getMyBookings({ page: 1, pageSize: 50 })])
       .then(([favoritesRes, bookingsRes]: any) => {
-        const seats = Array.isArray(favoritesRes.data) ? favoritesRes.data : [];
-        const bookings = bookingsRes.data?.bookings || [];
+        const seats = Array.isArray(favoritesRes?.data?.list) ? favoritesRes.data.list : [];
+        const bookings = Array.isArray(bookingsRes?.data?.list) ? bookingsRes.data.list : [];
         const seatTypeMap: Record<string, string> = {
           '0': t('reservation.seatType.single'),
           '1': t('reservation.seatType.double'),

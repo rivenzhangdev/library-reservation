@@ -29,5 +29,9 @@ export default {
   'activity.detail.signedIn': '已签到',
   'activity.detail.signedOut': '已签退',
   'activity.detail.signStatus': '签到状态',
+  'activity.detail.lateCheckoutWarning': '活动已结束，尽快完成签退可避免信用影响',
   'activity.empty': '暂无活动',
+  'activity.detail.checkinTime': '签到时间',
+  'activity.detail.checkoutTime': '签退时间',
+  'activity.detail.checkinRecord': '签到记录',
 };

@@ -10,14 +10,14 @@ const activityApi = createApi('/api/activity');
  * 获取活动列表
  * GET /api/activity
  */
-export const getActivities = (params?: any) => activityApi.get('', params, { needAuth: true });
+export const getActivities = (params?: any) => activityApi.get('', params, { needAuth: false });
 
 /**
  * 获取活动详情
  * GET /api/activity/:id
  */
 export const getActivityDetail = (id: string) =>
-  activityApi.get(`/${id}`, null, { needAuth: true });
+  activityApi.get(`/${id}`, null, { needAuth: false });
 
 /**
  * 报名活动

@@ -13,9 +13,13 @@
           <text class="meta-date">{{feedbackInfo.createTime}}</text>
         </view>
       </view>
-      <van-tag type="{{feedbackInfo.statusStyle}}" round size="large"
+      <van-tag type="{{feedbackInfo.statusStyle}}" size="medium"
         >{{feedbackInfo.statusText}}</van-tag
       >
+    </view>
+
+    <view class="status-hint" wx:if="{{feedbackInfo.statusHint}}">
+      <text class="status-hint-text">{{feedbackInfo.statusHint}}</text>
     </view>
 
     <view class="info-details">
@@ -79,30 +83,49 @@
       </view>
     </view>
 
-    <view class="timeline-section" wx:if="{{feedbackInfo.id}}">
+    <view class="process-section" wx:if="{{feedbackInfo.id}}">
       <view class="section-title">{{t('feedback.detail.timelineTitle')}}</view>
-      <view class="timeline">
-        <block wx:for="{{feedbackInfo.timelineItems}}" wx:key="id">
-          <view class="timeline-item">
-            <view
-              class="timeline-dot {{item.type === 'reply' ? 'timeline-dot--official' : ''}}"
-            ></view>
-            <view class="timeline-content">
-              <view class="timeline-header">
-                <view>
-                  <text class="timeline-title">{{item.title}}</text>
-                  <text class="timeline-user" wx:if="{{item.userRole}}"> {{item.userRole}} </text>
-                </view>
-                <text class="timeline-time">{{item.time}}</text>
+      <view class="process-overview">
+        <view class="overview-card">
+          <text class="overview-label">{{t('feedback.detail.currentStatus')}}</text>
+          <text class="overview-value">{{feedbackInfo.statusText}}</text>
+        </view>
+        <view class="overview-card">
+          <text class="overview-label">{{t('feedback.detail.submitTime')}}</text>
+          <text class="overview-value overview-value--sm">{{feedbackInfo.createTime}}</text>
+        </view>
+        <view class="overview-card">
+          <text class="overview-label">{{t('feedback.detail.latestUpdate')}}</text>
+          <text class="overview-value overview-value--sm"
+            >{{feedbackInfo.latestUpdateTime || '-'}}</text
+          >
+        </view>
+      </view>
+
+      <view class="official-summary" wx:if="{{feedbackInfo.latestOfficialReply}}">
+        <view class="official-summary__header">
+          <uni-icon type="vant" name="service-o" size="26" color="#1677b3" />
+          <text class="official-summary__title">{{t('feedback.detail.officialReplyTitle')}}</text>
+        </view>
+        <text class="official-summary__text">{{feedbackInfo.latestOfficialReply}}</text>
+      </view>
+
+      <view class="updates-list">
+        <block wx:for="{{feedbackInfo.updates}}" wx:key="id">
+          <view class="update-card update-card--{{item.tone}}">
+            <view class="update-header">
+              <view class="update-header__main">
+                <text class="update-title">{{item.title}}</text>
+                <text class="update-role" wx:if="{{item.userRole}}">{{item.userRole}}</text>
               </view>
-              <view class="timeline-body">
-                <text>{{item.content || t('common.noData')}}</text>
-              </view>
+              <text class="update-time">{{item.time}}</text>
             </view>
+            <view class="update-meta" wx:if="{{item.userName}}">{{item.userName}}</view>
+            <text class="update-content">{{item.content || '-'}}</text>
           </view>
         </block>
         <view
-          wx:if="{{!feedbackInfo.timelineItems || !feedbackInfo.timelineItems.length}}"
+          wx:if="{{!feedbackInfo.updates || !feedbackInfo.updates.length}}"
           class="empty-process"
         >
           <text class="empty-process-text">{{t('feedback.detail.noRecords')}}</text>

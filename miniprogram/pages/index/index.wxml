@@ -21,12 +21,14 @@
       <view
         class="search-tag-item"
         wx:for="{{searchTags}}"
-        wx:key="*this"
+        wx:key="key"
         bind:tap="onSearchTagTap"
-        data-tag="{{item}}"
+        data-tag-type="{{item.filterType}}"
+        data-tag-value="{{item.filterValue}}"
+        data-tag-label="{{item.label}}"
       >
-        <uni-icon type="vant" name="fire-o" size="28" color="#409eff" />
-        <text>{{item}}</text>
+        <uni-icon type="vant" name="{{item.icon}}" size="28" color="#409eff" />
+        <text>{{item.label}}</text>
       </view>
     </scroll-view>
   </view>

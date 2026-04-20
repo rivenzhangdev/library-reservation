@@ -42,6 +42,8 @@ export default {
     'Please arrive at the library 15 minutes before your booking starts',
   'myReservation.tip.cancelBefore': 'If you need to cancel, please do so 30 minutes in advance',
   'myReservation.tip.creditPenalty': 'Three consecutive violations may affect your credit score',
+  'myReservation.hint.violatedPenalty':
+    'This booking has been violated and may affect your credit score. Please keep future reservations on-time.',
   'myReservation.tip.keepQuiet': 'Keep quiet and help maintain a good study environment',
   'myReservation.detail.title': 'Reservation Details',
   'myReservation.detail.seatInfo': 'Seat Info',
@@ -55,4 +57,9 @@ export default {
   'myReservation.date.today': 'Today',
   'myReservation.date.tomorrow': 'Tomorrow',
   'myReservation.time.period': 'Time Period',
+
+  // Renewal time slot selection
+  'myReservation.renew.selectTimeSlot': 'Select renewal time slot',
+  'myReservation.renew.targetSlot': 'Renew to: {slot}',
+  'myReservation.action.changeRequest': 'Change Request',
 };

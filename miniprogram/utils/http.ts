@@ -85,18 +85,61 @@ function handleError(res: WechatMiniprogram.RequestSuccessCallbackResult) {
       BOOKING_CONFLICT: '该时间段已被预约',
       ALREADY_BOOKED: '您已预约过该时间段',
       USER_BLACKLISTED: '您的账号已被列入黑名单，无法继续操作',
-      '3008': '您的账号已被列入黑名单，无法继续操作',
       InvalidToken: '登录已过期，请重新登录',
       TokenExpired: 'Token 已过期',
       SeatNotAvailable: '座位当前不可用',
       CheckinTimeout: '签到超时',
+      // 数字错误码
+      '1001': '参数错误',
+      '1002': '未授权，请先登录',
+      '1003': '权限不足',
+      '1004': '资源不存在',
+      '2004': '登录已过期，请重新登录',
+      '2005': 'Token 已过期',
+      '3008': '您的账号已被列入黑名单，无法继续操作',
+      '4001': '座位不存在',
+      '5001': '该时间段已被预约',
+      '5002': '您已预约过该时间段',
+      '5003': '创建预约失败',
+      '5005': '预约不存在',
+      '5007': '签到失败',
+      '5008': '不允许签到',
+      '5009': '续约失败',
+      '5101': '当前请求名额已满',
+      '5102': '您已提交过该请求',
+      '5103': '相关记录不存在',
+      '5104': '当前请求已超时',
+      '5105': '该时段仍有空位，请直接预约',
+      '5201': '变更申请不存在',
+      '5202': '该申请已审批',
+      '5203': '请勿重复提交申请',
+      '5204': '目标时段/座位不可用',
+      '5301': '续约次数已达上限',
+      '5302': '续约目标时段不可用',
+      '5303': '每日预约次数已达上限',
+      '7001': '活动不存在',
+      '7005': '活动已结束',
+      '7007': '您已报名该活动',
+      '7008': '活动人数已满',
+      '7009': '您未报名该活动',
+      '7011': '活动未开始',
+      '7101': '活动名额已满',
+      '7102': '您已提交过该活动请求',
+      '7103': '报名已截止',
     };
 
     const message = errorMessages[errorCode || ''] || errorMessage;
     wx.showToast({ title: message, icon: 'none', duration: 2000 });
 
     // Token 过期处理
-    if (errorCode === 'InvalidToken' || errorCode === 'TokenExpired') {
+    if (
+      errorCode === 'InvalidToken' ||
+      errorCode === 'TokenExpired' ||
+      errorCode === '2004' ||
+      errorCode === '2005' ||
+      errorCode === 2004 ||
+      errorCode === 2005
+    ) {
       clearAuthState();
       setTimeout(() => {
         wx.reLaunch({ url: '/pages/login/login' });

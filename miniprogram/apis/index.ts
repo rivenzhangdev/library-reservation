@@ -19,6 +19,7 @@ export * as notificationApi from './notification';
 export * as activityApi from './activity';
 export * as feedbackApi from './feedback';
 export * as uploadApi from './upload';
+export * as changeRequestApi from './changeRequest';
 
 // 默认导出所有 API 模块（可选，方便批量导入）
 import * as authApi from './auth';
@@ -29,6 +30,7 @@ import * as notificationApi from './notification';
 import * as activityApi from './activity';
 import * as feedbackApi from './feedback';
 import * as uploadApi from './upload';
+import * as changeRequestApi from './changeRequest';
 
 export default {
   auth: authApi,
@@ -39,4 +41,5 @@ export default {
   activity: activityApi,
   feedback: feedbackApi,
   upload: uploadApi,
+  changeRequest: changeRequestApi,
 };

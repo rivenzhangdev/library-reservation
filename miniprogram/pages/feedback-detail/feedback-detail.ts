@@ -3,7 +3,7 @@
 import { t } from '../../utils/i18n';
 import { getFeedbackDetail } from '../../apis/feedback';
 import { resolveAssetUrl } from '../../utils/assets';
-import { toTimestamp, formatDateTime } from '../../utils/time';
+import { toTimestamp } from '../../utils/time';
 
 interface FeedbackInfo {
   id: string;
@@ -22,27 +22,21 @@ interface FeedbackInfo {
   status: string;
   statusStyle: string;
   statusText: string;
+  statusHint?: string;
   createTime: string;
-  processRecords?: ProcessRecord[];
-  timelineItems?: TimelineItem[];
+  latestUpdateTime?: string;
+  latestOfficialReply?: string;
+  updates?: FeedbackUpdateItem[];
 }
 
-interface ProcessRecord {
-  id: string;
-  userName: string;
-  userRole: string;
-  content: string;
-  processTime: string;
-}
-
-interface TimelineItem {
+interface FeedbackUpdateItem {
   id: string;
   title: string;
   userName: string;
   userRole: string;
   content: string;
   time: string;
-  type: 'submit' | 'reply' | 'comment';
+  tone: 'status' | 'official' | 'user';
 }
 
 Page({
@@ -88,6 +82,18 @@ Page({
       3: { name: t('feedback.form.urgency.high'), style: 'high' },
       4: { name: t('feedback.form.urgency.urgent'), style: 'urgent' },
     };
+    const statusTitleMap: Record<number, string> = {
+      1: t('feedback.detail.timelinePending'),
+      2: t('feedback.detail.timelineProcessing'),
+      3: t('feedback.detail.timelineResolved'),
+      4: t('feedback.detail.timelineRejected'),
+    };
+    const statusHintMap: Record<number, string> = {
+      1: t('feedback.detail.timelinePendingText'),
+      2: t('feedback.detail.timelineProcessingText'),
+      3: t('feedback.detail.timelineResolvedText'),
+      4: t('feedback.detail.timelineRejectedText'),
+    };
 
     getFeedbackDetail(id)
       .then((res: any) => {
@@ -106,54 +112,77 @@ Page({
         };
 
         const comments = Array.isArray(detail.comments) ? detail.comments : [];
-        const officialComments = comments.filter((comment: any) => comment.isOfficial);
-        const latestOfficialComment = officialComments.slice().sort((a: any, b: any) => {
-          const ta = toTimestamp(a.date) || 0;
-          const tb = toTimestamp(b.date) || 0;
-          return tb - ta;
-        })[0];
-
-        const replyText = detail.reply || latestOfficialComment?.content || '';
+        const replyText = detail.reply || '';
         const replyTime =
-          detail.replyAt ||
-          latestOfficialComment?.date ||
-          detail.updatedAt ||
-          detail.createdAt ||
-          '';
+          detail.replyAt || detail.processedAt || detail.updatedAt || detail.createdAt || '';
 
-        const processRecords = comments.map((comment: any) => ({
-          id: comment._id || `${comment.operator}-${comment.date || Math.random()}`,
-          userName: comment.operator || '',
-          userRole: comment.isOfficial ? t('feedback.detail.official') : '',
-          content: comment.content,
-          processTime: comment.date ? formatDateTime(comment.date) : '',
-        }));
+        const statusHint = statusHintMap[effectiveStatus] || statusHintMap[1];
+        const statusContentByType: Record<number, string> = {
+          1: statusHintMap[1],
+          2: statusHintMap[2],
+          3: detail.reply || detail.processedReason || statusHintMap[3],
+          4: detail.processedReason || detail.reply || statusHintMap[4],
+        };
 
-        const timelineItems: TimelineItem[] = [
-          {
-            id: detail._id || detail.id || 'initial',
-            title: t('feedback.detail.timelineSubmitted'),
-            userName: '',
-            userRole: '',
-            content: detail.description || '',
-            time: detail.createdAt ? formatDateTime(detail.createdAt) : '',
-            type: 'submit',
-          },
-          ...comments.map((comment: any, index: number) => ({
-            id: comment._id || `comment-${index}`,
+        const commentUpdates: FeedbackUpdateItem[] = comments.map(
+          (comment: any, index: number) => ({
+            id: comment.id || `comment-${index}`,
             title: comment.isOfficial
               ? t('feedback.detail.timelineReply')
               : t('feedback.detail.timelineComment'),
-            userName: comment.isOfficial ? comment.operator || t('feedback.detail.official') : '',
-            userRole: comment.isOfficial ? t('feedback.detail.official') : '',
+            userName: comment.operator || (comment.isOfficial ? t('feedback.detail.official') : ''),
+            userRole: comment.isOfficial ? t('feedback.detail.official') : t('feedback.chat.user'),
             content: comment.content || '',
-            time: comment.date ? formatDateTime(comment.date) : '',
-            type: comment.isOfficial ? 'reply' : 'comment',
-          })),
-        ];
+            time: comment.date || '',
+            tone: comment.isOfficial ? 'official' : 'user',
+          })
+        );
+
+        const statusUpdate: FeedbackUpdateItem = {
+          id: `status-${effectiveStatus}`,
+          title: statusTitleMap[effectiveStatus] || statusTitleMap[1],
+          userName: t('feedback.chat.system'),
+          userRole: t('feedback.detail.official'),
+          content: statusContentByType[effectiveStatus] || statusHint,
+          time: effectiveStatus === 1 ? detail.createdAt || '' : replyTime,
+          tone: 'status',
+        };
+
+        const officialReplyUpdate: FeedbackUpdateItem | null = replyText
+          ? {
+              id: 'official-reply',
+              title: t('feedback.detail.officialReplyTitle'),
+              userName: t('feedback.chat.system'),
+              userRole: t('feedback.detail.official'),
+              content: replyText,
+              time: replyTime,
+              tone: 'official',
+            }
+          : null;
+
+        const updates = [statusUpdate, officialReplyUpdate, ...commentUpdates]
+          .filter(Boolean)
+          .filter((item: any, index: number, arr: any[]) => {
+            return (
+              arr.findIndex(
+                (current: any) =>
+                  current.title === item.title &&
+                  current.content === item.content &&
+                  current.time === item.time
+              ) === index
+            );
+          })
+          .sort((a: any, b: any) => {
+            const ta = toTimestamp(a.time) || 0;
+            const tb = toTimestamp(b.time) || 0;
+            return tb - ta;
+          });
+
+        const latestOfficialReply =
+          updates.find((item: FeedbackUpdateItem) => item.tone !== 'user')?.content || '';
 
         const feedback: FeedbackInfo = {
-          id: detail._id || detail.id,
+          id: detail.id,
           title: detail.title,
           description: detail.description,
           contact: detail.contact || '',
@@ -164,14 +193,16 @@ Page({
           urgencyName: urgency.name,
           urgencyStyle: urgency.style,
           reply: replyText,
-          replyAt: replyTime ? formatDateTime(replyTime) : '',
+          replyAt: replyTime || '',
           status: detail.status || 'pending',
           statusStyle: status.style,
           statusText: status.text,
-          createTime: detail.createdAt ? formatDateTime(detail.createdAt) : '',
+          statusHint,
+          createTime: detail.createdAt || '',
           images: (detail.images || []).map((image: string) => resolveAssetUrl(image)),
-          processRecords,
-          timelineItems,
+          latestUpdateTime: updates[0]?.time || detail.updatedAt || detail.createdAt || '',
+          latestOfficialReply,
+          updates,
         };
 
         this.setData({ feedbackInfo: feedback });

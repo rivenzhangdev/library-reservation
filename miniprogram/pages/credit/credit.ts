@@ -1,5 +1,4 @@
 import { t } from '../../utils/i18n';
-import { formatDateTime } from '../../utils/time';
 import { getCredit, getCreditRecords } from '../../apis/user';
 import { isLogin, redirectToLogin } from '../../utils/auth';
 
@@ -198,14 +197,14 @@ Page({
         const type = Number(item.type);
         const points = Number(item.points || 0);
         return {
-          id: item.id || item._id,
+          id: item.id,
           type,
           typeLabel: formatCreditType(type),
           points,
           pointsLabel: getPointsLabel(type, points),
           pointsClass: type === 1 ? 'record-points--deduct' : 'record-points--add',
           date: item.date || item.createdAt || '',
-          dateText: formatDateTime(item.date || item.createdAt || ''),
+          dateText: item.date || item.createdAt || '',
           reason: item.reason || item.typeLabel || '-',
         };
       });

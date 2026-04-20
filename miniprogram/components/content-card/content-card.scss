@@ -37,6 +37,16 @@
         border-radius: var(--common-border-radius-pill);
       }
 
+      .content-card-title-row {
+        display: flex;
+        align-items: center;
+        min-width: 0;
+      }
+
+      .content-card-title-icon {
+        margin-right: var(--common-spacing-sm);
+      }
+
       .content-card-title {
         overflow: hidden;
         color: var(--common-dark-text-color);

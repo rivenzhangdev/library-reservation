@@ -80,6 +80,28 @@
   font-size: 16px;
 }
 
+.login-env-entry {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 14px;
+  padding: 10px 12px;
+  background: #fff;
+  border: 1px solid #dbe3ee;
+  border-radius: 10px;
+}
+
+.login-env-entry-text {
+  color: #334155;
+  font-size: 13px;
+}
+
+.login-env-entry-action {
+  color: #16a34a;
+  font-weight: 600;
+  font-size: 13px;
+}
+
 .login-agreement {
   margin-top: 22px;
   color: #64748b;

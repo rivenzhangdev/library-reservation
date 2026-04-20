@@ -11,7 +11,17 @@
       <view wx:if="{{icon}}" class="content-card-icon" style="background-color: {{iconBgColor}}">
         <uni-icon type="vant" name="{{icon}}" size="{{iconSize}}" color="{{iconColor}}" />
       </view>
-      <text class="content-card-title">{{title}}</text>
+      <view class="content-card-title-row">
+        <uni-icon
+          wx:if="{{titleIcon}}"
+          class="content-card-title-icon"
+          type="vant"
+          name="{{titleIcon}}"
+          size="24"
+          color="{{titleIconColor}}"
+        />
+        <text class="content-card-title">{{title}}</text>
+      </view>
     </view>
     <view class="content-card-right">
       <van-info

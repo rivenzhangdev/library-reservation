@@ -2,7 +2,6 @@
 import { getProfile, updateProfile, getCredit } from '../../apis/user';
 import { getMyBookings } from '../../apis/booking';
 import { getUserInfo, isLogin, redirectToLogin, setUserInfo } from '../../utils/auth';
-import { formatDateTime } from '../../utils/time';
 import { readLocalImageAsDataUrl } from '../../utils/file';
 import { t } from '../../utils/i18n';
 
@@ -11,11 +10,10 @@ function normalizeUser(user: any) {
 
   const studentId = String(user.studentId || '').trim();
   const avatarUrl = String(user.avatarUrl || '').trim();
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const { avatar: _avatar, ...rest } = user;
   return {
     ...rest,
-    id: user.id || user._id,
+    id: user.id,
     username: user.username || '',
     nickName: user.nickName || user.name || '',
     name: user.name || user.nickName || '',
@@ -181,7 +179,7 @@ Page({
         : t('profile.personal.unboundStatus'),
       studentIdStatusText,
       creditScore: '-',
-      registerDate: normalized.createdAt ? formatDateTime(normalized.createdAt, 'YYYY-MM-DD') : '-',
+      registerDate: normalized.createdAt ? String(normalized.createdAt).slice(0, 10) : '-',
       avatarUrl: normalized.avatarUrl || '',
       isStudentBound: normalized.isStudentBound,
       bindName: getDisplayName(normalized),
@@ -235,7 +233,7 @@ Page({
     }
 
     try {
-      const bookingRes: any = await getMyBookings({ page: 1, limit: 1 });
+      const bookingRes: any = await getMyBookings({ page: 1, pageSize: 1 });
       const total = bookingRes?.data?.total ?? 0;
       this.setData({ bookingCount: total });
     } catch {

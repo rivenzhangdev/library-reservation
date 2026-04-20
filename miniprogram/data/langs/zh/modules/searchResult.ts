@@ -17,4 +17,18 @@ export default {
   'searchResult.hint.reserveSuccess': '预约成功',
   'searchResult.hint.favoriteSuccess': '收藏成功',
   'searchResult.hint.openDetail': '查看座位详情',
+
+  // 高级筛选
+  'searchResult.filter.title': '高级筛选',
+  'searchResult.filter.conditions': '筛选条件',
+  'searchResult.filter.floor': '楼层',
+  'searchResult.filter.seatType': '座位类型',
+  'searchResult.filter.facility': '设施',
+  'searchResult.filter.hasSocket': '有插座',
+  'searchResult.filter.isWindow': '靠窗',
+  'searchResult.filter.reset': '重置',
+  'searchResult.filter.apply': '应用',
+  'searchResult.filter.done': '完成',
+  'searchResult.filter.all': '全部',
+  'searchResult.filter.result': '筛选结果',
 };

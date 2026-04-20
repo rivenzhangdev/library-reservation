@@ -1,5 +1,5 @@
-﻿import { getCredit, getProfile } from '../../apis/user';
-import { getMyBookings } from '../../apis/booking';
+﻿import { getMyBookings } from '../../apis/booking';
+import { getCredit, getProfile } from '../../apis/user';
 import {
   getUserInfo,
   hasBoundStudentInfo,
@@ -14,6 +14,8 @@ interface ProfileMenuItem {
   iconName: string;
   iconColor: string;
   iconBgColor: string;
+  titleIconName?: string;
+  titleIconColor?: string;
   badgeCount?: number;
   clickable?: boolean;
   disabled?: boolean;
@@ -56,11 +58,10 @@ function normalizeUser(user: any) {
   if (!user) return null;
 
   const avatarUrl = String(user.avatarUrl || '').trim();
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const { avatar: _avatar, ...rest } = user;
   return {
     ...rest,
-    id: user.id || user._id,
+    id: user.id,
     username: user.username || '',
     nickName: user.nickName || user.name || '',
     name: user.name || user.nickName || '',
@@ -142,7 +143,7 @@ Page({
         },
         {
           label: t('profile.center.creditCenter'),
-          iconName: 'trophy',
+          iconName: 'medal-o',
           iconColor: '#ca8a04',
           iconBgColor: '#fef9c3',
           action: 'onCreditCenterTap',
@@ -354,7 +355,7 @@ Page({
     }
 
     try {
-      const bookingRes: any = await getMyBookings({ page: 1, limit: 1 });
+      const bookingRes: any = await getMyBookings({ page: 1, pageSize: 1 });
       const total = bookingRes?.data?.total ?? 0;
       this.setData({ bookingCount: total });
     } catch {

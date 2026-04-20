@@ -1,29 +1,60 @@
 import { t } from '../../utils/i18n';
-import { formatDateTime } from '../../utils/time';
 import { getNotificationDetail, markAsRead } from '../../apis/notification';
 
-function normalizeNotificationType(type: string) {
-  const typeNameMap: Record<string, string> = {
-    '0': 'system',
-    '1': 'reservation',
-    '2': 'activity',
-    '3': 'marketing',
+const NotificationType = {
+  SYSTEM: 0,
+  RESERVATION: 1,
+  ACTIVITY: 2,
+  MARKETING: 3,
+} as const;
+
+const NotificationTypeName: Record<NotificationTypeValue, string> = {
+  [NotificationType.SYSTEM]: 'system',
+  [NotificationType.RESERVATION]: 'reservation',
+  [NotificationType.ACTIVITY]: 'activity',
+  [NotificationType.MARKETING]: 'marketing',
+};
+
+type NotificationTypeKey = keyof typeof NotificationType;
+
+type NotificationTypeValue = (typeof NotificationType)[NotificationTypeKey];
+
+function normalizeNotificationType(type: string | number): NotificationTypeValue {
+  const typeNameMap: Record<string, NotificationTypeValue> = {
+    '0': NotificationType.SYSTEM,
+    '1': NotificationType.RESERVATION,
+    '2': NotificationType.ACTIVITY,
+    '3': NotificationType.MARKETING,
   };
-  return typeNameMap[type] || type;
+  if (typeof type === 'number') {
+    return [
+      NotificationType.SYSTEM,
+      NotificationType.RESERVATION,
+      NotificationType.ACTIVITY,
+      NotificationType.MARKETING,
+    ].includes(type)
+      ? (type as NotificationTypeValue)
+      : NotificationType.SYSTEM;
+  }
+  return (typeNameMap[type] ?? NotificationTypeName[type as any])
+    ? (type as NotificationTypeValue)
+    : NotificationType.SYSTEM;
 }
 
-function getNotificationTypeText(type: string) {
+function getNotificationTypeText(type: string | number) {
   const normalized = normalizeNotificationType(type);
-  return t(`notification.type.${normalized}`) || normalized;
+  return (
+    t(`notification.type.${NotificationTypeName[normalized]}`) || NotificationTypeName[normalized]
+  );
 }
 
 function localizeNotificationText(
   title: string,
   content: string,
-  type: string,
+  type: NotificationTypeValue,
   currentLang: string
 ) {
-  if (currentLang === 'zh' && type === 'reservation') {
+  if (currentLang === 'zh' && type === NotificationType.RESERVATION) {
     if (/booking successful/i.test(title)) {
       title = '预约成功';
     }
@@ -150,11 +181,11 @@ Page({
           title: localized.title,
           content: localized.content,
           typeText: getNotificationTypeText(type),
-          time: formatDateTime(detail.time || detail.createdAt || ''),
+          time: detail.time || detail.createdAt || '',
           isReadText: detail.isRead ? t('notification.read') : t('notification.unread'),
           extraInfoRows: buildExtraInfoRows(detail.data),
           publisherName:
-            type === 'system'
+            type === NotificationType.SYSTEM
               ? t('notification.detail.publisherSystem')
               : detail.publisherName || '-',
         };
@@ -176,7 +207,7 @@ Page({
     const notification = this.data.notification || {};
     if (!notification.relatedId) return;
 
-    if (notification.type === 'activity') {
+    if (notification.type === NotificationType.ACTIVITY) {
       wx.navigateTo({
         url: `/pages/activity-detail/activity-detail?id=${notification.relatedId}`,
       });

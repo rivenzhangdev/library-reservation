@@ -1,4 +1,4 @@
-import { getFloors, getFloorSeats } from '../../apis/seats';
+import { getFloors, getFloorSeats, getSeatZones } from '../../apis/seats';
 import { createBooking } from '../../apis/booking';
 import { getWechatTemplateIds } from '../../apis/notification';
 import {
@@ -41,6 +41,53 @@ async function requestBookingSubscribeMessage(templateId: string) {
   });
 }
 
+function normalizeConfigText(value: any) {
+  return String(value ?? '').trim();
+}
+
+function resolveFacilityFieldByKey(rawKey: any) {
+  const key = normalizeConfigText(rawKey).toLowerCase();
+  if (!key) return '';
+  if (['power', 'socket', 'hassocket', 'has_socket'].includes(key)) return 'hasSocket';
+  if (['window', 'iswindow', 'is_window'].includes(key)) return 'isWindow';
+  return '';
+}
+
+function resolveSeatFacilityFlag(seat: any, facilityKey: string) {
+  const field = resolveFacilityFieldByKey(facilityKey);
+  if (field) {
+    return Boolean(seat?.[field]);
+  }
+  return Boolean(seat?.[facilityKey]);
+}
+
+function resolveSeatTypeValue(rawType: any, seatTypeValueByCode: Record<string, string>) {
+  const typeKey = normalizeConfigText(rawType);
+  if (!typeKey) return '';
+  const numericKey = String(Number(typeKey));
+  if (typeKey in seatTypeValueByCode) {
+    return seatTypeValueByCode[typeKey];
+  }
+  if (numericKey !== 'NaN' && numericKey in seatTypeValueByCode) {
+    return seatTypeValueByCode[numericKey];
+  }
+  return typeKey;
+}
+
+function resolveSeatTypeLabel(
+  rawType: any,
+  typeValue: string,
+  seatTypeLabelByValue: Record<string, string>,
+  explicitLabel?: any
+) {
+  const label = normalizeConfigText(explicitLabel);
+  if (label) return label;
+  if (typeValue && seatTypeLabelByValue[typeValue]) {
+    return seatTypeLabelByValue[typeValue];
+  }
+  return typeValue || normalizeConfigText(rawType);
+}
+
 Page({
   /**
    * 页面的初始数据
@@ -79,7 +126,7 @@ Page({
     facilities: {
       power: false,
       window: false,
-    },
+    } as Record<string, boolean> & { power: boolean; window: boolean },
 
     // 座位数据
     seats: [] as any[],
@@ -116,6 +163,8 @@ Page({
       label: string;
       enabled: boolean;
     }>,
+    seatTypeValueByCode: {} as Record<string, string>,
+    seatTypeLabelByValue: {} as Record<string, string>,
     seatFacilityConfigs: [] as Array<{ id?: number; key: string; label: string; enabled: boolean }>,
     facilityOptions: [] as Array<{ key: string; label: string; enabled: boolean }>,
     durations: [] as Array<{ label: string; value: string }>,
@@ -237,9 +286,6 @@ Page({
    * 处理从收藏页面传递的参数
    */
   handleFavoriteParams(options: any) {
-    const app = getApp() as any;
-    const t = app.t || ((key: string) => key);
-
     console.log('handleFavoriteParams 接收到参数:', options);
 
     // 处理日期参数
@@ -265,65 +311,105 @@ Page({
         }
       }
 
-      // 解析区域
+      // 解析区域（按后端返回的原始 zone 名称匹配，不做本地映射）
       if (zone) {
-        const zoneMap: Record<string, string> = {
-          'A 区': 'a',
-          'B 区': 'b',
-          'C 区': 'c',
-          A: 'a',
-          B: 'b',
-          C: 'c',
-          'Area A': 'a',
-          'Area B': 'b',
-          'Area C': 'c',
-          a: 'a',
-          b: 'b',
-          c: 'c',
-        };
-        const areaId = zoneMap[zone] || 'all';
-        const area = this.data.areas.find((a) => a.id === areaId) || this.data.areas[0];
-        this.setData({ selectedArea: area });
+        const zoneName = String(zone).trim();
+        if (zoneName) {
+          const area =
+            this.data.areas.find((a) => a.id === zoneName || a.name === zoneName) ||
+            ({ id: zoneName, name: zoneName } as any);
+          this.setData({ selectedArea: area });
+        }
       }
 
-      // 解析座位类型
-      if (type) {
-        const typeMap: Record<string, string> = {
-          阅览区单人桌: 'single',
-          自习区讨论桌: 'double',
-          研修室: 'group',
-          电子阅览区: 'open',
-          [t('reservation.seatType.single')]: 'single',
-          [t('reservation.seatType.double')]: 'double',
-          [t('reservation.seatType.group')]: 'group',
-          [t('reservation.seatType.open')]: 'open',
-          [t('seat.type.single')]: 'single',
-          [t('seat.type.double')]: 'double',
-          [t('seat.type.group')]: 'group',
-          [t('seat.type.open')]: 'open',
-        };
-        const seatTypeId = typeMap[type] || 'all';
-        const seatType =
-          this.data.seatTypes.find((s) => s.id === seatTypeId) || this.data.seatTypes[0];
-        this.setData({ selectedSeatType: seatType });
+      // 解析座位类型（优先 typeValue，其次匹配 id/name）
+      const incomingTypeValue = normalizeConfigText((options as any).typeValue);
+      const incomingTypeLabel = normalizeConfigText((options as any).typeLabel);
+      const incomingTypeText = normalizeConfigText(type);
+      if (incomingTypeValue || incomingTypeLabel || incomingTypeText) {
+        const matchedSeatType = this.data.seatTypes.find((item) => {
+          if (incomingTypeValue && item.id === incomingTypeValue) return true;
+          if (
+            incomingTypeText &&
+            (item.id === incomingTypeText || item.name === incomingTypeText)
+          ) {
+            return true;
+          }
+          if (incomingTypeLabel && item.name === incomingTypeLabel) return true;
+          return false;
+        });
+
+        const fallbackId = incomingTypeValue || incomingTypeText || incomingTypeLabel;
+        this.setData({
+          selectedSeatType:
+            matchedSeatType ||
+            ({
+              id: fallbackId || 'all',
+              name: incomingTypeLabel || incomingTypeText || fallbackId,
+            } as any),
+        });
       }
 
-      // 解析设施
-      if (facilities) {
-        const facilitiesArr = facilities.split(',');
-        const facilitiesConfig: any = {
+      // 解析设施（优先 facilityKeys，其次按 label 匹配）
+      const rawFacilityKeys = normalizeConfigText((options as any).facilityKeys);
+      const rawFacilityLabels = normalizeConfigText(facilities);
+      const facilityTokens = (rawFacilityKeys || rawFacilityLabels)
+        .split(',')
+        .map((item) => String(item || '').trim())
+        .filter(Boolean);
+
+      if (facilityTokens.length > 0) {
+        const nextFacilities = {
           power: false,
           window: false,
-        };
+        } as Record<string, boolean> & { power: boolean; window: boolean };
 
-        if (facilitiesArr.includes(t('common.seat.facilities.power'))) {
-          facilitiesConfig.power = true;
+        (this.data.facilityOptions || []).forEach((item: any) => {
+          nextFacilities[item.key] = false;
+        });
+
+        if (!Object.prototype.hasOwnProperty.call(nextFacilities, 'power')) {
+          nextFacilities.power = false;
         }
-        if (facilitiesArr.includes(t('common.seat.facilities.window'))) {
-          facilitiesConfig.window = true;
+        if (!Object.prototype.hasOwnProperty.call(nextFacilities, 'window')) {
+          nextFacilities.window = false;
         }
 
-        this.setData({ facilities: facilitiesConfig });
+        const facilityConfigs = this.data.seatFacilityConfigs || [];
+
+        facilityTokens.forEach((token) => {
+          const normalizedToken = token.toLowerCase();
+
+          if (['power', 'socket', 'hassocket', 'has_socket'].includes(normalizedToken)) {
+            nextFacilities.power = true;
+            return;
+          }
+          if (['window', 'iswindow', 'is_window'].includes(normalizedToken)) {
+            nextFacilities.window = true;
+            return;
+          }
+
+          const matchedOption = (this.data.facilityOptions || []).find(
+            (item: any) =>
+              String(item.key || '').toLowerCase() === normalizedToken ||
+              String(item.label || '').toLowerCase() === normalizedToken
+          );
+          if (matchedOption) {
+            nextFacilities[matchedOption.key] = true;
+            return;
+          }
+
+          const matchedConfig = facilityConfigs.find(
+            (item: any) =>
+              String(item.key || '').toLowerCase() === normalizedToken ||
+              String(item.label || '').toLowerCase() === normalizedToken
+          );
+          if (matchedConfig?.key) {
+            nextFacilities[String(matchedConfig.key)] = true;
+          }
+        });
+
+        this.setData({ facilities: nextFacilities });
       }
 
       // 自动选择座位
@@ -509,6 +595,36 @@ Page({
     return formatDateTime(new Date(), 'HH:mm');
   },
 
+  getAutoStartTimeForRange(range: { start: string; end: string }) {
+    if (!this.isSelectedDateToday()) {
+      return range.start;
+    }
+
+    const nowTime = this.getTodayTimeString();
+    if (nowTime > range.start && nowTime < range.end) {
+      return nowTime;
+    }
+    return range.start;
+  },
+
+  getEffectiveBookingTimeRange() {
+    if (this.data.useCustomTime) {
+      return {
+        startTime: this.data.customStartTime,
+        endTime: this.data.customEndTime,
+        autoAdjusted: false,
+      };
+    }
+
+    const range = this.getSelectedSlotRange();
+    const startTime = this.getAutoStartTimeForRange(range);
+    return {
+      startTime,
+      endTime: range.end,
+      autoAdjusted: startTime !== range.start,
+    };
+  },
+
   isSelectedDateToday() {
     return this.data.selectedDate === getToday();
   },
@@ -530,8 +646,8 @@ Page({
             item.enabled !== false &&
             typeof item.label === 'string' &&
             typeof item.value === 'string' &&
-            (typeof item.startTime === 'string' || typeof item.start === 'string') &&
-            (typeof item.endTime === 'string' || typeof item.end === 'string')
+            (typeof (item as any).startTime === 'string' || typeof item.start === 'string') &&
+            (typeof (item as any).endTime === 'string' || typeof item.end === 'string')
         )
       : [];
 
@@ -565,8 +681,8 @@ Page({
     const configSlots = validConfigs.length ? validConfigs : fallbackConfigs;
 
     return configSlots.map((slot) => {
-      const startValue = slot.startTime || slot.start || '';
-      const endValue = slot.endTime || slot.end || '';
+      const startValue = (slot as any).startTime || slot.start || '';
+      const endValue = (slot as any).endTime || slot.end || '';
       if (!isToday) {
         return {
           label: slot.label,
@@ -614,10 +730,11 @@ Page({
         : firstEnabledPeriod;
 
     const selectedPeriodLabel = activePeriod?.label || '';
-    const selectedPeriodRange = activePeriod ? `${activePeriod.start} - ${activePeriod.end}` : '';
+    const effectiveStart = activePeriod ? this.getAutoStartTimeForRange(activePeriod) : '';
+    const selectedPeriodRange = activePeriod ? `${effectiveStart} - ${activePeriod.end}` : '';
     const selectedDurationText = activePeriod
-      ? this.formatDurationText(activePeriod.start, activePeriod.end) ||
-        `${Math.ceil((toTimeMinutes(activePeriod.end) - toTimeMinutes(activePeriod.start)) / 60)}h`
+      ? this.formatDurationText(effectiveStart, activePeriod.end) ||
+        `${Math.ceil((toTimeMinutes(activePeriod.end) - toTimeMinutes(effectiveStart)) / 60)}h`
       : '';
 
     this.setData({
@@ -642,6 +759,7 @@ Page({
       const bookingRules = (ruleRes?.data || {}) as {
         minCustomBookingDurationMinutes?: number;
         checkinWindowMinutes?: number;
+        maxRenewalExtraSlots?: number;
       };
       const minCustomTimeMinutes = Number(
         bookingRules.minCustomBookingDurationMinutes ?? MIN_CUSTOM_TIME_MINUTES
@@ -686,19 +804,79 @@ Page({
         getSeatTypeConfigs(),
         getSeatFacilityConfigs(),
       ]);
-      const seatTypeConfigs = (typeRes.data || []) as Array<any>;
-      const seatFacilityConfigs = (facilityRes.data || []) as Array<any>;
+      const seatTypeConfigs = ((typeRes.data || []) as Array<any>)
+        .filter(
+          (item: any) =>
+            item &&
+            item.enabled !== false &&
+            normalizeConfigText(item.value) &&
+            normalizeConfigText(item.label)
+        )
+        .sort((a: any, b: any) => (a.order ?? 0) - (b.order ?? 0));
+      const seatFacilityConfigs = ((facilityRes.data || []) as Array<any>)
+        .filter((item: any) => item && item.enabled !== false && normalizeConfigText(item.key))
+        .sort((a: any, b: any) => (a.order ?? 0) - (b.order ?? 0));
+
+      const seatTypeValueByCode = seatTypeConfigs.reduce(
+        (acc: Record<string, string>, item: any) => {
+          const typeKey = normalizeConfigText(item.type);
+          const value = normalizeConfigText(item.value);
+          if (typeKey && value) {
+            acc[typeKey] = value;
+          }
+          return acc;
+        },
+        {} as Record<string, string>
+      );
+      const seatTypeLabelByValue = seatTypeConfigs.reduce(
+        (acc: Record<string, string>, item: any) => {
+          const value = normalizeConfigText(item.value);
+          const label = normalizeConfigText(item.label);
+          if (value && label) {
+            acc[value] = label;
+          }
+          return acc;
+        },
+        {} as Record<string, string>
+      );
+
+      const facilityOptions = seatFacilityConfigs.map((item: any) => ({
+        key: normalizeConfigText(item.key),
+        label: normalizeConfigText(item.label) || normalizeConfigText(item.key),
+        enabled: item.enabled !== false,
+      }));
+
+      const currentFacilities = this.data.facilities as Record<string, boolean>;
+      const nextFacilities = facilityOptions.reduce(
+        (acc: Record<string, boolean>, item: any) => {
+          acc[item.key] = Boolean(currentFacilities[item.key]);
+          return acc;
+        },
+        {
+          power: Boolean(currentFacilities.power),
+          window: Boolean(currentFacilities.window),
+        } as Record<string, boolean> & { power: boolean; window: boolean }
+      ) as Record<string, boolean> & { power: boolean; window: boolean };
+
       this.setData({
         seatTypeConfigs,
+        seatTypeValueByCode,
+        seatTypeLabelByValue,
         seatFacilityConfigs,
-        facilityOptions: seatFacilityConfigs.filter((item) => item.enabled),
+        facilityOptions,
+        facilities: nextFacilities,
       });
     } catch (error) {
       console.warn('加载座位配置失败，使用默认选项', error);
       this.setData({
         seatTypeConfigs: [],
+        seatTypeValueByCode: {},
+        seatTypeLabelByValue: {},
         seatFacilityConfigs: [],
-        facilityOptions: [],
+        facilityOptions: [
+          { key: 'power', label: 'power', enabled: true },
+          { key: 'window', label: 'window', enabled: true },
+        ],
       });
     }
   },
@@ -792,8 +970,8 @@ Page({
       filterAreaText: t('reservation.filter.area'),
       filterSeatTypeText: t('reservation.filter.seatType'),
       filterFacilityText: t('reservation.filter.facility'),
-      filterFacilityPowerText: facilityPowerConfig?.label || t('reservation.filter.facility.power'),
-      filterFacilityWindowText: facilityWindowConfig?.label || t('common.seat.facilities.window'),
+      filterFacilityPowerText: facilityPowerConfig?.label || 'power',
+      filterFacilityWindowText: facilityWindowConfig?.label || 'window',
       filterResetText: t('reservation.filter.reset'),
       filterResultText,
       noSeatText,
@@ -840,7 +1018,8 @@ Page({
   initFloorData() {
     getFloors()
       .then((res) => {
-        const floorsData = res.data as any[];
+        const responseData = res?.data as any;
+        const floorsData = (Array.isArray(responseData?.list) ? responseData.list : []) as any[];
         if (Array.isArray(floorsData) && floorsData.length > 0) {
           const floors = sortByFloorName(floorsData.map((f: any) => ({ id: f.id, name: f.name })));
           this.setData({ floors, currentFloor: floors[0]?.id ?? this.data.currentFloor });
@@ -862,21 +1041,40 @@ Page({
     const app = getApp() as any;
     const t = app.t || ((key: string) => key);
 
-    const areas = [
-      { id: 'all', name: t('reservation.area.all') },
-      { id: 'a', name: t('reservation.area.a') },
-      { id: 'b', name: t('reservation.area.b') },
-      { id: 'c', name: t('reservation.area.c') },
-    ];
+    const allAreaName = String(t('reservation.area.all'));
+    const applyAreas = (areaNames: string[]) => {
+      const uniqueAreaNames = Array.from(
+        new Set(areaNames.map((item) => String(item || '').trim()))
+      )
+        .filter(Boolean)
+        .sort((a, b) => a.localeCompare(b, 'zh-Hans-CN'));
 
-    // 保持当前选中的区域
-    const selectedArea = this.data.selectedArea;
-    const currentArea = areas.find((a) => a.id === selectedArea.id) || areas[0];
+      const areas = [
+        { id: 'all', name: allAreaName },
+        ...uniqueAreaNames.map((name) => ({ id: name, name })),
+      ];
 
-    this.setData({
-      areas,
-      selectedArea: currentArea,
-    });
+      const selectedArea = this.data.selectedArea;
+      const currentArea =
+        areas.find((a) => a.id === selectedArea.id) ||
+        areas.find((a) => a.name === selectedArea.name) ||
+        areas[0];
+
+      this.setData({
+        areas,
+        selectedArea: currentArea,
+      });
+    };
+
+    getSeatZones({ showLoading: false })
+      .then((res: any) => {
+        const list = Array.isArray(res?.data) ? res.data : [];
+        applyAreas(list.map((item: any) => item?.name));
+      })
+      .catch((error) => {
+        console.warn('加载区域配置失败，使用默认区域列表', error);
+        applyAreas([]);
+      });
   },
 
   /**
@@ -886,27 +1084,19 @@ Page({
     const app = getApp() as any;
     const t = app.t || ((key: string) => key);
 
-    const defaultSeatTypes = [
+    const seatTypes = [
       { id: 'all', name: t('reservation.seatType.all') },
-      { id: 'single', name: t('reservation.seatType.single') },
-      { id: 'double', name: t('reservation.seatType.double') },
-      { id: 'group', name: t('reservation.seatType.group') },
-      { id: 'open', name: t('reservation.seatType.open') },
+      ...(this.data.seatTypeConfigs || []).map((item: any) => ({
+        id: String(item.value),
+        name: String(item.label || item.value),
+      })),
     ];
 
-    const seatTypes =
-      this.data.seatTypeConfigs && this.data.seatTypeConfigs.length > 0
-        ? [
-            { id: 'all', name: t('reservation.seatType.all') },
-            ...this.data.seatTypeConfigs
-              .filter((item: any) => item.enabled)
-              .sort((a: any, b: any) => (a.order ?? 0) - (b.order ?? 0))
-              .map((item: any) => ({ id: item.value, name: item.label })),
-          ]
-        : defaultSeatTypes;
-
     const selectedSeatType = this.data.selectedSeatType;
-    const currentSeatType = seatTypes.find((s) => s.id === selectedSeatType.id) || seatTypes[0];
+    const currentSeatType =
+      seatTypes.find((s) => s.id === selectedSeatType.id) ||
+      seatTypes.find((s) => s.name === selectedSeatType.name) ||
+      seatTypes[0];
 
     this.setData({
       seatTypes,
@@ -926,6 +1116,7 @@ Page({
     // 检查语言是否变化，避免重复初始化
     const app = getApp();
     const currentLang = app.globalData.currentLang || 'zh';
+    const selectedDate = this.getValidReservationDate(this.data.selectedDate || getToday());
 
     if (currentLang !== this.data.currentLang) {
       this.updateLanguage();
@@ -934,8 +1125,11 @@ Page({
     this.consumePendingReservationParams();
     this.loadSeatMapWrapperRect();
     this.loadWechatTemplateIdsIfNeeded();
-    this.refreshTimePeriods(this.data.selectedDate);
-    this.loadSeats();
+    this.initFloorData();
+    this.initAreaData();
+    this.setData({ selectedDate }, () => {
+      this.loadTimeSlotConfigs(selectedDate);
+    });
   },
 
   async loadWechatTemplateIdsIfNeeded() {
@@ -1138,9 +1332,11 @@ Page({
    * 设施选项切换事件
    */
   onFacilityTap(e: any) {
-    const type = (e.currentTarget?.dataset?.type || e.target?.dataset?.type) as 'power' | 'window';
+    const type = String(e.currentTarget?.dataset?.type || e.target?.dataset?.type || '').trim();
     if (!type) return;
-    const facilities = { ...this.data.facilities };
+    const facilities = {
+      ...(this.data.facilities as Record<string, boolean> & { power: boolean; window: boolean }),
+    } as Record<string, boolean> & { power: boolean; window: boolean };
     const nextValue = typeof e.detail?.value === 'boolean' ? e.detail.value : !facilities[type];
     facilities[type] = nextValue;
     this.setData({
@@ -1190,30 +1386,9 @@ Page({
     // 构造时段值
     const timeSlot = this.resolveTimeSlotValue();
 
-    // 构造筛选条件
-    const filters: any = {};
-    if (selectedArea && selectedArea.id !== 'all') {
-      filters.zone = selectedArea.name;
-    }
-    if (selectedSeatType && selectedSeatType.id !== 'all') {
-      const typeMap: Record<string, number> = (this.data.seatTypeConfigs || []).reduce(
-        (acc: Record<string, number>, item: any) => {
-          if (item && typeof item.value === 'string') {
-            acc[item.value] = item.type;
-          }
-          return acc;
-        },
-        { single: 0, double: 1, group: 2, open: 0 }
-      );
-      filters.type = typeMap[selectedSeatType.id] ?? 0;
-    }
-    if (facilities.power) filters.hasSocket = true;
-    if (facilities.window) filters.isWindow = true;
-
     const params: any = {};
     if (selectedDate) params.date = selectedDate;
     if (timeSlot !== undefined) params.timeSlot = timeSlot;
-    if (Object.keys(filters).length > 0) params.filters = JSON.stringify(filters);
 
     this.setData({ seatsLoading: true });
     getFloorSeats(String(currentFloor), params)
@@ -1228,46 +1403,55 @@ Page({
             booked: 'booked',
             maintenance: 'maintenance',
           };
-          const configTypeMap: Record<string, string> = (this.data.seatTypeConfigs || []).reduce(
-            (acc: Record<string, string>, item: any) => {
-              acc[String(item.type)] = item.value;
-              return acc;
-            },
-            {
-              '0': 'single',
-              '1': 'double',
-              '2': 'group',
-            }
-          );
-          const typeLabelMap: Record<string, string> = (this.data.seatTypeConfigs || []).reduce(
-            (acc: Record<string, string>, item: any) => {
-              acc[item.value] = item.label;
-              return acc;
-            },
-            {
-              single: t('reservation.seatType.single'),
-              double: t('reservation.seatType.double'),
-              group: t('reservation.seatType.group'),
-              open: t('reservation.seatType.open'),
-            }
-          );
-          const facilityPowerLabel =
-            (this.data.seatFacilityConfigs || []).find((item: any) => item.key === 'power')
-              ?.label || t('common.seat.facilities.power');
-          const facilityWindowLabel =
-            (this.data.seatFacilityConfigs || []).find((item: any) => item.key === 'window')
-              ?.label || t('common.seat.facilities.window');
+          const floorName = String(responseData.floorName || '').trim();
+          const seatTypeValueByCode = this.data.seatTypeValueByCode || {};
+          const seatTypeLabelByValue = this.data.seatTypeLabelByValue || {};
+          const facilityOptions =
+            (this.data.facilityOptions || []).length > 0
+              ? (this.data.facilityOptions || []).map((item: any) => ({
+                  key: String(item.key || '').trim(),
+                  label: String(item.label || item.key || '').trim(),
+                }))
+              : [
+                  {
+                    key: 'power',
+                    label: this.data.filterFacilityPowerText || 'power',
+                  },
+                  {
+                    key: 'window',
+                    label: this.data.filterFacilityWindowText || 'window',
+                  },
+                ];
 
-          let seats = responseData.seats.map((s: any) => {
+          const allSeats = responseData.seats.map((s: any) => {
             const row = Number(s.row);
             const col = Number(s.col);
             const seatLabel = `R${row}C${col}`;
-            const seatType = configTypeMap[String(s.type)] || 'single';
-            const typeText = typeLabelMap[seatType] || t('reservation.seatType.open');
-            const featureLabels = [
-              s.hasSocket ? facilityPowerLabel : '',
-              s.isWindow ? facilityWindowLabel : '',
-            ].filter(Boolean);
+            const rawTypeValue = normalizeConfigText((s as any).typeValue);
+            const typeValue =
+              rawTypeValue ||
+              resolveSeatTypeValue(s.type, seatTypeValueByCode) ||
+              normalizeConfigText(s.type);
+            const typeText = resolveSeatTypeLabel(
+              s.type,
+              typeValue,
+              seatTypeLabelByValue,
+              (s as any).typeLabel
+            );
+
+            const facilityFlags = facilityOptions.reduce(
+              (acc: Record<string, boolean>, option: { key: string; label: string }) => {
+                if (!option.key) return acc;
+                acc[option.key] = resolveSeatFacilityFlag(s, option.key);
+                return acc;
+              },
+              {} as Record<string, boolean>
+            );
+
+            const featureLabels = facilityOptions
+              .filter((option: { key: string; label: string }) => facilityFlags[option.key])
+              .map((option: { key: string; label: string }) => option.label)
+              .filter(Boolean);
 
             const booking = (s as any).booking;
             return {
@@ -1277,11 +1461,15 @@ Page({
               label: seatLabel,
               status: statusMap[String(s.status)] || 'available',
               isMine: !!s.isMine,
-              type: seatType,
+              type: typeValue,
+              typeValue,
               typeLabel: typeText,
+              floor: floorName,
               hasSocket: !!s.hasSocket,
               isWindow: !!s.isWindow,
+              facilityFlags,
               zone: s.zone || '',
+              description: s.description || '',
               tags: [typeText, ...featureLabels],
               bookedTimeRange: '',
               bookings: booking
@@ -1297,12 +1485,78 @@ Page({
               timeSlotStatus: (s as any).timeSlotStatus || undefined,
             };
           });
+
+          const zoneNames = (allSeats as any[])
+            .map((item: any) => String(item?.zone || '').trim())
+            .filter((name: string) => Boolean(name));
+          const configuredAreaNames = (this.data.areas || [])
+            .map((item) => String(item?.id || '').trim())
+            .filter((name) => Boolean(name) && name !== 'all');
+          const areaNames: string[] = Array.from(
+            new Set<string>([...configuredAreaNames, ...zoneNames])
+          );
+          areaNames.sort((a: string, b: string) => a.localeCompare(b, 'zh-Hans-CN'));
+
+          const allAreaName = String(t('reservation.area.all'));
+          const areas: Array<{ id: string; name: string }> = [
+            { id: 'all', name: allAreaName },
+            ...areaNames.map((name: string) => ({ id: name, name })),
+          ];
+          const currentArea: { id: string; name: string } =
+            areas.find((item) => item.id === selectedArea?.id) ||
+            areas.find((item) => item.name === selectedArea?.name) ||
+            areas[0];
+
+          const currentSeatType =
+            (this.data.seatTypes || []).find((item) => item.id === selectedSeatType?.id) ||
+            (this.data.seatTypes || []).find((item) => item.name === selectedSeatType?.name) ||
+            selectedSeatType;
+
+          let seats = [...allSeats];
+
+          if (currentArea && currentArea.id !== 'all') {
+            seats = seats.filter(
+              (seat: any) =>
+                String(seat.zone || '').trim() === String(currentArea.id || currentArea.name).trim()
+            );
+          }
+
+          const selectedTypeId = String(currentSeatType?.id || '').trim();
+          const selectedTypeName = String(currentSeatType?.name || '').trim();
+          if (selectedTypeId && selectedTypeId !== 'all') {
+            seats = seats.filter(
+              (seat: any) =>
+                String(seat.typeValue || '') === selectedTypeId ||
+                (selectedTypeName && String(seat.typeLabel || '') === selectedTypeName)
+            );
+          }
+
+          const activeFacilityKeys = Object.keys(facilities || {}).filter((key) =>
+            Boolean((facilities as Record<string, boolean>)[key])
+          );
+          if (activeFacilityKeys.length > 0) {
+            seats = seats.filter((seat: any) =>
+              activeFacilityKeys.every((key) => Boolean(seat.facilityFlags?.[key]))
+            );
+          }
+
           const keyword = String(searchValue || '')
             .trim()
             .toLowerCase();
           if (keyword) {
             seats = seats.filter((seat: any) => {
-              return seat.label.toLowerCase().includes(keyword);
+              const searchable = [
+                seat.label,
+                seat.zone,
+                seat.typeLabel,
+                seat.description,
+                `R${seat.row}`,
+                `C${seat.col}`,
+                `${seat.row}-${seat.col}`,
+              ]
+                .filter(Boolean)
+                .map((item) => String(item).toLowerCase());
+              return searchable.some((item) => item.includes(keyword));
             });
           }
           seats = sortBySeatPosition(seats);
@@ -1311,6 +1565,9 @@ Page({
             ? seats.find((seat: any) => seat.id === selectedSeatId)
             : null;
           this.setData({
+            areas,
+            selectedArea: currentArea,
+            selectedSeatType: currentSeatType,
             seats,
             seatCount: seats.length,
             selectedSeatIds: matchedSeat ? [matchedSeat.id] : [],
@@ -1321,12 +1578,14 @@ Page({
 
           if (seats.length === 0) {
             const keyword = String(searchValue || '').trim();
+            const hasFacilityFilter = Object.keys(facilities || {}).some((key) =>
+              Boolean((facilities as Record<string, boolean>)[key])
+            );
             if (
               keyword ||
               selectedArea?.id !== 'all' ||
               selectedSeatType?.id !== 'all' ||
-              facilities.power ||
-              facilities.window
+              hasFacilityFilter
             ) {
               wx.showToast({
                 title: this.data.noSeatText || '暂无匹配座位',
@@ -1426,18 +1685,24 @@ Page({
       selected: t('common.status.selected'),
       mine: t('common.status.booked'),
     };
+    const powerLabel =
+      (this.data.seatFacilityConfigs || []).find((item: any) => item.key === 'power')?.label ||
+      'power';
+    const windowLabel =
+      (this.data.seatFacilityConfigs || []).find((item: any) => item.key === 'window')?.label ||
+      'window';
 
     return {
       ...seat,
       statusText: statusMap[seat.status] || seat.status,
-      hasSocketText: seat.hasSocket ? t('common.seat.facilities.power') : '',
-      isWindowText: seat.isWindow ? t('reservation.seatMap.window') : '',
+      hasSocketText: seat.hasSocket ? powerLabel : '',
+      isWindowText: seat.isWindow ? windowLabel : '',
       tags:
         seat.tags ||
         [
           seat.typeLabel || '',
-          seat.hasSocket ? t('common.seat.facilities.power') : '',
-          seat.isWindow ? t('reservation.seatMap.window') : '',
+          seat.hasSocket ? powerLabel : '',
+          seat.isWindow ? windowLabel : '',
         ].filter(Boolean),
       bookedTimeRange: seat.bookedTimeRange || seat.timeRange || '',
     };
@@ -1554,7 +1819,8 @@ Page({
     }
 
     const periodText = period.label;
-    const timeRangeText = `${period.start} - ${period.end}`;
+    const startTime = this.getAutoStartTimeForRange(period);
+    const timeRangeText = `${startTime} - ${period.end}`;
 
     this.setData({
       currentTimePeriod: value,
@@ -1563,10 +1829,10 @@ Page({
       currentTimePeriodText: periodText,
       customTimePeriodText: timeRangeText,
       currentDurationText:
-        this.formatDurationText(period.start, period.end) ||
-        `${Math.ceil((toTimeMinutes(period.end) - toTimeMinutes(period.start)) / 60)}h`,
+        this.formatDurationText(startTime, period.end) ||
+        `${Math.ceil((toTimeMinutes(period.end) - toTimeMinutes(startTime)) / 60)}h`,
       showCustomTime: false,
-      startTime: period.start,
+      startTime,
       endTime: period.end,
     });
 
@@ -1715,13 +1981,17 @@ Page({
     const t = app.t || ((key: string) => key);
 
     // 使用实际的预约时间范围
-    const periodValue = this.data.customTimePeriodText || this.data.currentTimePeriodText;
+    const effectiveRange = this.getEffectiveBookingTimeRange();
+    const periodValue = `${effectiveRange.startTime} - ${effectiveRange.endTime}`;
+    const durationText =
+      this.formatDurationText(effectiveRange.startTime, effectiveRange.endTime) ||
+      this.data.currentDurationText;
 
     const items = [
       { label: t('reservation.confirm.seat'), value: this.data.selectedSeatText || '-' },
       { label: t('reservation.confirm.date'), value: this.data.selectedDate || '-' },
       { label: t('reservation.confirm.period'), value: periodValue },
-      { label: t('reservation.confirm.duration'), value: this.data.currentDurationText },
+      { label: t('reservation.confirm.duration'), value: durationText },
     ];
 
     this.setData({
@@ -1796,20 +2066,9 @@ Page({
           const timePeriod = this.resolveTimeSlotValue();
 
           // 获取开始和结束时间
-          let startTime = '';
-          let endTime = '';
-          if (this.data.useCustomTime) {
-            startTime = this.data.customStartTime;
-            endTime = this.data.customEndTime;
-          } else {
-            const period = this.data.timePeriods.find(
-              (p: any) => p.value === this.data.currentTimePeriod
-            );
-            if (period) {
-              startTime = period.start;
-              endTime = period.end;
-            }
-          }
+          const effectiveRange = this.getEffectiveBookingTimeRange();
+          let startTime = effectiveRange.startTime;
+          let endTime = effectiveRange.endTime;
 
           if (this.data.useCustomTime) {
             if (!startTime || !endTime || startTime >= endTime) {
@@ -1849,7 +2108,7 @@ Page({
               const nowMinutes = getCurrentTimeMinutes();
               const [startHour, startMin] = startTime.split(':').map(Number);
               const startMinutes = startHour * 60 + startMin;
-              if (startMinutes <= nowMinutes) {
+              if (startMinutes < nowMinutes) {
                 wx.showToast({
                   title: t('reservation.hint.invalidCustomTime') || 'Invalid custom time',
                   icon: 'none',

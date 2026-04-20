@@ -20,13 +20,24 @@
   'login.pageTitle': 'Login',
   'login.brandTitle': 'Smart Library',
   'login.brandSubtitle': 'Reserve seats, join events, and enjoy an easier library experience',
-  'login.description': 'Please log in with WeChat to continue using library services.',
+  'login.description':
+    'Log in with WeChat and choose whether to sync your current nickname and avatar as your profile.',
   'login.button': 'WeChat One-click Login',
   'login.agreement': 'By logging in you agree to',
   'login.agreementTip': 'User agreement page is not yet implemented',
   'login.privacyTip': 'Privacy policy page is not yet implemented',
   'login.success': 'Login successful',
   'login.failed': 'Login failed, please try again later',
+  'login.profileSync.title': 'Complete Profile',
+  'login.profileSync.contentBoth':
+    'Your username and avatar are missing. Use your WeChat nickname and avatar to complete them?',
+  'login.profileSync.contentUsername':
+    'Your username is missing. Use your WeChat nickname as the username?',
+  'login.profileSync.contentAvatar':
+    'Your avatar is missing. Use your WeChat avatar as the profile avatar?',
+  'login.profileSync.descBoth': 'Used to complete username and avatar',
+  'login.profileSync.descUsername': 'Used to complete username',
+  'login.profileSync.descAvatar': 'Used to complete avatar',
 
   'profile.login.tip':
     'Log in to continue, but note that some services still require authorization or additional profile setup before they can be used.',

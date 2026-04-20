@@ -6,6 +6,9 @@ export type ReservationPendingParams = Record<string, any> & {
   timeSlotName?: string;
   startTime?: string;
   endTime?: string;
+  typeValue?: string;
+  typeLabel?: string;
+  facilityKeys?: string;
 };
 
 export function setPendingReservationParams(params: ReservationPendingParams) {

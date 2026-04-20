@@ -40,6 +40,7 @@ export default {
   'myReservation.tip.arriveBefore': '请在预约开始前 15 分钟到达图书馆',
   'myReservation.tip.cancelBefore': '如需取消预约，请提前 30 分钟操作',
   'myReservation.tip.creditPenalty': '连续 3 次违约将影响您的信用积分',
+  'myReservation.hint.violatedPenalty': '此预约已违约，信用分可能受影响，请保持后续预约守约',
   'myReservation.tip.keepQuiet': '保持安静，共同维护良好的学习环境',
   'myReservation.detail.title': '预约详情',
   'myReservation.detail.seatInfo': '座位信息',
@@ -53,4 +54,9 @@ export default {
   'myReservation.date.today': '今天',
   'myReservation.date.tomorrow': '明天',
   'myReservation.time.period': '时间段',
+
+  // 续约时段选择
+  'myReservation.renew.selectTimeSlot': '选择续约时段',
+  'myReservation.renew.targetSlot': '续约至：{slot}',
+  'myReservation.action.changeRequest': '变更申请',
 };

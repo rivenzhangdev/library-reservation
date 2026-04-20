@@ -17,4 +17,18 @@ export default {
   'searchResult.hint.reserveSuccess': 'Reservation successful',
   'searchResult.hint.favoriteSuccess': 'Added to favorites',
   'searchResult.hint.openDetail': 'View seat details',
+
+  // Advanced filters
+  'searchResult.filter.title': 'Advanced Filters',
+  'searchResult.filter.conditions': 'Filter Conditions',
+  'searchResult.filter.floor': 'Floor',
+  'searchResult.filter.seatType': 'Seat Type',
+  'searchResult.filter.facility': 'Facilities',
+  'searchResult.filter.hasSocket': 'Power Socket',
+  'searchResult.filter.isWindow': 'Window Seat',
+  'searchResult.filter.reset': 'Reset',
+  'searchResult.filter.apply': 'Apply',
+  'searchResult.filter.done': 'Done',
+  'searchResult.filter.all': 'All',
+  'searchResult.filter.result': 'Filter Results',
 };

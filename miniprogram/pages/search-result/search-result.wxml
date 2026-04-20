@@ -3,18 +3,79 @@
 </page-meta>
 
 <view class="page-container {{languageClass}}">
-  <van-search
-    value="{{searchValue}}"
-    shape="round"
-    bind:change="onSearchChange"
-    bind:search="onSearchConfirm"
-    bind:cancel="onSearchCancel"
-    placeholder="{{searchPlaceholder}}"
-  />
+  <view class="search-bar">
+    <van-search
+      value="{{searchValue}}"
+      shape="round"
+      bind:change="onSearchChange"
+      bind:search="onSearchConfirm"
+      bind:cancel="onSearchCancel"
+      placeholder="{{searchPlaceholder}}"
+    />
+  </view>
 
   <view wx:if="{{searchValue}}" class="result-summary">
-    <text class="result-title">{{resultCount}} {{t('common.number.results')}}</text>
-    <van-tag type="primary" size="medium">{{hintText}}</van-tag>
+    <text class="result-hint">{{hintText}}</text>
+    <view class="filter-toggle" bind:tap="onToggleAdvancedFilter">
+      <text>{{filterText}}</text>
+      <view wx:if="{{activeFilterCount > 0}}" class="filter-badge">{{activeFilterCount}}</view>
+      <text class="filter-arrow {{showAdvancedFilter ? 'open' : ''}}">▾</text>
+    </view>
+  </view>
+
+  <!-- 高级筛选面板 -->
+  <view wx:if="{{showAdvancedFilter}}" class="filter-panel">
+    <common-card>
+      <view class="filter-panel-title">{{filterConditionsText}}</view>
+
+      <view class="filter-row">
+        <view class="filter-item">
+          <view class="filter-label">{{filterFloorText}}</view>
+          <view class="filter-selector" bind:tap="onFilterFloorTap">
+            <text class="selector-text">{{selectedFloorName}}</text>
+            <uni-icon type="vant" name="arrow" size="24" />
+          </view>
+        </view>
+
+        <view class="filter-item">
+          <view class="filter-label">{{filterSeatTypeText}}</view>
+          <view class="filter-selector" bind:tap="onFilterSeatTypeTap">
+            <text class="selector-text">{{selectedSeatTypeName}}</text>
+            <uni-icon type="vant" name="arrow" size="24" />
+          </view>
+        </view>
+      </view>
+
+      <view class="filter-item" wx:if="{{facilityOptions.length > 0}}">
+        <view class="filter-label">{{filterFacilityText}}</view>
+        <view class="facility-options">
+          <block wx:for="{{facilityOptions}}" wx:key="key">
+            <view class="facility-item {{facilityFilters[item.key] ? 'active' : ''}}">
+              <van-checkbox
+                value="{{facilityFilters[item.key]}}"
+                shape="square"
+                icon-size="32rpx"
+                class="facility-checkbox"
+                data-key="{{item.key}}"
+                bind:change="onFilterFacilityTap"
+              />
+              <text class="facility-label">{{item.label}}</text>
+            </view>
+          </block>
+        </view>
+      </view>
+
+      <view class="filter-actions">
+        <text class="reset-button" bind:tap="onFilterReset">{{filterResetText}}</text>
+        <van-button size="small" type="primary" round bind:tap="onFilterApply">
+          {{filterApplyText}}
+        </van-button>
+      </view>
+    </common-card>
+  </view>
+
+  <view wx:if="{{searchValue}}" class="filter-summary">
+    <text class="filter-summary-text">{{filterResultText}}：{{resultCount}}</text>
   </view>
 
   <scroll-view class="status-scroll" scroll-x enable-flex show-scrollbar="{{false}}">
@@ -40,6 +101,7 @@
       show-favorite="{{true}}"
       is-favorite="{{false}}"
       action-button-text="{{actionButtonText}}"
+      button-disabled="{{item.status !== 'available'}}"
       bind:reserve="onReserveTap"
       bind:favorite="onFavoriteTap"
       bind:detail="onDetailTap"

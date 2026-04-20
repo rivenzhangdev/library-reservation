@@ -7,7 +7,7 @@ import {
   checkoutActivity,
   getActivityDetail,
 } from '../../apis/activity';
-import { getFloors, getFloorSeats } from '../../apis/seats';
+import { getFloors, getFloorSeats, getSeatOverview } from '../../apis/seats';
 import { favoriteSeat, getFavorites } from '../../apis/user';
 import { checkin, checkout, getBookingDetail } from '../../apis/booking';
 import { getSeatTypeConfigs, getSeatFacilityConfigs } from '../../apis/config';
@@ -18,14 +18,75 @@ import { openReservationWithParams } from '../../utils/reservationNavigator';
 import { compareFloorName, compareSeatPosition } from '../../utils/sort';
 import { formatMonthDayTime, getCurrentTimeSlot, getToday } from '../../utils/time';
 
-function getSearchTagLabel(key: string, label: string) {
-  if (key === 'power') return t('search.tags.power');
-  if (key === 'window') return t('search.tags.window');
-  if (key === 'single') return t('search.tags.single');
-  if (key === 'double') return t('search.tags.double');
-  if (key === 'group') return t('search.tags.group');
-  if (key === 'open') return t('reservation.seatType.open');
-  return label || key;
+interface SearchTagItem {
+  key: string;
+  label: string;
+  icon: string;
+  keyword: string;
+  filterType: 'seatType' | 'facility';
+  filterValue: string;
+}
+
+const ScanPayloadType = {
+  BOOKING: 0,
+  ACTIVITY: 1,
+} as const;
+
+type ScanPayloadTypeValue = (typeof ScanPayloadType)[keyof typeof ScanPayloadType];
+
+function parseScanPayloadType(type: any): ScanPayloadTypeValue {
+  const normalized = String(type).toLowerCase();
+  if (normalized === 'activity' || normalized === '1') return ScanPayloadType.ACTIVITY;
+  return ScanPayloadType.BOOKING;
+}
+
+function normalizeSearchTagKey(rawValue: any) {
+  return String(rawValue || '')
+    .trim()
+    .toLowerCase();
+}
+
+function resolveSearchTagIcon(icon: any, rawValue: any) {
+  const configuredIcon = String(icon || '').trim();
+  if (configuredIcon) return configuredIcon;
+
+  const key = normalizeSearchTagKey(rawValue);
+  if (['power', 'socket', 'hassocket', 'has_socket'].includes(key)) return 'underway-o';
+  if (['window', 'iswindow', 'is_window'].includes(key)) return 'photo-o';
+  if (['single', 'single-seat'].includes(key)) return 'location-o';
+  if (['double', 'double-seat'].includes(key)) return 'friends-o';
+  if (['group', 'group-seat'].includes(key)) return 'cluster-o';
+  if (['open', 'open-seat'].includes(key)) return 'passed';
+  return 'search';
+}
+
+function buildSearchTagItem(
+  filterType: 'seatType' | 'facility',
+  rawValue: any,
+  label: string,
+  icon?: string
+): SearchTagItem {
+  const normalizedValue = String(rawValue || '').trim();
+  const normalizedLabel = String(label || normalizedValue || '').trim() || normalizedValue;
+  const normalizedKey = `${filterType}:${normalizeSearchTagKey(normalizedValue)}`;
+  return {
+    key: normalizedKey,
+    label: normalizedLabel,
+    icon: resolveSearchTagIcon(icon, normalizedValue),
+    keyword: normalizedLabel,
+    filterType,
+    filterValue: normalizedValue,
+  };
+}
+
+function buildDefaultSearchTags(): SearchTagItem[] {
+  return [
+    buildSearchTagItem('facility', 'power', t('search.tags.power'), 'underway-o'),
+    buildSearchTagItem('facility', 'window', t('search.tags.window'), 'photo-o'),
+    buildSearchTagItem('seatType', 'single', t('search.tags.single'), 'location-o'),
+    buildSearchTagItem('seatType', 'double', t('search.tags.double'), 'friends-o'),
+    buildSearchTagItem('seatType', 'group', t('search.tags.group'), 'cluster-o'),
+  ];
 }
 
 function getCurrentTimeSlotLabel() {
@@ -59,7 +120,7 @@ Page({
     viewAllText: '',
     activityTitle: '',
     viewMoreActivity: '',
-    searchTags: [] as string[],
+    searchTags: [] as SearchTagItem[],
     actionCards: [] as Array<{
       id: string;
       icon: string;
@@ -119,13 +180,7 @@ Page({
       viewAllText: t('common.btn.viewAll'),
       activityTitle: t('activity.title'),
       viewMoreActivity: t('common.btn.viewMore'),
-      searchTags: [
-        t('search.tags.power'),
-        t('search.tags.window'),
-        t('search.tags.single'),
-        t('search.tags.double'),
-        t('search.tags.group'),
-      ],
+      searchTags: buildDefaultSearchTags(),
       actionCards: [
         {
           id: 'reserve',
@@ -171,39 +226,34 @@ Page({
       const facilities = Array.isArray(facilityRes.data) ? facilityRes.data : [];
       const seatTypes = Array.isArray(typeRes.data) ? typeRes.data : [];
 
-      const tags = [
+      const allTags = [
         ...facilities
           .filter((item: any) => item && item.enabled !== false && item.key)
-          .map((item: any) => getSearchTagLabel(item.key, item.label || String(item.key))),
+          .map((item: any) =>
+            buildSearchTagItem('facility', item.key, item.label || String(item.key), item.icon)
+          ),
         ...seatTypes
           .filter((item: any) => item && item.enabled !== false && item.value)
-          .map((item: any) => getSearchTagLabel(item.value, item.label || String(item.value))),
+          .map((item: any) =>
+            buildSearchTagItem('seatType', item.value, item.label || String(item.value), item.icon)
+          ),
       ];
+      const tagMap = new Map<string, SearchTagItem>();
+      allTags.forEach((item) => {
+        if (!tagMap.has(item.key)) {
+          tagMap.set(item.key, item);
+        }
+      });
+      const tags = Array.from(tagMap.values());
 
       if (tags.length === 0) {
-        this.setData({
-          searchTags: [
-            t('search.tags.power'),
-            t('search.tags.window'),
-            t('search.tags.single'),
-            t('search.tags.double'),
-            t('search.tags.group'),
-          ],
-        });
+        this.setData({ searchTags: buildDefaultSearchTags() });
       } else {
         this.setData({ searchTags: tags });
       }
     } catch (error) {
       console.warn('加载搜索标签失败，使用默认标签', error);
-      this.setData({
-        searchTags: [
-          t('search.tags.power'),
-          t('search.tags.window'),
-          t('search.tags.single'),
-          t('search.tags.double'),
-          t('search.tags.group'),
-        ],
-      });
+      this.setData({ searchTags: buildDefaultSearchTags() });
     }
   },
 
@@ -212,10 +262,52 @@ Page({
     const timeSlot = getCurrentTimeSlot();
 
     try {
-      const floorsRes: any = await getFloors({ showLoading: false });
-      const floors = (Array.isArray(floorsRes.data) ? floorsRes.data : []).sort((a: any, b: any) =>
-        compareFloorName(a?.name, b?.name)
-      );
+      const [overviewRes, floorsRes, seatTypeRes, seatFacilityRes]: any[] = await Promise.all([
+        getSeatOverview({ date }, { showLoading: false }).catch(() => ({ data: null })),
+        getFloors({ showLoading: false }),
+        getSeatTypeConfigs().catch(() => ({ data: [] })),
+        getSeatFacilityConfigs().catch(() => ({ data: [] })),
+      ]);
+
+      const seatTypeConfigs = Array.isArray(seatTypeRes?.data) ? seatTypeRes.data : [];
+      const seatFacilityConfigs = Array.isArray(seatFacilityRes?.data) ? seatFacilityRes.data : [];
+
+      const seatTypeValueByCode = seatTypeConfigs
+        .filter((item: any) => item && item.enabled !== false && item.value)
+        .reduce(
+          (acc: Record<string, string>, item: any) => {
+            acc[String(item.type)] = String(item.value);
+            return acc;
+          },
+          {} as Record<string, string>
+        );
+      const seatTypeLabelByValue = seatTypeConfigs
+        .filter((item: any) => item && item.enabled !== false && item.value)
+        .reduce(
+          (acc: Record<string, string>, item: any) => {
+            acc[String(item.value)] = String(item.label || item.value);
+            return acc;
+          },
+          {} as Record<string, string>
+        );
+
+      const facilityLabelByKey = seatFacilityConfigs
+        .filter((item: any) => item && item.enabled !== false && item.key)
+        .reduce(
+          (acc: Record<string, string>, item: any) => {
+            acc[String(item.key)] = String(item.label || item.key);
+            return acc;
+          },
+          {} as Record<string, string>
+        );
+
+      const powerLabel = facilityLabelByKey.power || 'power';
+      const windowLabel = facilityLabelByKey.window || 'window';
+      const overview = overviewRes?.data || {};
+      const floorStats = Array.isArray(overview?.floorStats) ? overview.floorStats : [];
+
+      const floorList = Array.isArray(floorsRes?.data?.list) ? floorsRes.data.list : [];
+      const floors = floorList.sort((a: any, b: any) => compareFloorName(a?.name, b?.name));
 
       const seatResults = await Promise.all(
         floors.map((floor: any) =>
@@ -236,36 +328,28 @@ Page({
         }))
       );
 
-      const total = allSeats.length;
       const availableSeats = allSeats.filter(
         (seat) => String(seat.status) === '0' || seat.status === 'available'
       );
-      const bookedSeats = allSeats.filter(
-        (seat) => String(seat.status) === '1' || seat.status === 'booked'
-      );
-      const maintenanceSeats = allSeats.filter(
-        (seat) => String(seat.status) === '2' || seat.status === 'maintenance'
-      );
+      const total = Number(overview?.totalSeats ?? allSeats.length ?? 0);
+      const totalAvailableSeats = Number(overview?.availableSeats ?? availableSeats.length ?? 0);
+      const totalBookedSeats = Number(overview?.occupiedSeats ?? 0);
+      const totalMaintenanceSeats = Number(overview?.maintenanceSeats ?? 0);
       const safePercent = (value: number) => `${total ? Math.round((value / total) * 100) : 0}%`;
 
-      const hottestFloor = seatResults.reduce(
-        (result, current) => {
-          const currentBooked = current.seats.filter(
-            (seat: any) => String(seat.status) === '1' || seat.status === 'booked'
-          ).length;
-          const resultBooked = result.seats.filter(
-            (seat: any) => String(seat.status) === '1' || seat.status === 'booked'
-          ).length;
-          return currentBooked > resultBooked ? current : result;
-        },
-        seatResults[0] || { floor: { name: '-' }, seats: [] }
+      const hottestFloor = floorStats.reduce(
+        (result: any, current: any) =>
+          Number(current?.occupiedSeats || 0) > Number(result?.occupiedSeats || 0)
+            ? current
+            : result,
+        floorStats[0] || null
       );
 
       const favoriteIds = new Set<string>();
       if (getToken()) {
         try {
           const favRes: any = await getFavorites();
-          const list = Array.isArray(favRes.data) ? favRes.data : [];
+          const list = Array.isArray(favRes?.data?.list) ? favRes.data.list : [];
           list.forEach((item: any) => {
             if (item && item.id !== undefined) {
               favoriteIds.add(String(item.id));
@@ -285,77 +369,79 @@ Page({
         )
         .slice(0, 3)
         .map((seat: any) => {
-          const distanceText =
-            seat.description ||
-            [
-              seat.hasSocket ? t('common.seat.facilities.power') : '',
-              seat.isWindow ? t('common.seat.facilities.window') : '',
-            ]
-              .filter(Boolean)
-              .join(' / ') ||
-            seat.zone ||
-            '';
+          const typeCode = String(seat.type ?? '').trim();
+          const typeValue =
+            seatTypeValueByCode[typeCode] ||
+            seatTypeValueByCode[String(Number(typeCode))] ||
+            typeCode;
+          const seatType = seatTypeLabelByValue[typeValue] || typeValue;
+
+          const facilityKeys = [
+            ...(seat.hasSocket ? ['power'] : []),
+            ...(seat.isWindow ? ['window'] : []),
+          ];
+          const facilities = facilityKeys.map((key) => {
+            if (key === 'power') return powerLabel;
+            if (key === 'window') return windowLabel;
+            return facilityLabelByKey[key] || key;
+          });
+
+          const distanceText = seat.description || facilities.join(' / ') || seat.zone || '';
 
           const seatLabel = seat.floorName || '';
-          const seatType =
-            String(seat.type) === '1'
-              ? t('seat.type.double')
-              : String(seat.type) === '2'
-                ? t('reservation.seatType.group')
-                : t('seat.type.single');
 
           return {
             seatId: String(seat.id),
             seatLabel,
             seatName: `${seat.zone || 'Seat'} R${seat.row}C${seat.col}`,
             seatType,
+            typeValue,
             distance: distanceText,
             attributes: [seatLabel, seatType, distanceText].filter(Boolean),
             statusText: t('common.status.available'),
             floor: seat.floorName || '',
             zone: seat.zone || '',
-            facilities: [
-              ...(seat.hasSocket ? [t('common.seat.facilities.power')] : []),
-              ...(seat.isWindow ? [t('common.seat.facilities.window')] : []),
-            ],
+            facilities,
+            facilityKeys,
             isFavorite: favoriteIds.has(String(seat.id)),
           };
         });
 
-      const chartLabels = seatResults.slice(0, 6).map((item) => item.floor?.name || '-');
-      const chartValues = seatResults
-        .slice(0, 6)
-        .map(
-          (item) =>
-            item.seats.filter(
+      const chartSource = floorStats.length
+        ? floorStats.slice(0, 6)
+        : seatResults.slice(0, 6).map((item) => ({
+            floorName: item.floor?.name || '-',
+            occupiedSeats: item.seats.filter(
               (seat: any) => String(seat.status) === '1' || seat.status === 'booked'
-            ).length
-        );
+            ).length,
+          }));
+      const chartLabels = chartSource.map((item: any) => item.floorName || '-');
+      const chartValues = chartSource.map((item: any) => Number(item.occupiedSeats || 0));
 
       this.setData({
         seatStatus: {
           total: { label: t('seatStatus.total'), value: String(total) },
           available: {
             label: t('seatStatus.available'),
-            value: String(availableSeats.length),
-            percent: safePercent(availableSeats.length),
+            value: String(totalAvailableSeats),
+            percent: safePercent(totalAvailableSeats),
           },
           reserved: {
             label: t('seatStatus.reserved'),
-            value: String(bookedSeats.length),
-            percent: safePercent(bookedSeats.length),
+            value: String(totalBookedSeats),
+            percent: safePercent(totalBookedSeats),
           },
           maintenance: {
             label: t('seatStatus.maintenance'),
-            value: String(maintenanceSeats.length),
-            percent: safePercent(maintenanceSeats.length),
+            value: String(totalMaintenanceSeats),
+            percent: safePercent(totalMaintenanceSeats),
           },
         },
         realTimeItems: [
           {
             icon: 'friends-o',
             label: t('realTime.users'),
-            value: String(bookedSeats.length),
+            value: String(totalBookedSeats),
             sublabel: t('realTime.users.sublabel'),
             bgColor: '#e8f4ff',
             iconColor: '#409eff',
@@ -363,15 +449,15 @@ Page({
           {
             icon: 'passed',
             label: t('seatStatus.available'),
-            value: String(availableSeats.length),
-            sublabel: safePercent(availableSeats.length),
+            value: String(totalAvailableSeats),
+            sublabel: safePercent(totalAvailableSeats),
             bgColor: '#e8f9f0',
             iconColor: '#2ecc71',
           },
           {
             icon: 'location-o',
             label: t('realTime.popular'),
-            value: hottestFloor?.floor?.name || '-',
+            value: hottestFloor?.floorName || '-',
             sublabel: t('realTime.popular.sublabel'),
             bgColor: '#ffe8e8',
             iconColor: '#e74c3c',
@@ -379,15 +465,15 @@ Page({
           {
             icon: 'underway-o',
             label: t('seatStatus.maintenance'),
-            value: String(maintenanceSeats.length),
-            sublabel: safePercent(maintenanceSeats.length),
+            value: String(totalMaintenanceSeats),
+            sublabel: safePercent(totalMaintenanceSeats),
             bgColor: '#f3f4f6',
             iconColor: '#64748b',
           },
           {
             icon: 'clock-o',
             label: t('realTime.booked'),
-            value: String(bookedSeats.length),
+            value: String(totalBookedSeats),
             sublabel: `${getCurrentTimeSlotLabel()} / ${date}`,
             bgColor: '#f3e8ff',
             iconColor: '#9b59b6',
@@ -411,28 +497,20 @@ Page({
   },
 
   async loadActivities() {
-    if (!getToken()) {
-      this.setData({ banners: [], activityList: [] });
-      return;
-    }
-
     try {
       const res: any = await getActivities();
-      const list = Array.isArray(res.data)
-        ? res.data
-        : res?.data?.list || res?.data?.activities || [];
+      const list = Array.isArray(res?.data?.list) ? res.data.list : [];
       const userId = getApp<IAppOption>().globalData?.userInfo?.id || '';
 
       const activityList = list.slice(0, 4).map((activity: any) => {
         const participants = Array.isArray(activity.participants) ? activity.participants : [];
         const isJoined = participants.some(
-          (item: any) =>
-            String(typeof item === 'string' ? item : item?._id || item?.id || '') === String(userId)
+          (item: any) => String(typeof item === 'string' ? item : item?.id || '') === String(userId)
         );
         const statusKey = String(activity.status);
 
         return {
-          id: String(activity._id || activity.id),
+          id: String(activity.id),
           title: activity.title || '-',
           desc: activity.description || t('common.empty.noDescription'),
           status: statusKey === '1' ? 'warning' : statusKey === '2' ? 'default' : 'primary',
@@ -557,6 +635,9 @@ Page({
       zone: seatInfo.zone,
       floor: seatInfo.floor,
       type: seatInfo.seatType,
+      typeValue: seatInfo.typeValue,
+      typeLabel: seatInfo.seatType,
+      facilityKeys: (seatInfo.facilityKeys || []).join(','),
       facilities: (seatInfo.facilities || []).join(','),
       date: getToday(),
     });
@@ -612,6 +693,11 @@ Page({
       return;
     }
 
+    if (!getToken()) {
+      redirectToLogin(`/pages/activity-detail/activity-detail?id=${activity.id}`);
+      return;
+    }
+
     wx.showModal({
       title: t('activity.confirm.registerTitle'),
       content: t('activity.confirm.registerContent'),
@@ -655,11 +741,16 @@ Page({
   },
 
   onSearchTagTap(e: WechatMiniprogram.TouchEvent) {
-    const tag = String(e.currentTarget.dataset.tag || '').trim();
-    if (!tag) return;
+    const tagValue = String(e.currentTarget.dataset.tagValue || '').trim();
+    const tagType = String(e.currentTarget.dataset.tagType || '').trim();
+    const tagLabel = String(e.currentTarget.dataset.tagLabel || '').trim();
+    if (!tagValue || !tagType) return;
 
     wx.navigateTo({
-      url: `/pages/search-result/search-result?keyword=${encodeURIComponent(tag)}`,
+      url:
+        `/pages/search-result/search-result?keyword=${encodeURIComponent(tagLabel || tagValue)}` +
+        `&tagType=${encodeURIComponent(tagType)}` +
+        `&tagValue=${encodeURIComponent(tagValue)}`,
     });
   },
 
@@ -684,7 +775,7 @@ Page({
 
       const effectiveAction = payload.action ? payload.action : requestedAction;
 
-      if (payload.type === 'activity') {
+      if (payload.type === ScanPayloadType.ACTIVITY) {
         await this.handleActivityScan(payload, effectiveAction);
         return;
       }
@@ -697,7 +788,7 @@ Page({
   },
 
   async handleBookingScan(
-    payload: { type: 'booking' | 'activity'; id: string; action?: string },
+    payload: { type: ScanPayloadTypeValue; id: string; action?: string },
     requestedAction?: 'checkin' | 'checkout'
   ) {
     let action = payload.action as 'checkin' | 'checkout' | undefined;
@@ -713,6 +804,12 @@ Page({
         action = 'checkout';
       } else if (status === 2) {
         wx.showToast({ title: t('common.hint.alreadyCheckedOut') || '已签到并签退', icon: 'none' });
+        return;
+      } else if (status === 4) {
+        wx.showToast({
+          title: t('common.hint.bookingViolated') || '预约已失效，无法操作',
+          icon: 'none',
+        });
         return;
       } else {
         wx.showToast({ title: t('common.hint.invalidQrCode'), icon: 'none' });
@@ -753,24 +850,30 @@ Page({
         });
         return;
       }
+      if (status === 4) {
+        wx.showToast({
+          title: t('common.hint.bookingViolated') || '预约已失效，无法操作',
+          icon: 'none',
+        });
+        return;
+      }
       await checkout(payload.id);
       wx.showToast({ title: t('common.hint.checkOutSuccess'), icon: 'success' });
       return;
     }
-
-    wx.showToast({ title: t('common.hint.invalidQrCode'), icon: 'none' });
   },
 
   async handleActivityScan(
-    payload: { type: 'booking' | 'activity'; id: string; action?: string },
+    payload: { type: ScanPayloadTypeValue; id: string; action?: 'checkin' | 'checkout' },
     requestedAction?: 'checkin' | 'checkout'
   ) {
+    const activityId = payload.id;
+    const activityRes: any = await getActivityDetail(activityId);
+    const activity = activityRes?.data ?? activityRes;
+    const currentUserId = getUserInfo()?.id || '';
     let action = payload.action as 'checkin' | 'checkout' | undefined;
     if (!action) action = requestedAction;
 
-    const res: any = await getActivityDetail(payload.id);
-    const activity = res?.data ?? res;
-    const currentUserId = getApp<IAppOption>().globalData?.userInfo?.id || getUserInfo()?.id || '';
     const checkedIn = Array.isArray(activity?.checkedIn) ? activity.checkedIn : [];
     const checkedOut = Array.isArray(activity?.checkedOut) ? activity.checkedOut : [];
     const isCheckedIn = checkedIn.some((item: any) => String(item) === String(currentUserId));
@@ -848,8 +951,8 @@ Page({
     if (!result) return null;
 
     const raw = result.trim();
-    const payload: { type: 'booking' | 'activity'; id: string; action?: 'checkin' | 'checkout' } = {
-      type: 'booking',
+    const payload: { type: ScanPayloadTypeValue; id: string; action?: 'checkin' | 'checkout' } = {
+      type: ScanPayloadType.BOOKING,
       id: '',
     };
 
@@ -870,13 +973,11 @@ Page({
     const json = tryParseJson(raw);
     if (json) {
       const id = json.bookingId || json.activityId || json.id || json.data?.id;
-      const type = String(json.type || json.entity || '').toLowerCase();
+      const typeRaw = json.type || json.entity;
       const action = String(json.action || '').toLowerCase();
       if (id) {
         payload.id = String(id);
-        if (type === 'activity' || String(json.type) === 'activity') {
-          payload.type = 'activity';
-        }
+        payload.type = parseScanPayloadType(typeRaw);
         if (action === 'checkin' || action === 'checkout') {
           payload.action = action;
         }
@@ -896,7 +997,7 @@ Page({
         url.searchParams.get('id');
       if (id) {
         payload.id = String(id);
-        if (queryType === 'activity') payload.type = 'activity';
+        payload.type = parseScanPayloadType(queryType);
         if (queryAction === 'checkin' || queryAction === 'checkout') {
           payload.action = queryAction;
         }
@@ -911,9 +1012,9 @@ Page({
     const idMatch = raw.match(/(?:activityId|bookingId|id)=([^&]+)/i);
     if (idMatch) {
       payload.id = idMatch[1];
-      const typeValue = typeMatch?.[1]?.toLowerCase();
+      const typeValue = typeMatch?.[1];
       const actionValue = actionMatch?.[1]?.toLowerCase();
-      if (typeValue === 'activity') payload.type = 'activity';
+      payload.type = parseScanPayloadType(typeValue);
       if (actionValue === 'checkin' || actionValue === 'checkout') {
         payload.action = actionValue;
       }

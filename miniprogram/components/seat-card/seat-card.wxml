@@ -1,17 +1,26 @@
 <view class="seat-card" bind:tap="onCardTap">
   <view class="seat-card__header">
     <view class="seat-card__info">
-      <view class="seat-card__name">
-        {{seatInfo.name}}
-        <van-tag class="seat-card__status" type="{{statusTypeMap[seatInfo.status]}}" size="small">
-          {{statusTextMap[seatInfo.status]}}
+      <view class="seat-card__name">{{seatInfo.name}}</view>
+
+      <view class="seat-card__meta" wx:if="{{seatInfo.floor || seatInfo.zone}}">
+        <van-tag wx:if="{{seatInfo.floor}}" plain size="small" class="seat-card__chip">
+          {{seatInfo.floor}}
+        </van-tag>
+        <van-tag wx:if="{{seatInfo.zone}}" plain size="small" class="seat-card__chip">
+          {{seatInfo.zone}}
         </van-tag>
       </view>
-      <view class="seat-card__location" wx:if="{{seatInfo.zone || seatInfo.floor}}">
+
+      <view class="seat-card__location" wx:if="{{seatInfo.description}}">
         <uni-icon name="location-o" size="24" type="vant" />
-        {{seatInfo.zone}}{{seatInfo.floor}}{{seatInfo.description}}
+        <text>{{seatInfo.description}}</text>
       </view>
     </view>
+
+    <van-tag class="seat-card__status" type="{{statusTypeMap[seatInfo.status]}}" size="small">
+      {{statusTextMap[seatInfo.status]}}
+    </van-tag>
   </view>
 
   <view
@@ -31,9 +40,9 @@
   </view>
 
   <view class="seat-card__footer">
-    <view class="seat-card__description" wx:if="{{seatInfo.distance}}">
+    <view class="seat-card__description" wx:if="{{seatInfo.typeLabel || seatInfo.type}}">
       <uni-icon name="location-o" size="24" type="vant" />
-      {{seatInfo.distance}}
+      {{seatInfo.typeLabel || seatInfo.type}}
     </view>
 
     <view class="seat-card__actions">
