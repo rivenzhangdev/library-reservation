@@ -88,7 +88,6 @@ export default {
   'reservation.hint.cancelSeat': 'cancelled',
   'reservation.hint.pleaseSelectDate': 'Please select date',
   'reservation.hint.pleaseSelectSeat': 'Please select a seat',
-  'reservation.hint.reservationSuccess': 'Reservation successful',
   'reservation.hint.subscribeMessageDeclined':
     'Subscription declined, reservation notifications may not arrive',
   'reservation.hint.endTimeMustAfterStart': 'End time must be after start time',
@@ -117,5 +116,4 @@ export default {
   'reservation.status.selected': 'Selected',
   'reservation.info.bookedTimeRange': 'Booked Time',
   'reservation.info.timeRange': 'Time Info',
-  'reservation.hint.reservationFailed': 'Reservation failed, please try again',
 };

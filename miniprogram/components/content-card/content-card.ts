@@ -220,8 +220,7 @@ Component({
     /**
      * 卡片点击事件
      */
-    onTap(this: SafeComponentInstance, event: WechatMiniprogram.TouchEvent) {
-      console.log('卡片被点击，事件类型:', event.type);
+    onTap(this: SafeComponentInstance, _event: WechatMiniprogram.TouchEvent) {
       // 触发 tap 事件，并传递 item 数据，启用事件冒泡
       this.triggerEvent(
         'tap',
@@ -246,9 +245,6 @@ Component({
      * 按钮点击事件
      */
     onBtnTap(this: SafeComponentInstance, event: WechatMiniprogram.TouchEvent) {
-      console.log('===== content-card onBtnTap 被调用 =====');
-      console.log('this.data:', this.data);
-
       if (!this.data.disabled) {
         // 阻止事件冒泡到父容器
         (event as any).stopPropagation?.();
@@ -271,17 +267,10 @@ Component({
           status: this.data.btnDataStatus,
         };
 
-        console.log('从 this.data 获取的 dataset:', dataset);
-        console.log('准备触发 btn-tap 事件');
-
         // 触发 btn-tap 事件，并传递 dataset 数据
         this.triggerEvent('btnTap', {
           dataset: dataset,
         });
-
-        console.log('btn-tap 事件已触发');
-      } else {
-        console.log('按钮被禁用，不触发事件');
       }
     },
 
@@ -289,8 +278,6 @@ Component({
      * 收藏按钮点击事件
      */
     onFavoriteTap(this: SafeComponentInstance, event: WechatMiniprogram.TouchEvent) {
-      console.log('===== content-card onFavoriteTap 被调用 =====');
-
       // 阻止事件冒泡到父容器
       (event as any).stopPropagation?.();
 
@@ -298,8 +285,6 @@ Component({
       this.triggerEvent('favoriteTap', {
         isFavorite: this.data.isFavorite,
       });
-
-      console.log('favorite-tap 事件已触发');
     },
 
     /**

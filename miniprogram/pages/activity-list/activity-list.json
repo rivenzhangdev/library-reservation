@@ -1,0 +1,5 @@
+{
+  "usingComponents": {
+    "status-filter": "/components/status-filter/status-filter"
+  }
+}

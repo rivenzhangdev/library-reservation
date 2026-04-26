@@ -66,8 +66,8 @@
             >
               {{quickReserveText}}
             </van-button>
-            <view class="unfavorite-btn" catch:tap="onUnfavoriteSeat" data-id="{{item.id}}">
-              <uni-icon name="star" size="36" type="vant" color="#969799" />
+            <view class="unfavorite-btn active" catch:tap="onUnfavoriteSeat" data-id="{{item.id}}">
+              <uni-icon name="star" size="36" type="vant" color="#f59e0b" />
             </view>
           </view>
         </view>

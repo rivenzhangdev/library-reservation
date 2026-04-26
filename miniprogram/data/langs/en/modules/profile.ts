@@ -8,6 +8,7 @@
 
   'profile.user.guest': 'Guest',
   'profile.user.guestRole': 'Guest',
+  'profile.role.admin': 'Administrator',
   'profile.user.role.user': 'Normal User',
   'profile.user.role.admin': 'Administrator',
   'profile.user.studentId': 'Student ID',
@@ -21,37 +22,17 @@
   'login.brandTitle': 'Smart Library',
   'login.brandSubtitle': 'Reserve seats, join events, and enjoy an easier library experience',
   'login.description':
-    'Log in with WeChat and choose whether to sync your current nickname and avatar as your profile.',
+    'Log in with WeChat. Tap the login button to open the WeChat authorization prompt and sync your account nickname and avatar to your profile.',
   'login.button': 'WeChat One-click Login',
   'login.agreement': 'By logging in you agree to',
   'login.agreementTip': 'User agreement page is not yet implemented',
   'login.privacyTip': 'Privacy policy page is not yet implemented',
-  'login.success': 'Login successful',
-  'login.failed': 'Login failed, please try again later',
-  'login.profileSync.title': 'Complete Profile',
-  'login.profileSync.contentBoth':
-    'Your username and avatar are missing. Use your WeChat nickname and avatar to complete them?',
-  'login.profileSync.contentUsername':
-    'Your username is missing. Use your WeChat nickname as the username?',
-  'login.profileSync.contentAvatar':
-    'Your avatar is missing. Use your WeChat avatar as the profile avatar?',
-  'login.profileSync.descBoth': 'Used to complete username and avatar',
-  'login.profileSync.descUsername': 'Used to complete username',
-  'login.profileSync.descAvatar': 'Used to complete avatar',
-
   'profile.login.tip':
     'Log in to continue, but note that some services still require authorization or additional profile setup before they can be used.',
   'profile.login.action': 'WeChat Login',
   'profile.login.noticeTitle': 'Please Log In',
   'profile.login.noticeContent':
     'This page requires a WeChat login first. Tap the “WeChat Login” button on the page to continue.',
-  'profile.login.success': 'Login successful',
-  'profile.login.failed': 'Login failed, please try again later',
-
-  'profile.service.myReservation': 'My Reservations',
-  'profile.service.myCollection': 'My Collections',
-  'profile.service.myActivity': 'Activity List',
-  'profile.service.activityList': 'Activity List',
   'profile.service.history': 'Reservation History',
   'profile.service.settings': 'Settings',
   'profile.service.tip.loggedOut':
@@ -73,7 +54,6 @@
   'profile.status.loginStatus.loggedIn': 'Logged In',
   'profile.status.studentId': 'Student ID',
   'profile.status.lastLogin': 'Last Login',
-  'profile.status.action': 'View Details',
   'profile.shortcutTitle': 'Quick Access',
   'profile.shortcut.tip': 'Quick access to the most used functions.',
   'profile.shortcut.reserve': 'Reserve Now',
@@ -101,6 +81,34 @@
   'profile.settings.help': 'Help Center',
   'profile.settings.about': 'About Us',
 
+  'profile.helpCenter.title': 'Help Center',
+  'profile.helpCenter.intro':
+    'Find common usage guides and quick actions here. You can submit feedback directly if you need support.',
+  'profile.helpCenter.faqTitle': 'FAQs',
+  'profile.helpCenter.actionTitle': 'Quick Actions',
+  'profile.helpCenter.faq.reserve.q': 'How can I reserve a seat quickly?',
+  'profile.helpCenter.faq.reserve.a':
+    'Open the Reservation page, select date/time/seat, and submit to finish booking.',
+  'profile.helpCenter.faq.change.q': 'How do I change an existing booking?',
+  'profile.helpCenter.faq.change.a':
+    'Go to My Reservations and submit a change request for slot/seat, then wait for admin review.',
+  'profile.helpCenter.faq.violation.q': 'Why did I get a violation or score deduction?',
+  'profile.helpCenter.faq.violation.a':
+    'Missing check-in or overdue checkout can trigger violation rules. Check details in Credit Center.',
+  'profile.helpCenter.action.feedback': 'Submit Feedback',
+  'profile.helpCenter.action.agreement': 'View User Agreement',
+  'profile.helpCenter.action.privacy': 'View Privacy Policy',
+
+  'profile.about.title': 'About',
+  'profile.about.appName': 'Library Reservation',
+  'profile.about.appDesc':
+    'Provides seat search, reservation change, activity notices and credit management.',
+  'profile.about.version': 'App Version',
+  'profile.about.environment': 'Runtime Environment',
+  'profile.about.action.agreement': 'User Agreement',
+  'profile.about.action.privacy': 'Privacy Policy',
+  'profile.about.action.feedback': 'Contact & Feedback',
+
   'profile.personal.subtitle':
     'Keep your profile synced so reservations and notifications always use the latest information.',
   'profile.personal.avatar': 'Avatar',
@@ -108,6 +116,9 @@
   'profile.personal.username': 'Username',
   'profile.personal.usernamePlaceholder': 'Enter username',
   'profile.personal.usernameRequired': 'Please enter your username',
+  'profile.personal.email': 'Email',
+  'profile.personal.emailPlaceholder': 'Enter email',
+  'profile.personal.studentProfileTitle': 'Academic Record',
   'profile.personal.studentId': 'Student ID',
   'profile.personal.phone': 'Phone',
   'profile.personal.boundPhone': 'Phone bound',
@@ -149,6 +160,7 @@
   'profile.bindCard.modifyUsername': 'Change Username',
   'profile.bindCard.forgetPassword': 'Forgot Password',
   'profile.personal.studentIdPlaceholder': 'Enter student ID',
+  'profile.personal.emailInvalid': 'Please enter a valid email address',
   'profile.personal.phonePlaceholder': 'Enter phone number',
   'profile.personal.phoneRequired': 'Please enter your phone number',
   'profile.personal.phoneInvalid': 'Please enter a valid phone number',
@@ -161,6 +173,22 @@
   'profile.personal.phoneChangeRequestSubmitted':
     'Phone change request submitted, pending admin review',
   'profile.personal.studentIdInvalid': 'Please enter an 11-digit student ID, e.g. 2022xxxxxxx',
+  'profile.personal.studentIdPrecheckOk':
+    'Student ID can be bound. Please confirm your real name and submit.',
+  'profile.personal.studentIdPrecheckBound':
+    'This student ID is already bound to another account. Please submit a student ID rebinding request for admin review.',
+  'profile.personal.studentIdPrecheckNotFound':
+    'Student ID not found. Please verify and try again.',
+  'profile.personal.studentIdPrecheckSelfBound':
+    'This account is already bound. Submit a student ID rebinding request if needed.',
+  'profile.personal.submitAppeal': 'Submit Rebinding Request',
+  'profile.personal.studentIdAppealTitle': 'Submit Student ID Rebinding Request',
+  'profile.personal.studentIdAppealPlaceholder':
+    'Please describe why you need to rebind this student ID',
+  'profile.personal.studentIdAppealSubmitted':
+    'Student ID rebinding request submitted and pending admin review',
+  'profile.personal.studentIdAppealUnavailable':
+    'Student ID rebinding request is not available in the current scenario',
   'profile.personal.bindSuccess': 'Student ID bound successfully',
   'profile.personal.nameRequired': 'Please enter your name',
   'profile.personal.studentIdRequired': 'Please enter your student ID',

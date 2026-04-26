@@ -50,13 +50,6 @@
           "scene": null
         },
         {
-          "name": "pages/my-activity/my-activity",
-          "pathName": "pages/my-activity/my-activity",
-          "query": "",
-          "launchMode": "default",
-          "scene": null
-        },
-        {
           "name": "pages/my-collection/my-collection",
           "pathName": "pages/my-collection/my-collection",
           "query": "",

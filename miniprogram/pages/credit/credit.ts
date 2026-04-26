@@ -90,6 +90,23 @@ function getPointsLabel(type: number, points: number) {
   return `+${value}`;
 }
 
+function formatCreditReason(item: any) {
+  const reasonCode = String(item?.reasonCode || '').toUpperCase();
+
+  const reasonMap: Record<string, string> = {
+    VIOLATION_PENALTY: t('credit.reason.violationPenalty'),
+    BOOKING_CHECKIN: t('credit.reason.bookingCheckin'),
+    BOOKING_CHECKOUT_REWARD: t('credit.reason.bookingCheckoutReward'),
+    ACTIVITY_CHECKIN: t('credit.reason.activityCheckin'),
+    ACTIVITY_CHECKOUT_REWARD: t('credit.reason.activityCheckoutReward'),
+    ACTIVITY_MISSED_CHECKOUT: t('credit.reason.activityMissedCheckout'),
+    ADMIN_ADD: t('credit.reason.adminAdd'),
+    ADMIN_DEDUCT: t('credit.reason.adminDeduct'),
+  };
+
+  return reasonMap[reasonCode] || t('credit.reason.unknown');
+}
+
 Page({
   data: {
     currentLang: 'zh',
@@ -116,7 +133,7 @@ Page({
     loading: false,
     recordsLoading: false,
     hasMore: true,
-    emptyText: t('credit.empty'),
+    emptyText: t('common.empty.creditRecord'),
     loadingText: t('common.hint.loading'),
   } as CreditPageData,
 
@@ -149,7 +166,7 @@ Page({
       summaryHint: t('credit.summaryHint'),
       recordsTitle: t('credit.records'),
       trustTag: t('credit.trustTag'),
-      emptyText: t('credit.empty'),
+      emptyText: t('common.empty.creditRecord'),
       loadingText: t('common.hint.loading'),
     });
   },
@@ -205,7 +222,7 @@ Page({
           pointsClass: type === 1 ? 'record-points--deduct' : 'record-points--add',
           date: item.date || item.createdAt || '',
           dateText: item.date || item.createdAt || '',
-          reason: item.reason || item.typeLabel || '-',
+          reason: formatCreditReason(item),
         };
       });
       this.setData({

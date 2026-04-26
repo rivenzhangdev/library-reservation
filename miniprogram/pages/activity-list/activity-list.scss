@@ -133,3 +133,14 @@
   color: #94a3b8;
   font-size: 26rpx;
 }
+
+.list-footer {
+  display: flex;
+  justify-content: center;
+  padding: 20rpx 0 10rpx;
+}
+
+.list-footer__text {
+  color: #94a3b8;
+  font-size: 24rpx;
+}

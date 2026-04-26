@@ -7,15 +7,20 @@
     "pages/profile/profile",
     "pages/search-result/search-result",
     "pages/my-reservation/my-reservation",
+    "pages/my-requests/my-requests",
     "pages/my-collection/my-collection",
     "pages/seat-detail/seat-detail",
     "pages/activity-detail/activity-detail",
     "pages/personal-info/personal-info",
     "pages/credit/credit",
     "pages/notification-detail/notification-detail",
-    "pages/my-activity/my-activity",
+    "pages/activity-list/activity-list",
     "pages/feedback/feedback",
     "pages/feedback-detail/feedback-detail",
+    "pages/agreement/agreement",
+    "pages/help-center/help-center",
+    "pages/about/about",
+    "pages/notification-settings/notification-settings",
     "pages/settings-env/settings-env"
   ],
   "window": {
@@ -73,5 +78,10 @@
   },
   "componentFramework": "glass-easel",
   "sitemapLocation": "sitemap.json",
-  "lazyCodeLoading": "requiredComponents"
+  "lazyCodeLoading": "requiredComponents",
+  "permission": {
+    "scope.userLocation": {
+      "desc": "签到时需要获取你的位置信息，用于验证是否在图书馆范围内"
+    }
+  }
 }

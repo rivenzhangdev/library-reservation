@@ -117,6 +117,10 @@
   border-radius: 50%;
   transition: background-color 0.2s;
 
+  &.active {
+    background: #fff7e6;
+  }
+
   &:active {
     background-color: #f5f5f5;
   }

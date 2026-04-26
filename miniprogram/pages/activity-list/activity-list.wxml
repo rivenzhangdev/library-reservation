@@ -6,6 +6,7 @@
   <status-filter
     status-list="{{statusList}}"
     current-status="{{currentStatus}}"
+    container-style="margin: 0 -20rpx;"
     bind:status-change="onStatusChange"
   />
 
@@ -80,7 +81,12 @@
   </view>
 
   <view wx:if="{{filteredActivities.length === 0}}" class="empty-state">
-    <uni-icon name="orders-o" size="80" color="#dcdee0" type="vant" />
+    <uni-icon name="gift-o" size="80" color="#dcdee0" type="vant" />
     <text class="empty-text">{{emptyHint}}</text>
+  </view>
+
+  <view class="list-footer" wx:if="{{filteredActivities.length > 0}}">
+    <text wx:if="{{loadingMore}}" class="list-footer__text">{{loadingMoreText}}</text>
+    <text wx:elif="{{!hasMore}}" class="list-footer__text">{{noMoreText}}</text>
   </view>
 </view>

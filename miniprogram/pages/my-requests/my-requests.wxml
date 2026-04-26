@@ -1,0 +1,94 @@
+<page-meta>
+  <navigation-bar title="{{navTitle}}" back="{{true}}" />
+</page-meta>
+
+<view class="page-container {{languageClass}}">
+  <view class="summary-panel" wx:if="{{requestStats.total > 0}}">
+    <view class="summary-header">
+      <text class="summary-title">{{summaryTitle}}</text>
+      <text class="summary-total">{{summaryTotalText}} {{requestStats.total}}</text>
+    </view>
+    <view class="summary-grid">
+      <view class="summary-item summary-item--pending">
+        <text class="summary-item__label">{{summaryPendingText}}</text>
+        <text class="summary-item__value">{{requestStats.pending}}</text>
+      </view>
+      <view class="summary-item summary-item--approved">
+        <text class="summary-item__label">{{summaryApprovedText}}</text>
+        <text class="summary-item__value">{{requestStats.approved}}</text>
+      </view>
+      <view class="summary-item summary-item--rejected">
+        <text class="summary-item__label">{{summaryRejectedText}}</text>
+        <text class="summary-item__value">{{requestStats.rejected}}</text>
+      </view>
+    </view>
+  </view>
+
+  <status-filter
+    status-list="{{statusTabs}}"
+    current-status="{{currentStatus}}"
+    container-style="margin: 0 24rpx 8rpx; border-radius: 18rpx;"
+    bind:status-change="onStatusChange"
+  />
+
+  <view class="request-list" wx:if="{{requestList.length > 0}}">
+    <view class="request-card" wx:for="{{requestList}}" wx:key="id">
+      <view class="request-card__head">
+        <view class="request-card__title-group">
+          <text class="request-card__title">{{item.typeText}}</text>
+        </view>
+        <view class="request-card__meta">
+          <van-tag type="{{item.statusTagType}}">{{item.statusText}}</van-tag>
+          <text class="request-card__time">{{item.createdAtText || item.createdAt}}</text>
+        </view>
+      </view>
+
+      <view class="request-card__row request-card__row--target">
+        <text class="request-card__label">{{labelTarget}}</text>
+        <text class="request-card__value">{{item.targetText}}</text>
+      </view>
+
+      <view class="request-card__row">
+        <text class="request-card__label">{{labelReason}}</text>
+        <text class="request-card__value">{{item.reason || '-'}}</text>
+      </view>
+
+      <view class="request-card__review" wx:if="{{item.status !== 'pending'}}">
+        <view class="request-card__detail-row">
+          <text class="request-card__label">{{labelReviewComment}}</text>
+          <text class="request-card__value">{{item.reviewComment || '-'}}</text>
+        </view>
+        <view class="request-card__detail-row" wx:if="{{item.reviewedAt}}">
+          <text class="request-card__label">{{labelReviewedAt}}</text>
+          <text class="request-card__value">{{item.reviewedAtText || item.reviewedAt}}</text>
+        </view>
+        <view class="request-card__detail-row" wx:if="{{item.reviewerName}}">
+          <text class="request-card__label">{{labelReviewer}}</text>
+          <text class="request-card__value">{{item.reviewerName}}</text>
+        </view>
+      </view>
+
+      <view class="request-card__actions">
+        <van-button
+          wx:if="{{item.status === 'pending'}}"
+          size="small"
+          plain
+          type="danger"
+          data-id="{{item.id}}"
+          bind:tap="onWithdrawTap"
+        >
+          {{pendingWithdrawText}}
+        </van-button>
+      </view>
+    </view>
+
+    <view class="list-footer">
+      <text wx:if="{{loadingMore}}" class="list-footer__text">{{loadingHint}}</text>
+      <text wx:elif="{{!hasMore}}" class="list-footer__text">{{noMoreHint}}</text>
+    </view>
+  </view>
+
+  <view class="empty-state" wx:else>
+    <van-empty description="{{emptyHint}}" />
+  </view>
+</view>

@@ -1,0 +1,15 @@
+<page-meta>
+  <navigation-bar title="{{pageTitle}}" back="{{true}}" />
+</page-meta>
+
+<view class="agreement-page {{languageClass}}">
+  <view class="agreement-card">
+    <view class="agreement-title">{{contentTitle}}</view>
+
+    <view class="agreement-list">
+      <view wx:for="{{contentItems}}" wx:key="index" class="agreement-item">
+        <text class="agreement-item-text">{{item}}</text>
+      </view>
+    </view>
+  </view>
+</view>

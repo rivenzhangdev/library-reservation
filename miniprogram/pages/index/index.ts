@@ -1,22 +1,23 @@
 ﻿// @ts-ignore
-import * as echarts from '../../components/ec-canvas/echarts.min';
 import {
-  getActivities,
-  joinActivity,
   checkinActivity,
   checkoutActivity,
+  getActivities,
   getActivityDetail,
+  joinActivity,
 } from '../../apis/activity';
+import { checkin, checkout, getBookingDetail } from '../../apis/booking';
+import { getSeatFacilityConfigs, getSeatTypeConfigs, getTimeSlotConfigs } from '../../apis/config';
 import { getFloors, getFloorSeats, getSeatOverview } from '../../apis/seats';
 import { favoriteSeat, getFavorites } from '../../apis/user';
-import { checkin, checkout, getBookingDetail } from '../../apis/booking';
-import { getSeatTypeConfigs, getSeatFacilityConfigs } from '../../apis/config';
-import { getToken, redirectToLogin, getUserInfo } from '../../utils/auth';
+import * as echarts from '../../components/ec-canvas/echarts.min';
 import { resolveAssetUrl } from '../../utils/assets';
+import { getToken, getUserInfo, redirectToLogin } from '../../utils/auth';
 import { t } from '../../utils/i18n';
 import { openReservationWithParams } from '../../utils/reservationNavigator';
 import { compareFloorName, compareSeatPosition } from '../../utils/sort';
 import { formatMonthDayTime, getCurrentTimeSlot, getToday } from '../../utils/time';
+import { getCurrentTimeSlotLabel, getEnabledChronologicalTimeSlots } from '../../utils/time-slot';
 
 interface SearchTagItem {
   key: string;
@@ -89,15 +90,48 @@ function buildDefaultSearchTags(): SearchTagItem[] {
   ];
 }
 
-function getCurrentTimeSlotLabel() {
-  const slot = getCurrentTimeSlot();
-  if (slot === 2) return t('reservation.time.period.evening');
-  if (slot === 1) return t('reservation.time.period.afternoon');
-  return t('reservation.time.period.morning');
-}
-
 function formatDate(value?: string) {
   return formatMonthDayTime(value);
+}
+
+function toMinutes(text: string) {
+  const parts = String(text || '').split(':');
+  const hours = Number(parts[0]);
+  const minutes = Number(parts[1]);
+  if (!Number.isFinite(hours) || !Number.isFinite(minutes)) return -1;
+  return hours * 60 + minutes;
+}
+
+function resolveOpeningInfo(timeSlotConfigs: any[]) {
+  const enabled = getEnabledChronologicalTimeSlots(timeSlotConfigs).filter(
+    (item: any) => item.startTime && item.endTime
+  );
+
+  if (!enabled.length) {
+    return {
+      openingHoursTime: t('openingHours.closedTime'),
+      openingHoursStatus: t('openingHours.statusClosed'),
+      openingHoursTagType: 'danger' as 'success' | 'danger',
+      isReservableNow: false,
+    };
+  }
+
+  const first = enabled[0];
+  const last = enabled[enabled.length - 1];
+  const now = new Date();
+  const currentMinutes = now.getHours() * 60 + now.getMinutes();
+  const isOpenNow = enabled.some((item: any) => {
+    const start = toMinutes(String(item.startTime));
+    const end = toMinutes(String(item.endTime));
+    return start >= 0 && end >= 0 && currentMinutes >= start && currentMinutes < end;
+  });
+
+  return {
+    openingHoursTime: `${first.startTime} - ${last.endTime}`,
+    openingHoursStatus: isOpenNow ? t('openingHours.statusOpen') : t('openingHours.statusClosed'),
+    openingHoursTagType: (isOpenNow ? 'success' : 'danger') as 'success' | 'danger',
+    isReservableNow: isOpenNow,
+  };
 }
 
 Page({
@@ -113,6 +147,8 @@ Page({
     openingHoursTitle: '',
     openingHoursTime: '',
     openingHoursStatus: '',
+    openingHoursTagType: 'danger' as 'success' | 'danger',
+    isReservableNow: false,
     seatStatusTitle: '',
     realTimeTitle: '',
     recommendTitle: '',
@@ -120,12 +156,17 @@ Page({
     viewAllText: '',
     activityTitle: '',
     viewMoreActivity: '',
+    seatEmptyHint: '',
+    activityEmptyHint: '',
     searchTags: [] as SearchTagItem[],
     actionCards: [] as Array<{
       id: string;
       icon: string;
       iconType: 'vant' | 'iconfont';
       text: string;
+      iconBg: string;
+      iconColor: string;
+      cardBg: string;
     }>,
     banners: [] as Array<{ image: string; title: string; activityId: string }>,
     displayBanners: [] as Array<{ image: string; title: string; activityId: string }>,
@@ -172,39 +213,54 @@ Page({
       searchPlaceholder: t('search.placeholder'),
       openingHoursTitle: t('openingHours.title'),
       openingHoursTime: t('openingHours.time'),
-      openingHoursStatus: t('openingHours.status'),
+      openingHoursStatus: t('openingHours.statusClosed'),
+      openingHoursTagType: 'danger',
       seatStatusTitle: t('seatStatus.title'),
       realTimeTitle: t('realTime.title'),
       recommendTitle: t('recommend.title'),
       reserveButtonText: t('common.btn.reserve'),
       viewAllText: t('common.btn.viewAll'),
-      activityTitle: t('activity.title'),
+      activityTitle: t('common.quick.activityList'),
       viewMoreActivity: t('common.btn.viewMore'),
+      seatEmptyHint: t('common.hint.noData'),
+      activityEmptyHint: t('common.empty.activity'),
       searchTags: buildDefaultSearchTags(),
       actionCards: [
-        {
-          id: 'reserve',
-          icon: 'shopping-cart-o',
-          iconType: 'vant',
-          text: t('common.btn.reserve'),
-        },
         {
           id: 'bookings',
           icon: 'orders-o',
           iconType: 'vant',
-          text: t('actions.myReservation'),
+          text: t('common.quick.myReservation'),
+          iconBg: 'linear-gradient(135deg, #dbeafe, #bfdbfe)',
+          iconColor: '#2563eb',
+          cardBg: '#f8fbff',
         },
         {
-          id: 'renew',
-          icon: 'replay',
+          id: 'activities',
+          icon: 'gift-o',
           iconType: 'vant',
-          text: t('actions.renew'),
+          text: t('common.quick.activityList'),
+          iconBg: 'linear-gradient(135deg, #dcfce7, #bbf7d0)',
+          iconColor: '#15803d',
+          cardBg: '#f7fdf8',
+        },
+        {
+          id: 'notifications',
+          icon: 'chat-o',
+          iconType: 'vant',
+          text: t('common.quick.notificationCenter'),
+          iconBg: 'linear-gradient(135deg, #fef3c7, #fde68a)',
+          iconColor: '#b45309',
+          cardBg: '#fffdf7',
         },
         {
           id: 'scan',
           icon: 'scan',
           iconType: 'vant',
-          text: t('actions.scan'),
+          text: t('common.quick.scan'),
+          iconBg: 'linear-gradient(135deg, #e0f2fe, #bae6fd)',
+          iconColor: '#0284c7',
+          cardBg: '#f7fcff',
         },
       ],
       displayBanners: [
@@ -262,15 +318,19 @@ Page({
     const timeSlot = getCurrentTimeSlot();
 
     try {
-      const [overviewRes, floorsRes, seatTypeRes, seatFacilityRes]: any[] = await Promise.all([
-        getSeatOverview({ date }, { showLoading: false }).catch(() => ({ data: null })),
-        getFloors({ showLoading: false }),
-        getSeatTypeConfigs().catch(() => ({ data: [] })),
-        getSeatFacilityConfigs().catch(() => ({ data: [] })),
-      ]);
+      const [overviewRes, floorsRes, seatTypeRes, seatFacilityRes, timeSlotRes]: any[] =
+        await Promise.all([
+          getSeatOverview({ date }, { showLoading: false }).catch(() => ({ data: null })),
+          getFloors({ showLoading: false }),
+          getSeatTypeConfigs().catch(() => ({ data: [] })),
+          getSeatFacilityConfigs().catch(() => ({ data: [] })),
+          getTimeSlotConfigs().catch(() => ({ data: [] })),
+        ]);
 
       const seatTypeConfigs = Array.isArray(seatTypeRes?.data) ? seatTypeRes.data : [];
       const seatFacilityConfigs = Array.isArray(seatFacilityRes?.data) ? seatFacilityRes.data : [];
+      const timeSlotConfigs = Array.isArray(timeSlotRes?.data) ? timeSlotRes.data : [];
+      const openingInfo = resolveOpeningInfo(timeSlotConfigs);
 
       const seatTypeValueByCode = seatTypeConfigs
         .filter((item: any) => item && item.enabled !== false && item.value)
@@ -419,6 +479,10 @@ Page({
       const chartValues = chartSource.map((item: any) => Number(item.occupiedSeats || 0));
 
       this.setData({
+        openingHoursTime: openingInfo.openingHoursTime,
+        openingHoursStatus: openingInfo.openingHoursStatus,
+        openingHoursTagType: openingInfo.openingHoursTagType,
+        isReservableNow: openingInfo.isReservableNow,
         seatStatus: {
           total: { label: t('seatStatus.total'), value: String(total) },
           available: {
@@ -474,7 +538,7 @@ Page({
             icon: 'clock-o',
             label: t('realTime.booked'),
             value: String(totalBookedSeats),
-            sublabel: `${getCurrentTimeSlotLabel()} / ${date}`,
+            sublabel: `${getCurrentTimeSlotLabel(timeSlot, timeSlotConfigs)} / ${date}`,
             bgColor: '#f3e8ff',
             iconColor: '#9b59b6',
           },
@@ -520,7 +584,7 @@ Page({
               : statusKey === '2'
                 ? t('common.status.completed')
                 : t('common.status.pending'),
-          btnText: isJoined ? t('activity.btn.detail') : t('activity.btn.register'),
+          btnText: isJoined ? t('common.btn.detail') : t('activity.btn.register'),
           time: `${formatDate(activity.startTime)}${
             activity.endTime ? ` - ${formatDate(activity.endTime)}` : ''
           }`,
@@ -625,6 +689,11 @@ Page({
   },
 
   onSeatReserve(e: WechatMiniprogram.TouchEvent) {
+    if (!this.data.isReservableNow) {
+      wx.showToast({ title: t('openingHours.closedHint'), icon: 'none' });
+      return;
+    }
+
     const { index } = e.currentTarget.dataset as { index?: number };
     const seatInfo = this.data.seatList[index || 0];
     if (!seatInfo) return;
@@ -670,6 +739,11 @@ Page({
   },
 
   onViewAllSeats() {
+    if (!this.data.isReservableNow) {
+      wx.showToast({ title: t('openingHours.closedHint'), icon: 'none' });
+      return;
+    }
+
     wx.switchTab({
       url: '/pages/reservation/reservation',
     });
@@ -677,7 +751,7 @@ Page({
 
   onViewMoreActivities() {
     wx.navigateTo({
-      url: '/pages/my-activity/my-activity',
+      url: '/pages/activity-list/activity-list',
     });
   },
 
@@ -705,11 +779,11 @@ Page({
         if (!res.confirm) return;
         joinActivity(String(activity.id))
           .then(() => {
-            wx.showToast({ title: t('activity.toast.registerSuccess'), icon: 'success' });
+            wx.showToast({ title: t('common.toast.registerSuccess'), icon: 'success' });
             this.loadActivities();
           })
           .catch(() => {
-            wx.showToast({ title: t('activity.toast.registerFailed'), icon: 'none' });
+            wx.showToast({ title: t('common.toast.registerFailed'), icon: 'none' });
           });
       },
     });
@@ -1027,8 +1101,10 @@ Page({
   onActionCardTap(e: WechatMiniprogram.TouchEvent) {
     const { id } = e.currentTarget.dataset as { id?: string };
 
-    if (id === 'reserve') {
-      wx.switchTab({ url: '/pages/reservation/reservation' });
+    if (id === 'requests') {
+      wx.navigateTo({
+        url: '/pages/my-requests/my-requests',
+      });
       return;
     }
 
@@ -1049,9 +1125,16 @@ Page({
       return;
     }
 
-    if (id === 'renew') {
+    if (id === 'activities') {
       wx.navigateTo({
-        url: '/pages/my-reservation/my-reservation?quickAction=renew',
+        url: '/pages/activity-list/activity-list',
+      });
+      return;
+    }
+
+    if (id === 'notifications') {
+      wx.switchTab({
+        url: '/pages/notification/notification',
       });
       return;
     }

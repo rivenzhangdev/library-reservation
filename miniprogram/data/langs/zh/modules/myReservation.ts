@@ -1,12 +1,10 @@
 // 我的预约页面多语言文案
 export default {
-  'myReservation.title': '我的预约',
   'myReservation.search.placeholder': '搜索座位号、区域...',
   'myReservation.action.checkin': '签到',
   'myReservation.action.checkout': '签退',
   'myReservation.action.renew': '续约',
   'myReservation.action.cancel': '取消预约',
-  'myReservation.empty': '暂无预约记录',
   'myReservation.confirm.checkinTitle': '确认签到',
   'myReservation.confirm.checkinContent': '确认已到达座位并签到？',
   'myReservation.confirm.checkoutTitle': '确认签退',
@@ -15,10 +13,27 @@ export default {
   'myReservation.confirm.renewContent': '确认要续约当前预约？',
   'myReservation.confirm.cancelTitle': '取消预约',
   'myReservation.confirm.cancelContent': '确认要取消这条预约吗？',
-  'myReservation.hint.checkinSuccess': '签到成功',
   'myReservation.hint.renewSuccess': '续约成功',
-  'myReservation.hint.cancelSuccess': '取消成功',
   'myReservation.hint.renewFailed': '续约失败，该时段可能已被占用',
+  'myReservation.hint.renewFailedConflict': '续约失败：与本人其他预约时间冲突',
+  'myReservation.hint.renewNoSlot': '当前无可续约时段，可能已占用或与本人预约冲突',
+  'myReservation.hint.renewNoSlotReason': '后续时段已满或已达续约上限，无法续约',
+  'myReservation.hint.renewBlocked.noLaterTimeSlot':
+    '当前预约已到当日最后可续约时段（仅支持同一天后续且已启用的时段），无法继续续约',
+  'myReservation.hint.renewBlocked.limitReached': '已达到续约上限，无法继续续约',
+  'myReservation.hint.renewBlocked.slotUnavailableOrConflict':
+    '后续时段已被占用或与本人其他预约冲突，无法续约',
+  'myReservation.hint.renewGuide': '可续约时段：{slots}',
+  'myReservation.hint.renewGuide.sameDay':
+    '可续约时段：{slots}（仅支持预约当天的后续时段，其余时段可能已占用或与本人预约冲突）',
+  'myReservation.hint.renewGuide.advanceDays':
+    '可续约时段：{slots}（支持预约当天及前 {days} 天内续约后续时段，其余时段可能已占用或与本人预约冲突）',
+  'myReservation.hint.renewTodayOnly': '续约仅支持预约当天进行，请在当天操作',
+  'myReservation.hint.renewWindow.sameDay': '续约支持预约当天进行，请在当天操作',
+  'myReservation.hint.renewWindow.advanceDays':
+    '续约支持预约前 {days} 天内进行，请在可续约时间窗口内操作',
+  'myReservation.hint.renewLimitExceeded': '续约失败：超过当前可续约时段上限',
+  'myReservation.hint.renewSlotUnavailable': '续约失败：目标时段不可用（已被占用或维护）',
   'myReservation.hint.loadFailed': '预约详情加载失败',
   'myReservation.field.date': '日期',
   'myReservation.field.time': '时间',
@@ -59,4 +74,48 @@ export default {
   'myReservation.renew.selectTimeSlot': '选择续约时段',
   'myReservation.renew.targetSlot': '续约至：{slot}',
   'myReservation.action.changeRequest': '变更申请',
+  'myReservation.changeRequest.options.cancel': '提交取消申请',
+  'myReservation.changeRequest.options.reschedule': '提交改期改时段申请',
+  'myReservation.changeRequest.options.seatChange': '提交换座申请',
+  'myReservation.changeRequest.confirm.cancelTitle': '提交取消申请',
+  'myReservation.changeRequest.confirm.cancelContent': '提交后将进入管理员审批队列，确认继续？',
+  'myReservation.changeRequest.confirm.rescheduleTitle': '提交改期改时段申请',
+  'myReservation.changeRequest.confirm.rescheduleContent':
+    '目标日期：{date}，目标时段：{slot}。提交后将进入管理员审批队列，确认继续？',
+  'myReservation.changeRequest.confirm.seatChangeTitle': '提交换座申请',
+  'myReservation.changeRequest.confirm.seatChangeContent':
+    '目标座位：{seat}。提交后将进入管理员审批队列，确认继续？',
+  'myReservation.changeRequest.hint.submitSuccess': '变更申请已提交，等待管理员审批',
+  'myReservation.changeRequest.hint.submitFailed': '提交失败，请稍后重试',
+  'myReservation.changeRequest.hint.renewConflict':
+    '该目标时段请使用续约功能，不支持提交改时段申请',
+  'myReservation.changeRequest.hint.targetUnavailable':
+    '提交失败：目标座位或时段已被占用，请重新选择',
+  'myReservation.changeRequest.hint.limitExceeded':
+    '该预约的变更申请次数已达上限，请联系管理员处理',
+  'myReservation.changeRequest.hint.invalidTarget': '目标日期或时段无效，请重新选择可用时段',
+  'myReservation.changeRequest.hint.sameTimeSlot': '目标时段不能与当前预约时段相同，请选择其他时段',
+  'myReservation.changeRequest.hint.bookingNotFound':
+    '提交失败：原预约不存在或已失效，请刷新后重试',
+  'myReservation.changeRequest.hint.adminRequired': '提交失败：当前账号无权限执行该操作',
+  'myReservation.changeRequest.hint.duplicate': '该预约已有待审批申请，请勿重复提交',
+  'myReservation.changeRequest.hint.duplicateWithId': '该预约已有待审批申请（申请单号：{id}）',
+  'myReservation.changeRequest.hint.noRescheduleSlot':
+    '当前无可提交的改期时段，可能与本人其他预约冲突',
+  'myReservation.changeRequest.hint.loadingSeatOptions': '正在加载可选座位...',
+  'myReservation.changeRequest.hint.loadingTimeSlots': '正在加载可选时段...',
+  'myReservation.changeRequest.hint.noSeatCandidate': '当前没有可提交的目标座位',
+  'myReservation.changeRequest.hint.loadSeatFailed': '加载可选座位失败，请稍后重试',
+  'myReservation.changeRequest.hint.loadTimeSlotsFailed': '加载可选时段失败，请稍后重试',
+  'myReservation.changeRequest.hint.seatKeywordPlaceholder': '输入楼层/区域/座位号关键词',
+  'myReservation.changeRequest.hint.seatKeywordRequired': '请输入要搜索的座位关键词',
+  'myReservation.changeRequest.date.today': '今天',
+  'myReservation.changeRequest.date.tomorrow': '明天',
+  'myReservation.changeRequest.reason.title': '填写变更原因',
+  'myReservation.changeRequest.reason.placeholder': '请输入你要变更的具体原因',
+  'myReservation.changeRequest.reason.required': '请填写变更原因后再提交',
+  'myReservation.changeRequest.options.pickSeatRecommended': '按推荐列表选择座位',
+  'myReservation.changeRequest.options.searchSeatByKeyword': '按关键词搜索座位',
+  'myReservation.changeRequest.options.moreSeatCandidates': '查看更多座位',
+  'myReservation.changeRequest.options.moreDateCandidates': '查看更多日期',
 };

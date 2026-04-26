@@ -1,0 +1,30 @@
+.agreement-page {
+  min-height: 100vh;
+  padding: 24rpx;
+  background: #f6f8fc;
+}
+
+.agreement-card {
+  padding: 28rpx;
+  background: #fff;
+  border-radius: 20rpx;
+}
+
+.agreement-title {
+  margin-bottom: 18rpx;
+  color: #0f172a;
+  font-weight: 700;
+  font-size: 34rpx;
+}
+
+.agreement-list {
+  display: flex;
+  flex-direction: column;
+  gap: 14rpx;
+}
+
+.agreement-item-text {
+  color: #334155;
+  font-size: 26rpx;
+  line-height: 1.7;
+}

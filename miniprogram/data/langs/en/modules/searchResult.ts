@@ -6,6 +6,7 @@ export default {
   // Search hints
   'searchResult.hint.searchKeyword': 'Search: "{keyword}"',
   'searchResult.hint.resultCount': 'Found {count} results',
+  'searchResult.hint.idle': 'Enter keywords to start searching for seats',
 
   // Seat information
   'searchResult.seat.distance': '{{distance}}m',
@@ -14,8 +15,6 @@ export default {
   'searchResult.action.reserve': 'Reserve Now',
 
   // Hints
-  'searchResult.hint.reserveSuccess': 'Reservation successful',
-  'searchResult.hint.favoriteSuccess': 'Added to favorites',
   'searchResult.hint.openDetail': 'View seat details',
 
   // Advanced filters

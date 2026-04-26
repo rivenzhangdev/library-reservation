@@ -65,7 +65,7 @@
     </view>
 
     <view wx:if="{{records.length === 0 && !recordsLoading}}" class="empty-state">
-      <uni-icon type="vant" name="search" size="72" color="#d0d7de" />
+      <uni-icon type="vant" name="file-empty-o" size="72" color="#d0d7de" />
       <text class="empty-text">{{emptyText}}</text>
     </view>
 

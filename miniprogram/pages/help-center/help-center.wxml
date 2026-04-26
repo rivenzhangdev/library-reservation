@@ -1,0 +1,26 @@
+<page-meta>
+  <navigation-bar title="{{navTitle}}" back="{{true}}" />
+</page-meta>
+
+<view class="help-page">
+  <view class="help-card">
+    <view class="help-intro">{{pageIntro}}</view>
+  </view>
+
+  <view class="help-card">
+    <view class="section-title">{{sectionFaqTitle}}</view>
+    <view class="faq-list">
+      <view class="faq-item" wx:for="{{faqList}}" wx:key="q">
+        <text class="faq-q">Q: {{item.q}}</text>
+        <text class="faq-a">A: {{item.a}}</text>
+      </view>
+    </view>
+  </view>
+
+  <view class="help-card">
+    <view class="section-title">{{sectionActionTitle}}</view>
+    <view class="action-list">
+      <van-button type="primary" block bind:tap="onFeedbackTap">{{actionFeedback}}</van-button>
+    </view>
+  </view>
+</view>

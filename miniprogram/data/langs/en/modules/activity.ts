@@ -1,16 +1,12 @@
 // Activity page English language pack
 export default {
-  'activity.title': 'Activity List',
   'activity.search.placeholder': 'Search activities',
   'activity.status.registered': 'Registered',
   'activity.status.ended': 'Ended',
-  'activity.btn.detail': 'View Details',
   'activity.btn.checkIn': 'Check In',
   'activity.btn.register': 'Register Now',
   'activity.confirm.registerTitle': 'Confirm Registration',
   'activity.confirm.registerContent': 'Are you sure you want to register for this activity?',
-  'activity.toast.registerSuccess': 'Registration successful',
-  'activity.toast.registerFailed': 'Registration failed',
   'activity.toast.cancelSuccess': 'Registration cancelled',
   'activity.toast.cancelFailed': 'Failed to cancel registration',
   'activity.tag.registered': 'Registered',
@@ -31,7 +27,6 @@ export default {
   'activity.detail.lateCheckoutWarning':
     'Activity has ended; please check out as soon as possible to avoid credit impact',
   'activity.detail.signStatus': 'Attendance Status',
-  'activity.empty': 'No activities',
   'activity.detail.checkinTime': 'Check-in Time',
   'activity.detail.checkoutTime': 'Check-out Time',
   'activity.detail.checkinRecord': 'Attendance Record',

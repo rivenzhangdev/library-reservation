@@ -155,7 +155,7 @@ Page({
       extraInfoLabel: t('notification.detail.extraInfo'),
       dateLabel: t('notification.detail.date'),
       timeSlotLabel: t('notification.detail.timeSlot'),
-      viewRelatedText: t('notification.toast.viewDetail'),
+      viewRelatedText: t('common.btn.detail'),
       loadingText: t('common.hint.loading'),
       emptyText: t('common.hint.noData'),
     });
@@ -191,9 +191,19 @@ Page({
         };
         this.setData({ notification, loading: false });
         if (notification && !notification.isRead) {
-          markAsRead(notificationId).catch(() => {
-            // ignore mark-as-read failure
-          });
+          markAsRead(notificationId)
+            .then(() => {
+              this.setData({
+                notification: {
+                  ...this.data.notification,
+                  isRead: true,
+                  isReadText: t('notification.read'),
+                },
+              });
+            })
+            .catch(() => {
+              // ignore mark-as-read failure
+            });
         }
       })
       .catch((error) => {

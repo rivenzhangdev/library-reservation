@@ -78,21 +78,13 @@
     <text class="filter-summary-text">{{filterResultText}}：{{resultCount}}</text>
   </view>
 
-  <scroll-view class="status-scroll" scroll-x enable-flex show-scrollbar="{{false}}">
-    <view class="status-list">
-      <view
-        wx:for="{{statusList}}"
-        wx:key="id"
-        class="status-item {{currentStatus === item.id ? 'active' : ''}}"
-        data-id="{{item.id}}"
-        bind:tap="onStatusTap"
-      >
-        {{item.name}}
-      </view>
-    </view>
-  </scroll-view>
+  <status-filter
+    status-list="{{statusList}}"
+    current-status="{{currentStatus}}"
+    bind:status-change="onStatusChange"
+  />
 
-  <view class="result-list">
+  <view class="result-list" wx:if="{{resultCount > 0}}">
     <seat-card
       wx:for="{{searchResults}}"
       wx:key="id"
@@ -108,9 +100,18 @@
     />
   </view>
 
-  <van-empty
-    wx:if="{{resultCount === 0 && searchValue}}"
-    image="search"
-    description="{{noResultsHint}}"
-  />
+  <view class="list-footer" wx:if="{{resultCount > 0}}">
+    <text wx:if="{{loadingMore}}" class="list-footer__text">{{loadingMoreText}}</text>
+    <text wx:elif="{{!hasMore}}" class="list-footer__text">{{noMoreText}}</text>
+  </view>
+
+  <view class="result-empty-state" wx:if="{{resultCount === 0 && hasSearched}}">
+    <uni-icon name="search" size="80" color="#dcdee0" type="vant" />
+    <text class="result-empty-text">{{noResultsHint}}</text>
+  </view>
+
+  <view wx:if="{{!searchValue}}" class="idle-state">
+    <uni-icon type="vant" name="search" size="72" color="#cbd5e1" />
+    <text class="idle-state__text">{{idleHint}}</text>
+  </view>
 </view>

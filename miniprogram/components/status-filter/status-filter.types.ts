@@ -26,6 +26,8 @@ export interface StatusFilterProps {
   scrollable?: boolean;
   /** 是否显示数量徽章，默认 false */
   showCount?: boolean;
+  /** 容器内联样式（用于页面级宽度差异） */
+  containerStyle?: string;
 }
 
 /**

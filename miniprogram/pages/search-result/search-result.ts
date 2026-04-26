@@ -101,12 +101,18 @@ Page({
     searchResults: [] as any[],
     sourceResults: [] as any[],
     resultCount: 0,
+    hasSearched: false,
+    page: 1,
+    pageSize: 20,
+    hasMore: false,
+    loadingMore: false,
     currentLang: 'zh' as 'zh' | 'en',
     languageClass: '',
     navTitle: '',
     hintText: '',
     searchingHint: '',
     noResultsHint: '',
+    idleHint: '',
     actionButtonText: '',
     searchPlaceholder: '',
 
@@ -133,6 +139,12 @@ Page({
     filterApplyText: '',
     filterAllText: '',
     filterResultText: '',
+    loadingMoreText: '',
+    noMoreText: '',
+  },
+
+  onReachBottom() {
+    this.loadMoreResults();
   },
 
   onLoad(options: any) {
@@ -189,6 +201,7 @@ Page({
       hintText: keyword ? t('searchResult.hint.searchKeyword', { keyword }) : '',
       searchingHint: t('common.hint.loading'),
       noResultsHint: t('common.hint.noData'),
+      idleHint: t('searchResult.hint.idle') || t('search.placeholder'),
       actionButtonText: t('searchResult.action.reserve'),
       searchPlaceholder: t('search.placeholder'),
       searchValue: keyword,
@@ -207,6 +220,8 @@ Page({
       filterResetText: t('searchResult.filter.reset'),
       filterApplyText: t('searchResult.filter.done') || t('searchResult.filter.apply'),
       filterResultText: t('searchResult.filter.result'),
+      loadingMoreText: t('common.hint.loading'),
+      noMoreText: t('common.hint.noMore'),
       filterAllText: allText,
       floorOptions: [{ id: 'all', name: allText }],
       seatTypeOptions: [{ id: 'all', name: allText }],
@@ -364,7 +379,122 @@ Page({
 
   refreshFilteredResults() {
     const filtered = this.applyAllFilters(this.data.sourceResults);
-    this.setData({ searchResults: filtered, resultCount: filtered.length });
+    this.setData({
+      searchResults: filtered,
+      resultCount: filtered.length,
+      loadingMore: false,
+    });
+  },
+
+  loadMoreResults() {
+    if (this.data.loadingMore || !this.data.hasMore) {
+      return;
+    }
+
+    this.fetchSearchPage({
+      keyword: this.data.lastSearchKeyword,
+      params: this.data.lastSearchParams,
+      displayKeyword: this.data.searchValue,
+      reset: false,
+    });
+  },
+
+  fetchSearchPage(options: {
+    keyword: string;
+    params?: Record<string, any>;
+    displayKeyword?: string;
+    reset: boolean;
+  }) {
+    const { keyword, params = {}, displayKeyword = '', reset } = options;
+    const targetPage = reset ? 1 : this.data.page + 1;
+
+    if (reset) {
+      wx.showLoading({ title: this.data.searchingHint });
+    } else {
+      this.setData({ loadingMore: true });
+    }
+
+    return searchSeats(keyword, {
+      ...params,
+      page: targetPage,
+      pageSize: this.data.pageSize,
+    })
+      .then((res: any) => {
+        const payload = res?.data || {};
+        const list = Array.isArray(payload?.list)
+          ? payload.list
+          : Array.isArray(payload)
+            ? payload
+            : [];
+        const total = Number(payload?.total || 0);
+
+        const facilityOptions =
+          this.data.facilityOptions.length > 0
+            ? this.data.facilityOptions
+            : buildDefaultSeatFacilityOptions();
+
+        const mapped = sortBySeatPosition(
+          list.map((seat: any) =>
+            normalizeSeat(
+              seat,
+              this.data.seatTypeValueByCode,
+              this.data.seatTypeLabelByValue,
+              facilityOptions
+            )
+          )
+        );
+
+        const merged = reset
+          ? mapped
+          : Array.from(
+              new Map(
+                [...this.data.sourceResults, ...mapped].map((item) => [String(item.id), item])
+              ).values()
+            );
+
+        const hasMore = targetPage * this.data.pageSize < total;
+
+        this.setData(
+          {
+            sourceResults: merged,
+            hintText: displayKeyword
+              ? t('searchResult.hint.searchKeyword', { keyword: displayKeyword })
+              : '',
+            searchValue: displayKeyword,
+            lastSearchKeyword: keyword,
+            lastSearchParams: params,
+            page: targetPage,
+            hasMore,
+            loadingMore: false,
+            hasSearched: true,
+          },
+          () => {
+            this.refreshFilteredResults();
+          }
+        );
+      })
+      .catch((error) => {
+        console.error('search seats failed', error);
+        if (reset) {
+          this.setData({
+            sourceResults: [],
+            searchResults: [],
+            resultCount: 0,
+            page: 1,
+            hasMore: false,
+            loadingMore: false,
+            hasSearched: true,
+          });
+        } else {
+          this.setData({ loadingMore: false });
+        }
+        wx.showToast({ title: t('common.hint.loadFailed'), icon: 'none' });
+      })
+      .finally(() => {
+        if (reset) {
+          wx.hideLoading();
+        }
+      });
   },
 
   applyTagFilterAndSearch(tagType: string, tagValue: string, tagLabel = '') {
@@ -418,51 +548,12 @@ Page({
     const searchParams = params || {};
     const displayKeyword = String(hintKeyword || normalizedKeyword).trim();
 
-    wx.showLoading({ title: this.data.searchingHint });
-
-    searchSeats(normalizedKeyword, searchParams)
-      .then((res: any) => {
-        const facilityOptions =
-          this.data.facilityOptions.length > 0
-            ? this.data.facilityOptions
-            : buildDefaultSeatFacilityOptions();
-        const results = sortBySeatPosition(
-          (Array.isArray(res.data) ? res.data : []).map((seat: any) =>
-            normalizeSeat(
-              seat,
-              this.data.seatTypeValueByCode,
-              this.data.seatTypeLabelByValue,
-              facilityOptions
-            )
-          )
-        );
-        this.setData(
-          {
-            sourceResults: results,
-            hintText: displayKeyword
-              ? t('searchResult.hint.searchKeyword', { keyword: displayKeyword })
-              : '',
-            searchValue: displayKeyword,
-            lastSearchKeyword: normalizedKeyword,
-            lastSearchParams: searchParams,
-          },
-          () => {
-            this.refreshFilteredResults();
-          }
-        );
-      })
-      .catch((error) => {
-        console.error('search seats failed', error);
-        this.setData({
-          sourceResults: [],
-          searchResults: [],
-          resultCount: 0,
-        });
-        wx.showToast({ title: t('common.hint.loadFailed'), icon: 'none' });
-      })
-      .finally(() => {
-        wx.hideLoading();
-      });
+    this.fetchSearchPage({
+      keyword: normalizedKeyword,
+      params: searchParams,
+      displayKeyword,
+      reset: true,
+    });
   },
 
   applyAllFilters(list: any[]) {
@@ -527,11 +618,15 @@ Page({
       currentStatus: 'all',
       lastSearchKeyword: '',
       lastSearchParams: {},
+      page: 1,
+      hasMore: false,
+      loadingMore: false,
+      hasSearched: false,
     });
   },
 
-  onStatusTap(e: WechatMiniprogram.TouchEvent) {
-    const statusId = String(e.currentTarget.dataset.id || 'all');
+  onStatusChange(e: WechatMiniprogram.CustomEvent<{ id: string }>) {
+    const statusId = String(e?.detail?.id || 'all');
     this.setData({ currentStatus: statusId }, () => {
       this.refreshFilteredResults();
     });

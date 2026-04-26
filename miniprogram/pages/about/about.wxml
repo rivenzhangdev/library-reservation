@@ -1,0 +1,25 @@
+<page-meta>
+  <navigation-bar title="{{navTitle}}" back="{{true}}" />
+</page-meta>
+
+<view class="about-page">
+  <view class="about-card">
+    <view class="app-name">{{appName}}</view>
+    <view class="app-desc">{{appDesc}}</view>
+  </view>
+
+  <view class="about-card">
+    <view class="info-row">
+      <text class="info-label">{{versionLabel}}</text>
+      <text class="info-value">{{versionValue}}</text>
+    </view>
+    <view class="info-row">
+      <text class="info-label">{{envLabel}}</text>
+      <text class="info-value">{{envValue}}</text>
+    </view>
+  </view>
+
+  <view class="about-card action-list">
+    <van-button type="primary" block bind:tap="onFeedbackTap">{{actionFeedback}}</van-button>
+  </view>
+</view>

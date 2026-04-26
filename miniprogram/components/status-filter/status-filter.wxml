@@ -1,4 +1,4 @@
-<view class="status-filter-container {{languageClass}}">
+<view class="status-filter-container {{languageClass}}" style="{{containerStyle}}">
   <scroll-view
     wx:if="{{isScrollable}}"
     class="status-scroll"
@@ -16,14 +16,6 @@
         data-id="{{item.id}}"
       >
         <text class="status-text">{{item.name}}</text>
-        <van-tag
-          wx:if="{{showCountBadge && item.count !== undefined}}"
-          class="count-badge"
-          type="primary"
-          size="mini"
-        >
-          {{item.count}}
-        </van-tag>
       </view>
     </view>
   </scroll-view>
@@ -37,14 +29,6 @@
       data-id="{{item.id}}"
     >
       <text class="status-text">{{item.name}}</text>
-      <van-tag
-        wx:if="{{showCountBadge && item.count !== undefined}}"
-        class="count-badge"
-        type="primary"
-        size="mini"
-      >
-        {{item.count}}
-      </van-tag>
     </view>
   </view>
 </view>

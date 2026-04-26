@@ -26,6 +26,11 @@ Component<StatusFilterData, StatusFilterProps>({
       type: Boolean,
       value: false,
     },
+    // 容器样式（由页面注入，处理边距差异）
+    containerStyle: {
+      type: String,
+      value: '',
+    },
   },
 
   /**

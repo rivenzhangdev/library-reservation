@@ -53,9 +53,13 @@
     font-size: var(--common-font-size-lg); // 调大一号：md -> lg
   }
 
-  // 数量徽章
-  .count-badge {
+  .count-tag {
     margin-left: var(--common-spacing-xs);
-    transform: scale(0.9);
+  }
+
+  &.active .count-tag {
+    color: #fff !important;
+    background-color: rgba(37, 99, 235, 0.85) !important;
+    border-color: rgba(37, 99, 235, 0.85) !important;
   }
 }

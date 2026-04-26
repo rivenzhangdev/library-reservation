@@ -5,6 +5,7 @@ import notification from './modules/notification';
 import reservation from './modules/reservation';
 import searchResult from './modules/searchResult';
 import myReservation from './modules/myReservation';
+import myRequests from './modules/myRequests';
 import activity from './modules/activity';
 import feedback from './modules/feedback';
 import credit from './modules/credit';
@@ -17,6 +18,7 @@ export default {
   ...reservation,
   ...searchResult,
   ...myReservation,
+  ...myRequests,
   ...activity,
   ...feedback,
   ...credit,

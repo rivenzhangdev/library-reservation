@@ -9,6 +9,12 @@ Page({
   },
 
   onLoad() {
+    if (config.isCurrentBackendEnvProd()) {
+      wx.showToast({ title: t('common.hint.noPermission') || 'No permission', icon: 'none' });
+      wx.navigateBack({ delta: 1 });
+      return;
+    }
+
     this.setData({
       pageTitle: t('settings.env.title') || 'Environment',
       envs: config.BACKEND_ENVS,

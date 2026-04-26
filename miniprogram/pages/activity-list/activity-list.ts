@@ -2,6 +2,7 @@ import { cancelActivity, getActivities, joinActivity } from '../../apis/activity
 import { getUserInfo, isLogin, redirectToLogin } from '../../utils/auth';
 import { resolveAssetUrl } from '../../utils/assets';
 import { getLangClassName, t } from '../../utils/i18n';
+import { calcHasMore, mergeUniqueByKey } from '../../utils/pagination';
 
 function resolveActivityPublisher(activity: any): string {
   if (!activity) return '-';
@@ -47,6 +48,10 @@ Page({
     filteredActivities: [] as ActivityItem[],
     activityButtons: {} as Record<string, Array<{ text: string; action: string; type: string }>>,
     searchValue: '',
+    page: 1,
+    pageSize: 10,
+    hasMore: true,
+    loadingMore: false,
     currentLang: 'zh' as 'zh' | 'en',
     languageClass: '',
     navTitle: '',
@@ -58,11 +63,13 @@ Page({
     cancelText: '',
     participantsText: '',
     publisherLabel: '',
+    loadingMoreText: '',
+    noMoreText: '',
   },
 
   onLoad() {
     this.initLanguage();
-    this.loadActivities();
+    this.loadActivities(true);
   },
 
   onShow() {
@@ -70,7 +77,11 @@ Page({
     if (currentLang !== this.data.currentLang) {
       this.initLanguage();
     }
-    this.loadActivities();
+    this.loadActivities(true);
+  },
+
+  onReachBottom() {
+    this.loadActivities(false);
   },
 
   initLanguage() {
@@ -79,15 +90,17 @@ Page({
     this.setData({
       currentLang,
       languageClass: getLangClassName(),
-      navTitle: t('activity.title'),
+      navTitle: t('common.quick.activityList'),
       searchPlaceholder: t('activity.search.placeholder'),
       searchingHint: t('common.hint.loading'),
-      emptyHint: t('activity.empty'),
-      detailText: t('activity.btn.detail'),
+      emptyHint: t('common.empty.activity'),
+      detailText: t('common.btn.detail'),
       registerText: t('activity.btn.register'),
       cancelText: t('activity.action.cancel'),
       participantsText: t('activity.participants'),
       publisherLabel: t('common.field.publisher'),
+      loadingMoreText: t('common.hint.loading'),
+      noMoreText: t('common.hint.noMore'),
       statusList: [
         { id: 'all', name: t('common.status.all') },
         { id: 'registered', name: t('activity.status.registered') },
@@ -118,12 +131,20 @@ Page({
     });
   },
 
-  loadActivities() {
-    wx.showLoading({ title: this.data.searchingHint });
+  loadActivities(reset = true) {
+    if (!reset) {
+      if (this.data.loadingMore || !this.data.hasMore) return;
+      this.setData({ loadingMore: true });
+    } else {
+      wx.showLoading({ title: this.data.searchingHint });
+    }
 
-    getActivities()
+    const targetPage = reset ? 1 : this.data.page + 1;
+
+    getActivities({ page: targetPage, pageSize: this.data.pageSize })
       .then((res: any) => {
         const list = Array.isArray(res?.data?.list) ? res.data.list : [];
+        const total = Number(res?.data?.total || 0);
         const userId = getUserInfo()?.id || '';
 
         const activities: ActivityItem[] = list.map((activity: any) => {
@@ -172,22 +193,35 @@ Page({
           };
         });
 
+        const merged = reset
+          ? activities
+          : mergeUniqueByKey(this.data.activities, activities, (item) => item.id);
+
         this.setData({
-          activities,
+          activities: merged,
+          page: targetPage,
+          hasMore: calcHasMore({
+            page: targetPage,
+            pageSize: this.data.pageSize,
+            total,
+            batchSize: list.length,
+          }),
+          loadingMore: false,
         });
         this.filterActivities();
       })
       .catch(() => {
         wx.showToast({ title: t('common.hint.loadFailed'), icon: 'none' });
+        this.setData({ loadingMore: false });
       })
       .finally(() => {
-        wx.hideLoading();
+        if (reset) wx.hideLoading();
       });
   },
 
   ensureLogin() {
     if (isLogin()) return true;
-    redirectToLogin('/pages/my-activity/my-activity');
+    redirectToLogin('/pages/activity-list/activity-list');
     return false;
   },
 
@@ -257,11 +291,11 @@ Page({
         if (!res.confirm) return;
         joinActivity(String(id))
           .then(() => {
-            wx.showToast({ title: t('activity.toast.registerSuccess'), icon: 'success' });
-            this.loadActivities();
+            wx.showToast({ title: t('common.toast.registerSuccess'), icon: 'success' });
+            this.loadActivities(true);
           })
           .catch(() => {
-            wx.showToast({ title: t('activity.toast.registerFailed'), icon: 'none' });
+            wx.showToast({ title: t('common.toast.registerFailed'), icon: 'none' });
           });
       },
     });
@@ -278,7 +312,7 @@ Page({
         cancelActivity(String(id))
           .then(() => {
             wx.showToast({ title: t('activity.toast.cancelSuccess'), icon: 'success' });
-            this.loadActivities();
+            this.loadActivities(true);
           })
           .catch(() => {
             wx.showToast({ title: t('activity.toast.cancelFailed'), icon: 'none' });

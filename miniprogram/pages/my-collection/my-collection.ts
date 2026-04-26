@@ -5,6 +5,7 @@ import { isLogin, redirectToLogin } from '../../utils/auth';
 import { openReservationWithParams } from '../../utils/reservationNavigator';
 import { sortBySeatPosition } from '../../utils/sort';
 import { getToday } from '../../utils/time';
+import { getFallbackTimeSlotConfigs } from '../../utils/time-slot';
 
 function getStatusText(status: string) {
   const map: Record<string, string> = {
@@ -13,6 +14,25 @@ function getStatusText(status: string) {
     maintenance: t('common.status.maintenance'),
   };
   return map[status] || t('common.status.available');
+}
+
+async function fetchAllMyBookings(pageSize = 20) {
+  let page = 1;
+  let hasMore = true;
+  const result: any[] = [];
+
+  while (hasMore) {
+    // Use paged requests to avoid one large query and keep behavior consistent with other pages.
+    const res: any = await getMyBookings({ page, pageSize });
+    const list = Array.isArray(res?.data?.list) ? res.data.list : [];
+    const total = Number(res?.data?.total || 0);
+
+    result.push(...list);
+    hasMore = result.length < total && list.length > 0;
+    page += 1;
+  }
+
+  return result;
 }
 
 Page({
@@ -51,7 +71,7 @@ Page({
     this.setData({
       currentLang,
       languageClass: getLangClassName(),
-      navTitle: t('myCollection.title'),
+      navTitle: t('common.quick.myCollection'),
       emptySeatHint: t('myCollection.empty.seat'),
       emptyTimeSlotHint: t('myCollection.empty.timeSlot'),
       favoriteSeatsTitle: t('myCollection.favoriteSeats'),
@@ -70,10 +90,10 @@ Page({
 
     wx.showLoading({ title: t('common.hint.loading') });
 
-    Promise.all([getFavorites(), getMyBookings({ page: 1, pageSize: 50 })])
+    Promise.all([getFavorites(), fetchAllMyBookings(20)])
       .then(([favoritesRes, bookingsRes]: any) => {
         const seats = Array.isArray(favoritesRes?.data?.list) ? favoritesRes.data.list : [];
-        const bookings = Array.isArray(bookingsRes?.data?.list) ? bookingsRes.data.list : [];
+        const bookings = Array.isArray(bookingsRes) ? bookingsRes : [];
         const seatTypeMap: Record<string, string> = {
           '0': t('reservation.seatType.single'),
           '1': t('reservation.seatType.double'),
@@ -112,44 +132,35 @@ Page({
           })
         );
 
+        const fallbackTimeSlots = getFallbackTimeSlotConfigs();
+        const fallbackTimeSlotMap = fallbackTimeSlots.reduce((acc: Record<string, any>, item) => {
+          acc[String(item.slot)] = item;
+          return acc;
+        }, {});
+
         const grouped = bookings.reduce((acc: Record<string, any>, booking: any) => {
           const timeSlot = String(booking.timeSlot ?? '');
-          const config: Record<string, { name: string; startTime: string; endTime: string }> = {
-            '0': {
-              name: t('reservation.time.period.morning'),
-              startTime: booking.startTime || '08:00',
-              endTime: booking.endTime || '12:00',
-            },
-            '1': {
-              name: t('reservation.time.period.afternoon'),
-              startTime: booking.startTime || '13:00',
-              endTime: booking.endTime || '17:00',
-            },
-            '2': {
-              name: t('reservation.time.period.evening'),
-              startTime: booking.startTime || '18:00',
-              endTime: booking.endTime || '22:00',
-            },
-          };
-
-          if (!config[timeSlot]) return acc;
+          const config = fallbackTimeSlotMap[timeSlot];
+          if (!config) return acc;
 
           if (!acc[timeSlot]) {
             acc[timeSlot] = {
               id: timeSlot,
-              name: config[timeSlot].name,
-              startTime: config[timeSlot].startTime,
-              endTime: config[timeSlot].endTime,
+              name: config.label,
+              startTime: booking.startTime || config.startTime,
+              endTime: booking.endTime || config.endTime,
               usageCount: 0,
+              sortOrder: config.sortOrder,
             };
           }
           acc[timeSlot].usageCount += 1;
           return acc;
         }, {});
 
-        const favoriteTimeSlots = Object.values(grouped).sort(
-          (a: any, b: any) => b.usageCount - a.usageCount
-        );
+        const favoriteTimeSlots = Object.values(grouped).sort((a: any, b: any) => {
+          if (b.usageCount !== a.usageCount) return b.usageCount - a.usageCount;
+          return Number(a.sortOrder) - Number(b.sortOrder);
+        });
 
         this.setData({
           favoriteSeats,

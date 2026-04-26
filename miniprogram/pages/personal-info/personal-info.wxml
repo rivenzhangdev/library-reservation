@@ -11,12 +11,7 @@
         bind:chooseavatar="onChooseAvatar"
         hover-class="none"
       >
-        <image
-          wx:if="{{avatarUrl}}"
-          class="avatar-image"
-          src="{{avatarUrl}}"
-          mode="aspectFill"
-        />
+        <image wx:if="{{avatarUrl}}" class="avatar-image" src="{{avatarUrl}}" mode="aspectFill" />
         <view wx:else class="avatar-placeholder">
           <uni-icon type="vant" name="user-o" size="80" color="#ffffff" />
         </view>
@@ -45,13 +40,20 @@
       </view>
     </view>
 
-    
     <view class="profile-edit-card">
       <van-field
         label="{{usernameLabel}}"
         value="{{usernameField}}"
         placeholder="{{usernamePlaceholder}}"
         bind:change="onUsernameChange"
+        input-align="right"
+      />
+      <van-field
+        label="{{emailLabel}}"
+        value="{{emailField}}"
+        placeholder="{{emailPlaceholder}}"
+        type="email"
+        bind:change="onEmailChange"
         input-align="right"
       />
       <van-field
@@ -64,7 +66,10 @@
         disabled="{{phoneBound}}"
       />
       <view wx:if="{{phoneBound}}" class="phone-bound-hint">
-        <text class="tip-text">{{phoneChangeHint}}</text>
+        <view class="phone-bound-hint-desc">
+          <uni-icon type="vant" name="info-o" size="24" color="#64748b" />
+          <text class="tip-text">{{phoneChangeHint}}</text>
+        </view>
         <van-button
           class="change-phone-button"
           type="{{showPhoneRequestForm ? 'warning' : 'info'}}"
@@ -111,17 +116,49 @@
       </van-button>
     </view>
 
+    <text class="school-title">{{studentProfileTitle}}</text>
     <view class="school-card">
-      <view class="student-id-row">
-          <van-field
-            class="student-id-field"
-            label="{{studentIdLabel}}"
-            value="{{studentId}}"
-            placeholder="{{studentIdPlaceholder}}"
-            disabled
-          />
+      <view class="school-info-rows">
+        <van-field
+          class="school-info-field"
+          label="{{collegeLabel}}"
+          value="{{isStudentBound ? (studentCollege || '-') : '-'}}"
+          disabled
+          input-align="right"
+        />
+        <van-field
+          class="school-info-field"
+          label="{{majorLabel}}"
+          value="{{isStudentBound ? (studentMajor || '-') : '-'}}"
+          disabled
+          input-align="right"
+        />
+        <van-field
+          class="school-info-field"
+          label="{{gradeLabel}}"
+          value="{{isStudentBound ? (studentGrade || '-') : '-'}}"
+          disabled
+          input-align="right"
+        />
+        <van-field
+          class="school-info-field"
+          label="{{nameLabel}}"
+          value="{{studentRealName || '-'}}"
+          disabled
+          input-align="right"
+        />
+        <van-field
+          class="school-info-field"
+          label="{{studentIdLabel}}"
+          value="{{studentId}}"
+          placeholder="{{studentIdPlaceholder}}"
+          disabled
+          input-align="right"
+        />
+      </view>
+      <view class="school-actions">
         <van-button
-          wx:if="{{!isStudentBound}}"
+          wx:if="{{!isStudentBound && !pendingChangeRequest}}"
           custom-class="detail-action"
           type="primary"
           bind:tap="onBindStudentIdTap"
@@ -129,7 +166,7 @@
           {{bindStudentIdText}}
         </van-button>
         <van-button
-          wx:elif="{{isStudentBound}}"
+          wx:elif="{{isStudentBound && !pendingChangeRequest}}"
           custom-class="detail-action"
           type="{{showRequestForm ? 'warning' : 'info'}}"
           plain="{{!showRequestForm}}"
@@ -138,54 +175,72 @@
           {{showRequestForm ? cancelStudentIdChangeText : requestChangeText}}
         </van-button>
       </view>
-      <view wx:if="{{isStudentBound}}" class="tip-box">
-        <uni-icon type="vant" name="info-o" size="24" color="#64748b" />
-        <text class="tip-text">{{requestChangeHint}}</text>
+      <!-- 待审核改绑状态提示 -->
+      <view wx:if="{{pendingChangeRequest}}" class="pending-review-banner">
+        <uni-icon type="vant" name="clock-o" size="28" color="#f59e0b" />
+        <text class="pending-review-text"
+          >学号改绑申请审核中，目标学号：{{maskedTargetStudentId}}（{{maskedTargetName}}）</text
+        >
+      </view>
+      <view wx:elif="{{isStudentBound}}" class="student-change-tip">
+        <uni-icon type="vant" name="info-o" size="22" color="#94a3b8" />
+        <view class="student-change-tip-content">
+          <text class="tip-text">{{requestChangeHint}}</text>
+          <text class="tip-text tip-text-secondary">{{requestChangeVerifyHint}}</text>
+          <text class="tip-text tip-text-warning">{{requestChangeMissingNameHint}}</text>
+        </view>
       </view>
     </view>
     <view wx:if="{{showBindForm}}" class="bind-form">
-      <van-field
-        value="{{bindName}}"
-        label="{{nameLabel}}"
-        placeholder="{{nameLabel}}"
-        bind:change="onBindNameChange"
-      />
       <van-field
         value="{{bindStudentId}}"
         label="{{studentIdLabel}}"
         placeholder="{{studentIdPlaceholder}}"
         bind:change="onBindStudentIdChange"
+        bind:blur="onBindStudentIdBlur"
       />
+      <van-field
+        wx:if="{{bindPrecheckStatus === 'blocked'}}"
+        value="{{bindName}}"
+        label="{{nameLabel}}"
+        placeholder="{{nameLabel}}"
+        bind:change="onBindNameChange"
+      />
+      <view wx:if="{{bindPrecheckMessage}}" class="precheck-box precheck-{{bindPrecheckStatus}}">
+        <text class="precheck-message">{{bindPrecheckMessage}}</text>
+        <text wx:if="{{bindPrecheckStatus === 'ok'}}" class="precheck-extra"
+          >{{bindPrecheckMatchedHint}}</text
+        >
+      </view>
       <van-button
         custom-class="bind-button"
         type="primary"
-        loading="{{binding}}"
+        loading="{{binding || precheckingStudentId}}"
         bind:tap="onSaveBinding"
       >
-        {{bindStudentIdText}}
+        {{bindSubmitText}}
       </van-button>
+      <van-button
+        wx:if="{{bindPrecheckStatus === 'blocked' && (bindPrecheckReasonCode === 'ALREADY_BOUND' || bindPrecheckReasonCode === 'NOT_FOUND')}}"
+        custom-class="bind-button appeal-button"
+        type="default"
+        plain
+        bind:tap="onSubmitStudentIdAppeal"
+      >
+        {{submitAppealText}}
+      </van-button>
+
+      <view wx:if="{{appealFeedbackText}}" class="precheck-box precheck-{{appealFeedbackType}}">
+        <text class="precheck-message">{{appealFeedbackText}}</text>
+      </view>
     </view>
 
     <view wx:if="{{showRequestForm}}" class="bind-form">
-      <van-field
-        value="{{requestRealName}}"
-        label="{{nameLabel}}"
-        placeholder="{{nameLabel}}"
-        bind:change="onRequestRealNameChange"
-      />
       <van-field
         value="{{requestStudentId}}"
         label="{{studentIdLabel}}"
         placeholder="{{studentIdPlaceholder}}"
         bind:change="onRequestStudentIdChange"
-      />
-      <van-field
-        value="{{requestReason}}"
-        label="{{changeReasonLabel}}"
-        placeholder="{{changeReasonPlaceholder}}"
-        type="textarea"
-        autosize
-        bind:change="onRequestReasonChange"
       />
       <van-button
         custom-class="bind-button"
@@ -196,6 +251,116 @@
         {{requestChangeText}}
       </van-button>
     </view>
-
   </view>
 </view>
+
+<!-- 原因输入弹窗（申诉/改绑共用） -->
+<van-popup
+  show="{{showReasonModal !== ''}}"
+  position="center"
+  round
+  bind:close="onCloseReasonModal"
+  custom-class="reason-modal-popup"
+>
+  <view class="reason-modal-head">
+    <view class="reason-modal-title">
+      {{showReasonModal === 'appeal' ? studentIdAppealTitle : changeReasonLabel}}
+    </view>
+  </view>
+  <view class="reason-modal-hint">
+    {{showReasonModal === 'appeal' ? studentIdAppealPlaceholder : changeReasonPlaceholder}}
+  </view>
+  <!-- Appeal reason textarea -->
+  <van-field
+    wx:if="{{showReasonModal === 'appeal'}}"
+    custom-class="reason-modal-field"
+    value="{{studentIdAppealReason}}"
+    placeholder="{{changeReasonPlaceholder}}"
+    type="textarea"
+    autosize
+    maxlength="500"
+    show-word-limit
+    border="{{false}}"
+    bind:change="onStudentIdAppealReasonChange"
+  />
+  <!-- Change reason textarea -->
+  <van-field
+    wx:elif="{{showReasonModal === 'change'}}"
+    custom-class="reason-modal-field"
+    value="{{requestReason}}"
+    placeholder="{{changeReasonPlaceholder}}"
+    type="textarea"
+    autosize
+    maxlength="500"
+    show-word-limit
+    border="{{false}}"
+    bind:change="onRequestReasonChange"
+  />
+  <view class="reason-modal-actions">
+    <van-button
+      type="primary"
+      size="small"
+      custom-class="reason-modal-btn"
+      loading="{{submitStudentIdAppealLoading || requestingChange}}"
+      bind:tap="onConfirmReasonModal"
+    >
+      确认提交
+    </van-button>
+    <van-button
+      type="default"
+      size="small"
+      custom-class="reason-modal-btn reason-modal-btn-cancel"
+      bind:tap="onCloseReasonModal"
+    >
+      取消
+    </van-button>
+  </view>
+</van-popup>
+
+<van-popup
+  show="{{showBindNameVerifyPopup}}"
+  position="center"
+  close-on-click-overlay="{{false}}"
+  bind:close="onCloseBindNameVerifyPopup"
+  custom-class="name-verify-popup"
+>
+  <view class="name-verify-title">{{bindNameVerifyTitle}}</view>
+  <view class="name-verify-hint">{{bindNameVerifyHint}}</view>
+
+  <view class="name-verify-line">
+    <text class="name-verify-fixed" wx:if="{{bindNameVerifyPrefix}}">{{bindNameVerifyPrefix}}</text>
+    <view class="name-verify-input-list">
+      <input
+        wx:for="{{bindNamePartChars}}"
+        wx:key="index"
+        class="name-verify-input"
+        data-index="{{index}}"
+        value="{{item}}"
+        type="text"
+        maxlength="1"
+        focus="{{bindNameVerifyFocusIndex === index}}"
+        bindfocus="onBindNamePartCharFocus"
+        bindinput="onBindNamePartCharInput"
+      />
+    </view>
+  </view>
+
+  <view class="name-verify-actions">
+    <van-button
+      type="primary"
+      custom-class="name-verify-btn"
+      loading="{{binding}}"
+      bind:tap="onConfirmBindNameVerify"
+    >
+      {{bindNameVerifyConfirmText}}
+    </van-button>
+    <van-button
+      plain
+      type="default"
+      custom-class="name-verify-btn name-verify-btn-cancel"
+      bind:tap="onCloseBindNameVerifyPopup"
+    >
+      {{bindNameVerifyCancelText}}
+    </van-button>
+  </view>
+</van-popup>

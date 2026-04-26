@@ -11,17 +11,14 @@ export default {
   'search.tags.double': '双人桌',
   'search.tags.group': '小组讨论桌',
 
-  // 功能卡片
-  'actions.myReservation': '我的预约',
-  'actions.renew': '快速续约',
-  'actions.checkin': '扫码签到',
-  'actions.checkout': '扫码签退',
-  'actions.scan': '扫一扫',
-
   // 开放时间
   'openingHours.title': '今日开放时间',
-  'openingHours.time': '08:00 - 22:00',
-  'openingHours.status': '营业中',
+  'openingHours.time': '以开放时段配置为准',
+  'openingHours.status': '开放中',
+  'openingHours.statusOpen': '开放中',
+  'openingHours.statusClosed': '已闭馆',
+  'openingHours.closedTime': '今日不开放',
+  'openingHours.closedHint': '当前已闭馆，暂不可使用',
 
   // 座位状态概览
   'seatStatus.title': '座位状态概览',

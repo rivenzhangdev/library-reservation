@@ -172,7 +172,7 @@ swiper {
   background-color: #fff;
   border: 1rpx solid rgba(15, 23, 42, 0.08);
   border-radius: 30rpx;
-  box-shadow: 0 10rpx 24rpx rgba(15, 23, 42, 0.06);
+  box-shadow: 0 14rpx 30rpx rgba(15, 23, 42, 0.05);
   transition: transform 0.2s ease;
 }
 
@@ -180,16 +180,14 @@ swiper {
   transform: translateY(2rpx);
 }
 
-.action-card uni-icon {
+.action-card__icon {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 72rpx;
-  height: 72rpx;
-  padding: 18rpx;
-  line-height: 72rpx;
-  background-color: rgba(64, 158, 255, 0.1);
-  border-radius: 50%;
+  width: 88rpx;
+  height: 88rpx;
+  border-radius: 26rpx;
+  box-shadow: inset 0 1rpx 0 rgba(255, 255, 255, 0.8);
 }
 
 .action-text {
@@ -305,6 +303,23 @@ swiper {
     width: 100%;
     height: 100%;
   }
+}
+
+.section-empty {
+  display: flex;
+  flex-direction: column;
+  gap: 12rpx;
+  align-items: center;
+  justify-content: center;
+  min-height: 180rpx;
+  padding: 16rpx 0;
+  background: #f8fafc;
+  border-radius: var(--common-border-radius-md);
+}
+
+.section-empty__text {
+  color: #64748b;
+  font-size: var(--common-font-size-lg);
 }
 
 .seat-recommend-section {

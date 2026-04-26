@@ -7,6 +7,7 @@ type LangData = (typeof langPacks)['zh'];
 class I18n {
   private currentLang: LangCode = 'zh';
   private langData: LangData = {} as LangData;
+  private missingKeys = new Set<string>();
 
   constructor(defaultLang: LangCode = 'zh') {
     this.currentLang = defaultLang;
@@ -44,12 +45,22 @@ class I18n {
 
   // 翻译函数 - 支持 t('key') 调用方式
   t(key: keyof LangData, params?: Record<string, any>): string {
-    // 直接从扁平化的语言包中获取
     let result = this.langData[key];
 
     // 如果当前语言找不到，尝试从默认语言查找
     if (!result && this.currentLang !== 'zh') {
       result = (langPacks['zh'] as any)[key];
+    }
+
+    if (!result) {
+      const rawKey = String(key || '').trim();
+      if (rawKey && !this.missingKeys.has(rawKey)) {
+        this.missingKeys.add(rawKey);
+        console.warn(`[i18n] Missing translation key: ${rawKey}`);
+      }
+
+      const fallbackLabel = rawKey.split('.').pop() || rawKey;
+      result = fallbackLabel;
     }
 
     // 处理参数替换
@@ -58,8 +69,7 @@ class I18n {
         result = result.replace(`{${paramKey}}`, String(params[paramKey]));
       });
     }
-
-    return result || key;
+    return result || String(key);
   }
 
   // 切换语言

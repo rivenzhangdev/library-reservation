@@ -5,14 +5,11 @@
 <view class="page-container {{languageClass}}">
   <view class="login-card">
     <view class="login-icon-wrapper">
-      <view class="login-icon-bg">
-        <uni-icon type="vant" name="notes-o" size="52" color="#34c26f" />
-      </view>
+      <image src="/assets/logo.png" class="login-logo" mode="aspectFit" />
     </view>
 
     <view class="login-brand-title">{{brandTitle}}</view>
     <view class="login-brand-subtitle">{{brandSubtitle}}</view>
-    <view class="login-description">{{description}}</view>
 
     <button class="login-button" bind:tap="onLoginTap" type="primary">
       <view class="login-button-content">

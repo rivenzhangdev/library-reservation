@@ -40,7 +40,6 @@ export const BookingStatusMap = {
   completed: 2,
   cancelled: 3,
   violated: 4,
-  waitlisted: 5,
 } as const;
 
 export type BookingStatusName = keyof typeof BookingStatusMap;
@@ -84,40 +83,10 @@ export interface RenewBookingParams {
   location?: { latitude: number; longitude: number };
 }
 
-// ========== 候补队列 ==========
-
-/** 候补状态 */
-export type WaitlistStatus = 'waiting' | 'notified' | 'confirmed' | 'expired' | 'cancelled';
-
-/** 候补记录 */
-export interface WaitlistEntry {
-  id: number;
-  userId: string;
-  seatId: number;
-  date: string;
-  timeSlot: number;
-  status: WaitlistStatus;
-  position?: number;
-  seatName?: string;
-  floorName?: string;
-  zone?: string;
-  notifiedAt?: string;
-  confirmedAt?: string;
-  createdAt?: string;
-  updatedAt?: string;
-}
-
-/** 加入候补请求 */
-export interface JoinWaitlistParams {
-  seatId: number;
-  date: string;
-  timeSlot: number;
-}
-
 // ========== 变更申请 ==========
 
 /** 变更申请类型 */
-export type ChangeRequestType = 'cancel' | 'change_time' | 'change_seat';
+export type ChangeRequestType = 'cancel' | 'reschedule' | 'seat_change';
 
 /** 变更申请状态 */
 export type ChangeRequestStatus = 'pending' | 'approved' | 'rejected';
@@ -127,12 +96,18 @@ export interface ChangeRequest {
   id: number;
   bookingId: number;
   userId: string;
-  type: ChangeRequestType;
+  changeType: ChangeRequestType;
   reason: string;
   status: ChangeRequestStatus;
   reviewComment?: string;
   reviewedBy?: string;
   reviewedAt?: string;
+  targetDate?: string;
+  targetTimeSlot?: number;
+  targetStartTime?: string;
+  targetEndTime?: string;
+  targetSeatId?: number;
+  type?: ChangeRequestType;
   newDate?: string;
   newTimeSlot?: number;
   newStartTime?: string;
@@ -146,8 +121,14 @@ export interface ChangeRequest {
 /** 提交变更申请请求 */
 export interface CreateChangeRequestParams {
   bookingId: number;
-  type: ChangeRequestType;
+  changeType: ChangeRequestType;
   reason: string;
+  targetDate?: string;
+  targetTimeSlot?: number;
+  targetStartTime?: string;
+  targetEndTime?: string;
+  targetSeatId?: number;
+  type?: ChangeRequestType;
   newDate?: string;
   newTimeSlot?: number;
   newStartTime?: string;

@@ -57,7 +57,7 @@ interface ProfilePageData {
 function normalizeUser(user: any) {
   if (!user) return null;
 
-  const avatarUrl = String(user.avatarUrl || '').trim();
+  const avatarUrl = String(user.avatarUrl || user.avatar || '').trim();
   const { avatar: _avatar, ...rest } = user;
   return {
     ...rest,
@@ -152,7 +152,7 @@ Page({
       ],
       serviceItems: [
         {
-          label: t('profile.service.myReservation'),
+          label: t('common.quick.myReservation'),
           iconName: 'calendar-o',
           iconColor: '#2563eb',
           iconBgColor: '#dbeafe',
@@ -160,7 +160,15 @@ Page({
           disabled: !isLoggedIn || !isStudentBound,
         },
         {
-          label: t('profile.service.myCollection'),
+          label: t('common.quick.myRequests'),
+          iconName: 'todo-list-o',
+          iconColor: '#7c3aed',
+          iconBgColor: '#f3e8ff',
+          action: 'onMyRequestsTap',
+          disabled: !isLoggedIn,
+        },
+        {
+          label: t('common.quick.myCollection'),
           iconName: 'star',
           iconColor: '#f59e0b',
           iconBgColor: '#fef3c7',
@@ -170,7 +178,7 @@ Page({
       ],
       activityItems: [
         {
-          label: t('profile.service.activityList'),
+          label: t('common.quick.activityList'),
           iconName: 'service',
           iconColor: '#10b981',
           iconBgColor: '#dcfce7',
@@ -201,7 +209,7 @@ Page({
           iconColor: '#16a34a',
           iconBgColor: '#dcfce7',
           action: 'onPrivacyTap',
-          disabled: !isLoggedIn,
+          disabled: false,
         },
         {
           label: t('profile.settings.help'),
@@ -209,7 +217,7 @@ Page({
           iconColor: '#ea580c',
           iconBgColor: '#ffedd5',
           action: 'onHelpTap',
-          disabled: !isLoggedIn,
+          disabled: false,
         },
         {
           label: t('profile.settings.about'),
@@ -217,7 +225,7 @@ Page({
           iconColor: '#0891b2',
           iconBgColor: '#cffafe',
           action: 'onAboutTap',
-          disabled: !isLoggedIn,
+          disabled: false,
         },
       ],
     };
@@ -410,10 +418,17 @@ Page({
     });
   },
 
+  onMyRequestsTap() {
+    if (!this.ensureLoggedIn()) return;
+    wx.navigateTo({
+      url: '/pages/my-requests/my-requests',
+    });
+  },
+
   onMyActivityTap() {
     if (!this.ensureLoggedIn()) return;
     wx.navigateTo({
-      url: '/pages/my-activity/my-activity',
+      url: '/pages/activity-list/activity-list',
     });
   },
 
@@ -433,47 +448,26 @@ Page({
 
   onNotificationTap() {
     if (!this.ensureLoggedIn()) return;
-    wx.switchTab({
-      url: '/pages/notification/notification',
+    wx.navigateTo({
+      url: '/pages/notification-settings/notification-settings',
     });
   },
 
   onPrivacyTap() {
-    const content =
-      this.data.currentLang === 'zh'
-        ? '我们仅收集预约、通知所需的必要资料，不会向无关第三方共享你的个人信息。'
-        : 'We only use the minimum profile information required for reservations and notifications.';
-
-    wx.showModal({
-      title: t('profile.settings.privacy'),
-      content,
-      showCancel: false,
+    wx.navigateTo({
+      url: '/pages/agreement/agreement?type=privacy',
     });
   },
 
   onHelpTap() {
-    const content =
-      this.data.currentLang === 'zh'
-        ? '可在“预约”页选择日期、时段与座位完成预约；相关问题也可以通过反馈页提交。'
-        : 'Use the reservation page to choose date, time period and seat. You can also submit feedback if you need help.';
-
-    wx.showModal({
-      title: t('profile.settings.help'),
-      content,
-      showCancel: false,
+    wx.navigateTo({
+      url: '/pages/help-center/help-center',
     });
   },
 
   onAboutTap() {
-    const content =
-      this.data.currentLang === 'zh'
-        ? '图书馆座位预约系统 v1.0.0\n\n提供座位查询、预约、活动和通知等能力。'
-        : 'Library Reservation v1.0.0\n\nProvides seat search, reservation, activity and notification features.';
-
-    wx.showModal({
-      title: t('profile.settings.about'),
-      content,
-      showCancel: false,
+    wx.navigateTo({
+      url: '/pages/about/about',
     });
   },
 });

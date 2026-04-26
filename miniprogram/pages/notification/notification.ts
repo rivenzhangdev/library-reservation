@@ -6,6 +6,7 @@ import {
   deleteNotification,
 } from '../../apis/notification';
 import { isLogin, redirectToLogin } from '../../utils/auth';
+import { calcHasMore, mergeUniqueByKey } from '../../utils/pagination';
 
 const NotificationType = {
   SYSTEM: 0,
@@ -65,6 +66,12 @@ Page({
     emptyText: '',
     hasUnread: false,
     hasNotifications: false,
+    page: 1,
+    pageSize: 20,
+    hasMore: true,
+    loadingMore: false,
+    loadingMoreText: '',
+    noMoreText: '',
     currentFilter: 'all',
     filterTabs: [
       { label: '全部', value: 'all' },
@@ -80,24 +87,36 @@ Page({
 
   onLoad() {
     this.updateLanguage();
-    this.loadNotifications();
+    this.loadNotifications(true);
   },
 
   onShow() {
     this.updateLanguage();
-    this.loadNotifications();
+    this.loadNotifications(true);
   },
 
-  loadNotifications() {
+  onReachBottom() {
+    this.loadNotifications(false);
+  },
+
+  loadNotifications(reset = true) {
     if (!isLogin()) {
       redirectToLogin('/pages/notification/notification');
       return;
     }
 
-    getNotifications({ page: 1, limit: 50 })
+    if (!reset) {
+      if (this.data.loadingMore || !this.data.hasMore) return;
+      this.setData({ loadingMore: true });
+    }
+
+    const targetPage = reset ? 1 : this.data.page + 1;
+
+    getNotifications({ page: targetPage, limit: this.data.pageSize })
       .then((res: any) => {
         const responseData = res.data as any;
         const list = Array.isArray(responseData?.list) ? responseData.list : [];
+        const total = Number(responseData?.total || 0);
 
         const iconMap: Record<NotificationTypeValue, string> = {
           [NotificationType.SYSTEM]: 'warning-o',
@@ -107,7 +126,7 @@ Page({
         };
 
         const currentLang = getApp<IAppOption>().globalData?.currentLang || 'zh';
-        const notifications: NotificationItem[] = list.map((item: any) => {
+        const mapped: NotificationItem[] = list.map((item: any) => {
           const rawType = Number(item.type);
           const type: NotificationTypeValue =
             rawType === NotificationType.RESERVATION ||
@@ -133,11 +152,26 @@ Page({
           };
         });
 
-        (this as any)._allNotifications = notifications;
+        const nextAll = reset
+          ? mapped
+          : mergeUniqueByKey((this as any)._allNotifications || [], mapped, (item) => item.id);
+        (this as any)._allNotifications = nextAll;
+
+        this.setData({
+          page: targetPage,
+          hasMore: calcHasMore({
+            page: targetPage,
+            pageSize: this.data.pageSize,
+            total,
+            batchSize: list.length,
+          }),
+          loadingMore: false,
+        });
         this.applyFilter(this.data.currentFilter);
       })
       .catch((err) => {
         console.error('鍔犺浇閫氱煡澶辫触:', err);
+        this.setData({ loadingMore: false });
       });
   },
 
@@ -146,13 +180,15 @@ Page({
     this.setData({
       currentLang,
       languageClass: currentLang === 'zh' ? 'lang-zh' : 'lang-en',
-      pageTitle: t('notification.pageTitle'),
+      pageTitle: t('common.quick.notificationCenter'),
       markAllReadText: t('notification.markAllRead'),
       markReadText: t('notification.markRead'),
-      viewDetailText: t('notification.viewDetail'),
+      viewDetailText: t('common.btn.detail'),
       readText: t('notification.read'),
       unreadText: t('notification.unread'),
-      emptyText: t('notification.empty'),
+      emptyText: t('common.empty.notification'),
+      loadingMoreText: t('common.hint.loading'),
+      noMoreText: t('common.hint.noMore'),
       filterTabs: [
         { label: t('notification.filter.all'), value: 'all' },
         { label: t('notification.filter.unread'), value: 'unread' },
@@ -190,7 +226,7 @@ Page({
   onMarkAllRead() {
     markAllAsRead()
       .then(() => {
-        this.loadNotifications();
+        this.loadNotifications(true);
       })
       .catch(() => {
         wx.showToast({ title: t('common.hint.error'), icon: 'none' });
@@ -221,7 +257,7 @@ Page({
     if (action === 'markRead' && notifId) {
       markAsRead(notifId)
         .then(() => {
-          this.loadNotifications();
+          this.loadNotifications(true);
         })
         .catch(() => {
           wx.showToast({ title: t('common.hint.error'), icon: 'none' });
@@ -236,17 +272,17 @@ Page({
 
     if (action === 'delete' && notifId) {
       wx.showModal({
-        title: t('notification.confirm.deleteTitle'),
+        title: t('common.dialog.confirmDelete'),
         content: t('notification.confirm.deleteContent'),
         success: (res) => {
           if (!res.confirm) return;
           deleteNotification(notifId)
             .then(() => {
-              wx.showToast({ title: t('notification.toast.deleteSuccess'), icon: 'success' });
-              this.loadNotifications();
+              wx.showToast({ title: t('common.toast.deleteSuccess'), icon: 'success' });
+              this.loadNotifications(true);
             })
             .catch(() => {
-              wx.showToast({ title: t('notification.toast.deleteFailed'), icon: 'none' });
+              wx.showToast({ title: t('common.toast.deleteFailed'), icon: 'none' });
             });
         },
       });

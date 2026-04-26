@@ -1,0 +1,55 @@
+.about-page {
+  min-height: 100vh;
+  padding: 24rpx;
+  background: #f4f7fb;
+}
+
+.about-card {
+  margin-bottom: 18rpx;
+  padding: 24rpx;
+  background: #fff;
+  border-radius: 18rpx;
+  box-shadow: 0 6rpx 16rpx rgba(15, 23, 42, 0.06);
+}
+
+.app-name {
+  color: #0f172a;
+  font-weight: 700;
+  font-size: 34rpx;
+}
+
+.app-desc {
+  margin-top: 8rpx;
+  color: #475569;
+  font-size: 24rpx;
+  line-height: 1.7;
+}
+
+.info-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14rpx 0;
+  border-bottom: 1rpx solid #e2e8f0;
+}
+
+.info-row:last-child {
+  border-bottom: none;
+}
+
+.info-label {
+  color: #64748b;
+  font-size: 24rpx;
+}
+
+.info-value {
+  color: #0f172a;
+  font-weight: 600;
+  font-size: 24rpx;
+}
+
+.action-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12rpx;
+}

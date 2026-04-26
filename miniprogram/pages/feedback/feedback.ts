@@ -176,25 +176,25 @@ Page({
         {
           id: 'low',
           name: t('feedback.form.urgency.low'),
-          icon: 'flag-o',
+          icon: 'passed',
           color: '#52c41a',
         },
         {
           id: 'medium',
           name: t('feedback.form.urgency.medium'),
-          icon: 'flag-o',
+          icon: 'underway-o',
           color: '#faad14',
         },
         {
           id: 'high',
           name: t('feedback.form.urgency.high'),
-          icon: 'fire-o',
+          icon: 'warning-o',
           color: '#f5222d',
         },
         {
           id: 'urgent',
           name: t('feedback.form.urgency.urgent'),
-          icon: 'warning-o',
+          icon: 'fire-o',
           color: '#722ed1',
         },
       ],
@@ -328,7 +328,7 @@ Page({
       });
     } catch (_error) {
       wx.showToast({
-        title: t('feedback.toast.submitFailed'),
+        title: t('common.toast.submitFailed'),
         icon: 'none',
       });
     }
@@ -409,7 +409,7 @@ Page({
       });
 
       wx.showToast({
-        title: t('feedback.toast.submitSuccess'),
+        title: t('common.toast.submitSuccess'),
         icon: 'success',
       });
 
@@ -428,7 +428,7 @@ Page({
       }, 1200);
     } catch (_error) {
       wx.showToast({
-        title: t('feedback.toast.submitFailed'),
+        title: t('common.toast.submitFailed'),
         icon: 'none',
       });
     }

@@ -11,16 +11,14 @@ export default {
   'search.tags.double': 'Double Desk',
   'search.tags.group': 'Group Discussion Table',
 
-  // Action Cards
-  'actions.myReservation': 'My Reservations',
-  'actions.renew': 'Quick Renewal',
-  'actions.checkin': 'Scan to Check-in',
-  'actions.checkout': 'Scan to Check-out',
-  'actions.scan': 'Scan',
   // Opening Hours
   'openingHours.title': "Today's Opening Hours",
-  'openingHours.time': '08:00 - 22:00',
+  'openingHours.time': 'Based on configured opening slots',
   'openingHours.status': 'Open',
+  'openingHours.statusOpen': 'Open now',
+  'openingHours.statusClosed': 'Closed now',
+  'openingHours.closedTime': 'Closed today',
+  'openingHours.closedHint': 'Library is currently closed. Service is unavailable now.',
 
   // Seat Status Overview
   'seatStatus.title': 'Seat Status Overview',

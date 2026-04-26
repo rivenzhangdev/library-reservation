@@ -2,6 +2,7 @@ import * as dayjsImport from 'dayjs';
 const dayjs = (dayjsImport as any).default || dayjsImport;
 import { Seat, SeatsSelectData } from '../../types/seats-select.types';
 import { t } from '../../utils/i18n';
+import { toTimePeriods } from '../../utils/time-slot';
 
 Component({
   options: {
@@ -136,8 +137,7 @@ Component({
     },
 
     // 监听已选中的座位列表变化
-    selectedSeats(newVal: string[]) {
-      console.log('[seats-select] selectedSeats changed:', newVal);
+    selectedSeats(_newVal: string[]) {
       if (this.data.seats && this.data.seats.length > 0) {
         this.updateSeatsStatus();
       }
@@ -145,16 +145,12 @@ Component({
 
     // 监听语言变化
     currentLang(newLang: string) {
-      console.log('[seats-select] currentLang changed:', newLang);
       if (newLang) {
-        console.log('[seats-select] Re-initializing language...');
         this.initLanguage();
       }
     },
 
-    selectedDate(newDate: string) {
-      console.log('[seats-select] selectedDate changed:', newDate);
-    },
+    selectedDate(_newDate: string) {},
   },
 
   /**
@@ -229,7 +225,6 @@ Component({
     handleSeatClick(e: any) {
       e.stopPropagation?.();
       if (this.data.disabled) {
-        console.log('座位选择已禁用');
         return;
       }
 
@@ -240,11 +235,8 @@ Component({
       const seat = this.data.seats.find((s) => s.id === seatId);
 
       if (!seat) {
-        console.error('未找到座位:', seatId);
         return;
       }
-
-      console.log('点击座位:', seatId, '状态:', seat.status);
 
       const seatTooltipRows = this.buildTooltipRows(seat);
       const hasBookedRows =
@@ -388,31 +380,19 @@ Component({
       const timePeriods =
         Array.isArray(this.data.timePeriods) && this.data.timePeriods.length > 0
           ? this.data.timePeriods
-          : [
-              {
-                value: 'morning',
-                label: t('reservation.time.period.morning'),
-                start: '08:00',
-                end: '12:00',
-              },
-              {
-                value: 'afternoon',
-                label: t('reservation.time.period.afternoon'),
-                start: '13:00',
-                end: '17:00',
-              },
-              {
-                value: 'evening',
-                label: t('reservation.time.period.evening'),
-                start: '18:00',
-                end: '22:00',
-              },
-            ];
+          : toTimePeriods([]);
 
       const bookings = Array.isArray(seatDetail.bookings) ? seatDetail.bookings : [];
       const rows: Array<any> = [];
       const currentTimePeriod = this.data.currentTimePeriod || '';
       const isMineSeat = seatDetail.isMine === true;
+
+      const extractHHmm = (text: string) => {
+        const match = String(text || '')
+          .trim()
+          .match(/^([01]\d|2[0-3]):([0-5]\d)/);
+        return match ? `${match[1]}:${match[2]}` : '';
+      };
 
       const normalizeTimeValue = (value: any) => {
         if (value === null || value === undefined) return '';
@@ -421,8 +401,7 @@ Component({
           return parsed.format('HH:mm');
         }
         const trimmed = String(value).trim();
-        const match = trimmed.match(/^(\d{2}:\d{2})/);
-        return match ? match[1] : trimmed;
+        return extractHHmm(trimmed);
       };
 
       const formatInterval = (start: string, end: string) =>
@@ -489,16 +468,30 @@ Component({
       timePeriods.forEach((period: any) => {
         const periodBookings = bookings
           .filter((booking: any) => bookingMatchesPeriod(booking, period))
-          .map((booking: any) => ({
-            startTime: booking.startTime || period.start,
-            endTime: booking.endTime || period.end,
-            status: 'booked',
-          }))
+          .map((booking: any) => {
+            let startTime = normalizeTimeValue(booking.startTime) || period.start;
+            let endTime = normalizeTimeValue(booking.endTime) || period.end;
+            if (compareTime(startTime, endTime) >= 0) {
+              startTime = period.start;
+              endTime = period.end;
+            }
+            return {
+              startTime,
+              endTime,
+              status: 'booked',
+            };
+          })
           .sort((a: any, b: any) => compareTime(a.startTime, b.startTime));
 
-        if (periodBookings.length > 0) {
+        const uniquePeriodBookings = periodBookings.filter((booking: any, index: number) => {
+          if (index === 0) return true;
+          const prev = periodBookings[index - 1];
+          return !(booking.startTime === prev.startTime && booking.endTime === prev.endTime);
+        });
+
+        if (uniquePeriodBookings.length > 0) {
           let currentStart = period.start;
-          periodBookings.forEach((booking: any, index: number) => {
+          uniquePeriodBookings.forEach((booking: any, index: number) => {
             if (compareTime(currentStart, booking.startTime) < 0) {
               rows.push({
                 key: `${period.value}-avail-${index}`,

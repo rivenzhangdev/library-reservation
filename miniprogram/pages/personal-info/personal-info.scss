@@ -1,33 +1,33 @@
 .page-container {
   min-height: 100vh;
-  background-color: #f4f7ff;
   padding: 24rpx 24rpx 36rpx;
+  background-color: #f4f7ff;
 }
 
 .profile-card {
-  border-radius: 32rpx;
-  background: #ffffff;
-  box-shadow: 0 20rpx 40rpx rgba(15, 23, 42, 0.08);
   padding: 32rpx 28rpx 28rpx;
+  background: #fff;
+  border-radius: 32rpx;
+  box-shadow: 0 20rpx 40rpx rgba(15, 23, 42, 0.08);
 }
 
 .card-header {
   display: flex;
-  align-items: center;
   gap: 24rpx;
+  align-items: center;
   margin-bottom: 40rpx;
 }
 
 .avatar-shell {
-  width: 120rpx;
-  height: 120rpx;
-  border-radius: 999rpx;
+  position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
-  overflow: hidden;
-  position: relative;
+  width: 120rpx;
+  height: 120rpx;
   padding: 0;
+  overflow: hidden;
+  border-radius: 999rpx;
 }
 
 .avatar-image,
@@ -41,17 +41,17 @@
 
 .avatar-upload-overlay {
   position: absolute;
-  inset: 0;
-  padding: 10rpx 12rpx;
   display: flex;
+  gap: 8rpx;
   align-items: center;
   justify-content: center;
-  gap: 8rpx;
+  padding: 10rpx 12rpx;
   background: rgba(0, 0, 0, 0.1);
+  inset: 0;
 }
 
 .avatar-upload-text {
-  color: #ffffff;
+  color: #fff;
   font-size: 22rpx;
   line-height: 1.2;
 }
@@ -62,19 +62,19 @@
 
 .user-name {
   display: block;
-  color: #0f172a;
-  font-size: 32rpx;
-  font-weight: 800;
   margin-bottom: 10rpx;
+  color: #0f172a;
+  font-weight: 800;
+  font-size: 32rpx;
 }
 
 .user-role {
   display: inline-flex;
-  background: #eef2ff;
-  color: #2563eb;
   padding: 8rpx 14rpx;
-  border-radius: 999rpx;
+  color: #2563eb;
   font-size: 20rpx;
+  background: #eef2ff;
+  border-radius: 999rpx;
 }
 
 .profile-details {
@@ -86,21 +86,55 @@
 
 .school-card {
   margin-bottom: 28rpx;
+  padding: 24rpx;
+  background: #fff;
+  border-radius: 28rpx;
+  box-shadow: 0 12rpx 24rpx rgba(15, 23, 42, 0.06);
+
+  .school-info-field {
+    .van-cell {
+      padding-right: 0;
+      padding-left: 0;
+      background: transparent;
+    }
+
+    .van-cell__title {
+      min-width: 120rpx;
+      color: #334155;
+      font-weight: 600;
+    }
+
+    .van-cell__value {
+      color: #0f172a;
+      font-weight: 600;
+    }
+  }
 }
 
 .school-title {
   display: block;
+  margin-bottom: 12rpx;
+  padding-left: 4rpx;
   color: #0f172a;
-  font-size: 28rpx;
   font-weight: 700;
-  margin-bottom: 18rpx;
+  font-size: 28rpx;
+}
+
+.school-info-rows {
+  margin-top: 8rpx;
+}
+
+.school-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 14rpx;
 }
 
 .detail-row {
   display: flex;
+  gap: 16rpx;
   align-items: center;
   justify-content: space-between;
-  gap: 16rpx;
   font-size: 26rpx;
 }
 
@@ -110,8 +144,8 @@
 
 .detail-label {
   display: block;
-  color: #334155;
   margin-bottom: 12rpx;
+  color: #334155;
   font-weight: 700;
 }
 
@@ -122,42 +156,19 @@
 
 .detail-action {
   min-width: 140rpx;
+  height: 60rpx;
   padding: 0 18rpx;
-  border: 1rpx solid #2563eb;
-  background: #ffffff;
   color: #2563eb;
   font-size: 24rpx;
+  background: #fff;
+  border: 1rpx solid #2563eb;
 }
-
-.student-id-row {
-  display: flex;
-  gap: 18rpx;
-  align-items: center;
-
-  .student-id-field {
-    .van-cell {
-      background-color: unset;
-    }
-
-    .van-cell__title {
-      min-width: 0 !important;
-    }
-  }
-
-  .detail-action {
-    padding: 0 10rpx;
-    height: 60rpx;
-    width: max-content;
-  }
-}
-
-
 
 .profile-edit-card {
-  border-radius: 28rpx;
-  padding: 24rpx;
-  box-shadow: 0 12rpx 24rpx rgba(15, 23, 42, 0.06);
   margin-bottom: 28rpx;
+  padding: 24rpx;
+  border-radius: 28rpx;
+  box-shadow: 0 12rpx 24rpx rgba(15, 23, 42, 0.06);
 }
 
 .profile-edit-card .van-field {
@@ -171,14 +182,21 @@
 .phone-bound-hint {
   display: flex;
   flex-wrap: wrap;
+  gap: 14rpx;
   align-items: center;
   justify-content: space-between;
-  gap: 14rpx;
-  padding: 14rpx 18rpx;
   margin-bottom: 10rpx;
-  border-radius: 18rpx;
+  padding: 14rpx 18rpx;
   background: #f8fafc;
   border: 1rpx solid #e2e8f0;
+  border-radius: 18rpx;
+
+  &-desc {
+    display: flex;
+    flex: 1;
+    gap: 14rpx;
+    align-items: baseline;
+  }
 }
 
 .change-phone-button {
@@ -193,35 +211,43 @@
 .save-profile-button {
   width: 100%;
   height: 68rpx !important;
+  margin-top: 10rpx;
   font-size: 28rpx !important;
   border-radius: 999rpx !important;
-  margin-top: 10rpx;
 }
 
 .student-id-display {
   width: 100%;
   min-height: 62rpx;
   padding: 16rpx 18rpx;
-  border-radius: 18rpx;
-  background: #ffffff;
+  background: #fff;
   border: 1rpx solid #d1d5db;
+  border-radius: 18rpx;
 }
 
 .student-id-text {
   color: #0f172a;
-  font-size: 30rpx;
   font-weight: 700;
+  font-size: 30rpx;
 }
 
 .tip-box {
   display: flex;
-  align-items: flex-start;
   gap: 14rpx;
-  padding: 18rpx;
+  align-items: baseline;
   margin-top: 18rpx;
-  border-radius: 20rpx;
+  padding: 18rpx;
   background: #f8fafc;
   border: 1rpx solid #e2e8f0;
+  border-radius: 20rpx;
+}
+
+.student-change-tip {
+  display: flex;
+  gap: 10rpx;
+  align-items: baseline;
+  margin-top: 10rpx;
+  padding: 0 2rpx;
 }
 
 .tip-text {
@@ -232,9 +258,46 @@
 }
 
 .bind-form {
-  border-radius: 28rpx;
+  margin-bottom: 20rpx;
   padding: 24rpx;
+  background: #fff;
+  border-radius: 28rpx;
   box-shadow: 0 12rpx 24rpx rgba(15, 23, 42, 0.06);
+}
+
+.precheck-box {
+  display: flex;
+  flex-direction: column;
+  gap: 6rpx;
+  margin: 8rpx 0 18rpx;
+  padding: 14rpx 16rpx;
+  background: #f8fafc;
+  border: 1rpx solid #cbd5e1;
+  border-radius: 14rpx;
+}
+
+.precheck-ok {
+  background: #f0fdf4;
+  border-color: #86efac;
+}
+
+.precheck-blocked,
+.precheck-invalid,
+.precheck-error {
+  background: #fef2f2;
+  border-color: #fecaca;
+}
+
+.precheck-message {
+  color: #0f172a;
+  font-weight: 600;
+  font-size: 24rpx;
+}
+
+.precheck-extra {
+  color: #475569;
+  font-size: 22rpx;
+  line-height: 1.5;
 }
 
 .bind-button {
@@ -242,6 +305,10 @@
   height: 70rpx !important;
   font-size: 26rpx !important;
   border-radius: 999rpx !important;
+}
+
+.appeal-button {
+  margin-top: 12rpx;
 }
 
 .action-buttons {
@@ -253,9 +320,196 @@
 .action-button {
   width: 100%;
   min-height: 72rpx;
-  border-radius: 999rpx;
-  border: 0;
-  background: #2563eb;
-  color: #ffffff;
+  color: #fff;
   font-size: 26rpx;
+  background: #2563eb;
+  border: 0;
+  border-radius: 999rpx;
+}
+
+/* 待审核改绑提示条 */
+.pending-review-banner {
+  display: flex;
+  gap: 14rpx;
+  align-items: baseline;
+  margin-top: 18rpx;
+  padding: 18rpx;
+  background: #fffbeb;
+  border: 1rpx solid #fde68a;
+  border-radius: 20rpx;
+}
+
+.pending-review-text {
+  flex: 1;
+  color: #92400e;
+  font-size: 22rpx;
+  line-height: 1.6;
+}
+
+.student-change-tip-content {
+  display: flex;
+  flex-direction: column;
+  gap: 6rpx;
+}
+
+.tip-text-secondary {
+  color: #475569;
+}
+
+.tip-text-warning {
+  color: #b45309;
+}
+
+/* 原因输入弹窗样式 */
+.reason-modal-title {
+  color: #0f172a;
+  font-weight: 700;
+  font-size: 30rpx;
+  text-align: center;
+}
+
+.reason-modal-head {
+  display: flex;
+  flex-direction: column;
+  gap: 10rpx;
+  align-items: center;
+  margin-bottom: 10rpx;
+}
+
+.reason-modal-icon-wrap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 68rpx;
+  height: 68rpx;
+  background: #eff6ff;
+  border-radius: 999rpx;
+}
+
+.reason-modal-popup {
+  box-sizing: border-box;
+  width: 88vw;
+  max-width: 640rpx;
+  padding: 30rpx 28rpx 26rpx;
+}
+
+.reason-modal-hint {
+  margin-bottom: 16rpx;
+  color: #64748b;
+  font-size: 24rpx;
+  line-height: 1.5;
+  text-align: center;
+}
+
+.reason-modal-field {
+  padding: 6rpx 8rpx;
+  background: #f8fbff;
+  border: 1rpx solid #dbeafe;
+  border-radius: 16rpx;
+}
+
+.reason-modal-actions {
+  display: flex;
+  gap: 12rpx;
+  justify-content: flex-end;
+  margin-top: 18rpx;
+}
+
+.reason-modal-btn {
+  min-width: 144rpx;
+}
+
+.reason-modal-btn-cancel.van-button--active,
+.reason-modal-btn-cancel .van-button--active {
+  background-color: #f2f3f5 !important;
+  border-color: #dcdfe6 !important;
+  opacity: 1 !important;
+}
+
+.name-verify-popup {
+  box-sizing: border-box;
+  width: 76vw;
+  max-width: 560rpx;
+  padding: 28rpx;
+  background: #fff;
+  border: 1rpx solid #cbd5e1;
+  border-radius: 6rpx;
+}
+
+.name-verify-title {
+  color: #0f172a;
+  font-weight: 600;
+  font-size: 30rpx;
+  text-align: center;
+}
+
+.name-verify-hint {
+  margin-top: 8rpx;
+  margin-bottom: 18rpx;
+  color: #64748b;
+  font-size: 22rpx;
+  line-height: 1.5;
+  text-align: center;
+}
+
+.name-verify-line {
+  display: flex;
+  gap: 20rpx;
+  align-items: center;
+  justify-content: center;
+  margin: 40rpx 0;
+}
+
+.name-verify-fixed {
+  min-width: 28rpx;
+  color: #0f172a;
+  font-weight: 600;
+  font-size: 40rpx;
+  text-align: center;
+}
+
+.name-verify-input-list {
+  display: flex;
+  gap: 12rpx;
+  align-items: center;
+}
+
+.name-verify-input {
+  display: flex;
+  align-items: center;
+  box-sizing: border-box;
+  width: 80rpx;
+  height: 80rpx;
+  padding: 0;
+  color: #0f172a;
+  font-weight: 600;
+  font-size: 40rpx;
+  letter-spacing: 0;
+  text-align: center;
+  background: #fff;
+  border: 2rpx solid #94a3b8;
+  border-radius: 0;
+}
+
+.name-verify-actions {
+  display: flex;
+  gap: 12rpx;
+  justify-content: flex-end;
+}
+
+.name-verify-btn {
+  min-width: 144rpx;
+
+  .van-button {
+    height: 64rpx;
+    font-size: 24rpx;
+    border-radius: 0;
+  }
+}
+
+.name-verify-btn-cancel.van-button--active,
+.name-verify-btn-cancel .van-button--active {
+  background-color: #fff !important;
+  border-color: #dcdfe6 !important;
+  opacity: 1 !important;
 }

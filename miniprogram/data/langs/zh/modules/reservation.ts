@@ -86,7 +86,6 @@ export default {
   'reservation.hint.cancelSeat': '取消选择',
   'reservation.hint.pleaseSelectDate': '请选择日期',
   'reservation.hint.pleaseSelectSeat': '请选择座位',
-  'reservation.hint.reservationSuccess': '预约成功',
   'reservation.hint.subscribeMessageDeclined': '您已拒绝订阅消息，预约通知可能无法及时收到',
   'reservation.hint.endTimeMustAfterStart': '结束时间必须晚于开始时间',
   'reservation.hint.customTimeBothRequired': '开始时间和结束时间必须同时填写',
@@ -110,5 +109,4 @@ export default {
   'reservation.status.selected': '已选择',
   'reservation.info.bookedTimeRange': '已预约时间段',
   'reservation.info.timeRange': '时间段信息',
-  'reservation.hint.reservationFailed': '预约失败，请稍后重试',
 };

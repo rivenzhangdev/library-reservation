@@ -1,4 +1,3 @@
-<!-- 通知页面 -->
 <page-meta>
   <!-- 导航栏 -->
   <navigation-bar title="{{pageTitle}}" back="{{false}}" />
@@ -99,6 +98,11 @@
     <view class="empty-state" wx:if="{{notificationList.length === 0}}">
       <uni-icon type="vant" name="bell" size="80" color="#ddd" />
       <text class="empty-text">{{emptyText}}</text>
+    </view>
+
+    <view class="list-footer" wx:if="{{notificationList.length > 0}}">
+      <text wx:if="{{loadingMore}}" class="list-footer__text">{{loadingMoreText}}</text>
+      <text wx:elif="{{!hasMore}}" class="list-footer__text">{{noMoreText}}</text>
     </view>
   </view>
 </view>

@@ -1,0 +1,89 @@
+<page-meta>
+  <navigation-bar title="{{navTitle}}" back="{{true}}" />
+</page-meta>
+
+<view class="settings-page">
+  <view class="card intro-card">
+    <view class="intro-title">{{introTitle}}</view>
+    <view class="intro-desc">{{introDesc}}</view>
+    <van-button type="primary" block bind:tap="onSubscribeAuthorizeTap">
+      {{subscribeButtonText}}
+    </van-button>
+  </view>
+
+  <view class="card">
+    <view class="section-title">{{sceneSectionTitle}}</view>
+
+    <view class="setting-row">
+      <text>{{bookingSuccessLabel}}</text>
+      <switch
+        class="setting-switch"
+        data-key="bookingSuccess"
+        checked="{{settings.notifications.bookingSuccess}}"
+        bindchange="onToggleNotification"
+        color="#1677ff"
+      />
+    </view>
+
+    <view class="setting-row no-border">
+      <text>{{systemNoticeLabel}}</text>
+      <switch
+        class="setting-switch"
+        data-key="systemNotice"
+        checked="{{settings.notifications.systemNotice}}"
+        bindchange="onToggleNotification"
+        color="#1677ff"
+      />
+    </view>
+  </view>
+
+  <view class="card">
+    <view class="section-title">{{dndSectionTitle}}</view>
+
+    <view class="setting-row">
+      <text>{{dndEnabledLabel}}</text>
+      <switch
+        class="setting-switch"
+        checked="{{settings.doNotDisturb.enabled}}"
+        bindchange="onToggleDnd"
+        color="#1677ff"
+      />
+    </view>
+
+    <view class="setting-row time-row">
+      <text>{{dndStartLabel}}</text>
+      <picker
+        mode="time"
+        value="{{settings.doNotDisturb.startTime}}"
+        bindchange="onStartTimeChange"
+        disabled="{{!settings.doNotDisturb.enabled}}"
+      >
+        <view class="time-value {{!settings.doNotDisturb.enabled ? 'time-value--disabled' : ''}}">
+          {{settings.doNotDisturb.startTime}}
+        </view>
+      </picker>
+    </view>
+
+    <view class="setting-row no-border time-row">
+      <text>{{dndEndLabel}}</text>
+      <picker
+        mode="time"
+        value="{{settings.doNotDisturb.endTime}}"
+        bindchange="onEndTimeChange"
+        disabled="{{!settings.doNotDisturb.enabled}}"
+      >
+        <view class="time-value {{!settings.doNotDisturb.enabled ? 'time-value--disabled' : ''}}">
+          {{settings.doNotDisturb.endTime}}
+        </view>
+      </picker>
+    </view>
+
+    <view class="dnd-tips">{{dndTips}}</view>
+  </view>
+
+  <view class="save-wrap">
+    <van-button type="primary" block loading="{{saving}}" loading-text="..." bind:tap="onSaveTap">
+      {{saveText}}
+    </van-button>
+  </view>
+</view>

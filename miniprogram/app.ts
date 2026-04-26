@@ -1,6 +1,7 @@
 ﻿import i18n, { t, switchLanguage as switchLang, getLangClassName } from './utils/i18n';
 import { clearAuthState, getToken, getUserInfo, setToken, setUserInfo } from './utils/auth';
 import { checkLogin, wxLogin } from './apis/auth';
+import { resetBackendEnvStorageOnLaunch } from './config/index';
 
 function normalizeUserInfo(userInfo: any) {
   if (!userInfo) return undefined;
@@ -47,6 +48,9 @@ const appConfig = {
   userInfoReadyCallback() {},
 
   onLaunch() {
+    // 每次启动时重置并写入本次环境配置
+    resetBackendEnvStorageOnLaunch();
+
     i18n.loadLanguage('zh');
 
     const logs = wx.getStorageSync('logs') || [];

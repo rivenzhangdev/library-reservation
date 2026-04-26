@@ -7,7 +7,26 @@
  */
 import { PROJECT_BACKEND_ENVS } from './backendEnvs';
 
-let DEFAULTS: Record<string, string> = PROJECT_BACKEND_ENVS.reduce(
+type BackendEnvItem = {
+  key: 'development' | 'test' | 'uat' | 'production';
+  label: string;
+  baseUrl: string;
+  lanBaseUrl: string;
+  isProd: boolean;
+};
+
+// 每次启动时使用的默认后端环境（修改这里即可切换）
+export const BOOT_BACKEND_ENV_KEY: BackendEnvItem['key'] = 'development';
+
+export const BACKEND_ENVS: BackendEnvItem[] = PROJECT_BACKEND_ENVS.map((env) => ({
+  key: env.key,
+  label: env.label,
+  baseUrl: env.baseUrl,
+  lanBaseUrl: env.lanBaseUrl || '',
+  isProd: !!env.isProd,
+}));
+
+const DEFAULTS: Record<string, string> = BACKEND_ENVS.reduce(
   (acc: Record<string, string>, env) => {
     acc[env.key] = env.baseUrl;
     return acc;
@@ -15,8 +34,8 @@ let DEFAULTS: Record<string, string> = PROJECT_BACKEND_ENVS.reduce(
   {} as Record<string, string>
 );
 
-// 可选的 lan 地址映射（从共享配置读取，用于真机优先访问）
-let LAN_DEFAULTS: Record<string, string> = PROJECT_BACKEND_ENVS.reduce(
+// 可选的 lan 地址映射（用于真机优先访问）
+const LAN_DEFAULTS: Record<string, string> = BACKEND_ENVS.reduce(
   (acc: Record<string, string>, env) => {
     if (env.lanBaseUrl) {
       acc[env.key] = env.lanBaseUrl;
@@ -26,51 +45,14 @@ let LAN_DEFAULTS: Record<string, string> = PROJECT_BACKEND_ENVS.reduce(
   {} as Record<string, string>
 );
 
-// 尝试读取 workspace 根目录下的共享配置文件（若存在）
-try {
-  // eslint-disable-next-line @typescript-eslint/no-var-requires
-  const shared = { BACKEND_ENVS: PROJECT_BACKEND_ENVS };
-  if (shared && Array.isArray(shared.BACKEND_ENVS)) {
-    const map = (shared.BACKEND_ENVS as Array<any>).reduce(
-      (acc: Record<string, string>, e: any) => {
-        if (e && e.key && e.baseUrl) acc[e.key] = e.baseUrl;
-        return acc;
-      },
-      {}
-    );
-    DEFAULTS = { ...DEFAULTS, ...map };
-
-    // 收集可选的 lanBaseUrl 字段
-    LAN_DEFAULTS = (shared.BACKEND_ENVS as Array<any>).reduce(
-      (acc: Record<string, string>, e: any) => {
-        if (e && e.key && e.lanBaseUrl) acc[e.key] = e.lanBaseUrl;
-        return acc;
-      },
-      {}
-    );
-  }
-} catch (_e) {
-  // ignore and keep built-in defaults
-}
-
 const STORAGE_KEY = 'backend_base_url';
+const STORAGE_ENV_KEY = 'backend_env_key';
 
-export const BACKEND_ENVS = [
-  {
-    key: 'development',
-    label: '本地',
-    baseUrl: DEFAULTS.development,
-    lanBaseUrl: LAN_DEFAULTS.development || '',
-  },
-  { key: 'test', label: '测试', baseUrl: DEFAULTS.test, lanBaseUrl: LAN_DEFAULTS.test || '' },
-  { key: 'uat', label: 'UAT', baseUrl: DEFAULTS.uat, lanBaseUrl: LAN_DEFAULTS.uat || '' },
-  {
-    key: 'production',
-    label: '线上',
-    baseUrl: DEFAULTS.production,
-    lanBaseUrl: LAN_DEFAULTS.production || '',
-  },
-];
+export function isCurrentBackendEnvProd() {
+  const currentBase = getBaseUrl();
+  const matched = BACKEND_ENVS.find((item) => item.baseUrl === currentBase);
+  return !!matched?.isProd;
+}
 
 function resolveLanBaseUrl(baseUrl: string) {
   if (!/localhost|127\.0\.0\.1/.test(baseUrl)) {
@@ -134,6 +116,29 @@ export function setBaseUrl(baseUrl: string) {
   }
 }
 
+export function setBackendEnvKey(key: BackendEnvItem['key']) {
+  try {
+    wx.setStorageSync(STORAGE_ENV_KEY, key);
+  } catch (_e) {
+    // ignore
+  }
+}
+
+export function resetBackendEnvStorageOnLaunch(key: BackendEnvItem['key'] = BOOT_BACKEND_ENV_KEY) {
+  const found = BACKEND_ENVS.find((item) => item.key === key) || BACKEND_ENVS[0];
+  if (!found) return;
+
+  try {
+    wx.removeStorageSync(STORAGE_KEY);
+    wx.removeStorageSync(STORAGE_ENV_KEY);
+  } catch (_e) {
+    // ignore
+  }
+
+  setBackendEnvKey(found.key);
+  setBaseUrl(found.baseUrl);
+}
+
 // 请求超时时间（毫秒）
 export const REQUEST_TIMEOUT = 10000;
 
@@ -142,8 +147,12 @@ export const ENABLE_LOG = true;
 
 export default {
   BACKEND_ENVS,
+  BOOT_BACKEND_ENV_KEY,
   getBaseUrl,
   setBaseUrl,
+  setBackendEnvKey,
+  resetBackendEnvStorageOnLaunch,
+  isCurrentBackendEnvProd,
   REQUEST_TIMEOUT,
   ENABLE_LOG,
 };

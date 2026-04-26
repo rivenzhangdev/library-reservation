@@ -40,6 +40,12 @@ export interface HttpResponse<T = any> {
   };
 }
 
+export interface RequestAuthRequiredError {
+  code: 'AUTH_REQUIRED';
+  message: string;
+  silent: true;
+}
+
 /**
  * 统一错误处理
  */
@@ -49,6 +55,13 @@ function handleError(res: WechatMiniprogram.RequestSuccessCallbackResult) {
 
   // HTTP 状态码错误
   if (statusCode !== 200) {
+    const responseData = (res.data || {}) as HttpResponse;
+    const businessCode = String((error as any)?.code || '').trim();
+    const businessMessage =
+      ((error as any)?.message && String((error as any).message).trim()) ||
+      (responseData as any)?.message ||
+      '';
+
     const errorMessages: Record<number, string> = {
       400: '请求参数错误',
       401: '未授权，请先登录',
@@ -58,7 +71,7 @@ function handleError(res: WechatMiniprogram.RequestSuccessCallbackResult) {
       500: '服务器内部错误',
     };
 
-    const message = errorMessages[statusCode] || `请求失败 (${statusCode})`;
+    const message = businessMessage || errorMessages[statusCode] || `请求失败 (${statusCode})`;
     wx.showToast({ title: message, icon: 'none', duration: 2000 });
 
     // 401 跳转到登录页
@@ -69,14 +82,24 @@ function handleError(res: WechatMiniprogram.RequestSuccessCallbackResult) {
       }, 1500);
     }
 
-    return Promise.reject({ code: `HTTP_${statusCode}`, message });
+    return Promise.reject({
+      code: businessCode || `HTTP_${statusCode}`,
+      message,
+      data: (responseData as any)?.data,
+      statusCode,
+      raw: res.data,
+    });
   }
 
   // 业务错误
   const responseData = res.data as HttpResponse;
   if (responseData && !responseData.success) {
-    const errorCode = error?.code;
-    const errorMessage = error?.message || '操作失败';
+    const errorCode = String(error?.code || (responseData as any)?.code || '').trim();
+    const errorMessage =
+      error?.message ||
+      (responseData as any)?.message ||
+      (responseData as any)?.error?.message ||
+      '操作失败';
 
     // 业务错误码映射
     const errorMessages: Record<string, string> = {
@@ -128,7 +151,7 @@ function handleError(res: WechatMiniprogram.RequestSuccessCallbackResult) {
       '7103': '报名已截止',
     };
 
-    const message = errorMessages[errorCode || ''] || errorMessage;
+    const message = errorMessage || errorMessages[errorCode || ''] || '操作失败';
     wx.showToast({ title: message, icon: 'none', duration: 2000 });
 
     // Token 过期处理
@@ -146,7 +169,12 @@ function handleError(res: WechatMiniprogram.RequestSuccessCallbackResult) {
       }, 1500);
     }
 
-    return Promise.reject({ code: errorCode, message });
+    return Promise.reject({
+      code: errorCode || undefined,
+      message,
+      data: (responseData as any)?.data,
+      raw: res.data,
+    });
   }
 
   return Promise.reject(responseData);
@@ -182,29 +210,16 @@ function request(options: RequestOptions): Promise<HttpResponse> {
     }
 
     if (options.needAuth && !token) {
-      wx.showToast({ title: '请先登录', icon: 'none' });
-      reject(new Error('未登录'));
+      reject({
+        code: 'AUTH_REQUIRED',
+        message: '未登录，已跳过需要登录态的请求',
+        silent: true,
+      } as RequestAuthRequiredError);
       return;
     }
 
     // 拼接完整 URL，优先使用 options.baseUrl，其次动态读取配置中的 baseUrl
     const baseUrl = options.baseUrl || getDefaultBase();
-
-    // 如果在真机/模拟器运行且 baseUrl 使用 localhost，提示开发者使用主机局域网 IP 进行联调
-    try {
-      const sys = wx.getSystemInfoSync && wx.getSystemInfoSync();
-      if (sys && sys.platform !== 'devtools' && /localhost|127\.0\.0\.1/.test(baseUrl)) {
-        // 不阻塞请求，仅做提示
-        wx.showToast({
-          title:
-            '检测到 baseUrl 为 localhost；真机调试请将后端地址改为主机 LAN IP（例如 192.168.x.x:3000）',
-          icon: 'none',
-          duration: 3500,
-        });
-      }
-    } catch (_e) {
-      // ignore
-    }
 
     const fullUrl = `${baseUrl}${options.url}`;
 
@@ -365,7 +380,6 @@ class HttpUtils {
     } catch (_e) {
       // ignore
     }
-    console.log('设置基础 URL:', baseUrl);
   }
 
   /**
@@ -373,7 +387,7 @@ class HttpUtils {
    */
   enableLog(enable: boolean) {
     // 可以在这里实现全局的日志配置
-    console.log('日志功能:', enable ? '已启用' : '已禁用');
+    void enable;
   }
 }
 

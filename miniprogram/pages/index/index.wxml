@@ -54,8 +54,19 @@
       wx:key="id"
       bind:tap="onActionCardTap"
       data-id="{{item.id}}"
+      style="background: {{item.cardBg}};"
     >
-      <uni-icon type="{{item.iconType}}" name="{{item.icon}}" size="50" color="#409eff" />
+      <view
+        class="action-card__icon"
+        style="background: {{item.iconBg}}; color: {{item.iconColor}};"
+      >
+        <uni-icon
+          type="{{item.iconType}}"
+          name="{{item.icon}}"
+          size="50"
+          color="{{item.iconColor}}"
+        />
+      </view>
       <text class="action-text">{{item.text}}</text>
     </view>
   </view>
@@ -70,7 +81,7 @@
         <view class="opening-hours-time">{{openingHoursTime}}</view>
       </view>
     </view>
-    <van-tag type="success" size="medium" class="opening-hours-status">
+    <van-tag type="{{openingHoursTagType}}" size="medium" class="opening-hours-status">
       {{openingHoursStatus}}
     </van-tag>
   </view>
@@ -170,7 +181,7 @@
       <uni-icon type="vant" name="arrow" size="28" color="#666" />
     </view>
 
-    <view class="seat-list">
+    <view class="seat-list" wx:if="{{seatList.length > 0}}">
       <grid-item
         wx:for="{{seatList}}"
         wx:key="seatId"
@@ -211,6 +222,10 @@
         </view>
       </grid-item>
     </view>
+    <view wx:else class="section-empty">
+      <uni-icon type="vant" name="cluster-o" size="42" color="#94a3b8" />
+      <text class="section-empty__text">{{seatEmptyHint}}</text>
+    </view>
   </common-card>
 
   <common-card class="activity-section" title="{{activityTitle}}">
@@ -219,7 +234,7 @@
       <uni-icon type="vant" name="arrow" size="28" color="#666" />
     </view>
 
-    <view class="activity-list">
+    <view class="activity-list" wx:if="{{activityList.length > 0}}">
       <content-card
         wx:for="{{activityList}}"
         wx:key="id"
@@ -239,6 +254,10 @@
         btnDataId="{{item.id}}"
         data-index="{{index}}"
       />
+    </view>
+    <view wx:else class="section-empty">
+      <uni-icon type="vant" name="gift-o" size="42" color="#94a3b8" />
+      <text class="section-empty__text">{{activityEmptyHint}}</text>
     </view>
   </common-card>
 </view>

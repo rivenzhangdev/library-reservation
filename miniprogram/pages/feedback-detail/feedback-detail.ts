@@ -37,6 +37,8 @@ interface FeedbackUpdateItem {
   content: string;
   time: string;
   tone: 'status' | 'official' | 'user';
+  actorType: 'official' | 'user';
+  avatarText: string;
 }
 
 Page({
@@ -98,6 +100,9 @@ Page({
     getFeedbackDetail(id)
       .then((res: any) => {
         const detail = res.data || {};
+        const descriptionText = String(
+          detail.description || detail.content || detail.remark || ''
+        ).trim();
         const rawStatus = Number(detail.status) || 1;
         const effectiveStatus =
           rawStatus === 1 && Array.isArray(detail.comments) && detail.comments.length > 0
@@ -135,6 +140,12 @@ Page({
             content: comment.content || '',
             time: comment.date || '',
             tone: comment.isOfficial ? 'official' : 'user',
+            actorType: comment.isOfficial ? 'official' : 'user',
+            avatarText: comment.isOfficial
+              ? '官'
+              : String(comment.operator || t('feedback.chat.user'))
+                  .trim()
+                  .slice(0, 1) || '用',
           })
         );
 
@@ -146,6 +157,8 @@ Page({
           content: statusContentByType[effectiveStatus] || statusHint,
           time: effectiveStatus === 1 ? detail.createdAt || '' : replyTime,
           tone: 'status',
+          actorType: 'official',
+          avatarText: '官',
         };
 
         const officialReplyUpdate: FeedbackUpdateItem | null = replyText
@@ -157,6 +170,8 @@ Page({
               content: replyText,
               time: replyTime,
               tone: 'official',
+              actorType: 'official',
+              avatarText: '官',
             }
           : null;
 
@@ -175,7 +190,7 @@ Page({
           .sort((a: any, b: any) => {
             const ta = toTimestamp(a.time) || 0;
             const tb = toTimestamp(b.time) || 0;
-            return tb - ta;
+            return ta - tb;
           });
 
         const latestOfficialReply =
@@ -184,7 +199,7 @@ Page({
         const feedback: FeedbackInfo = {
           id: detail.id,
           title: detail.title,
-          description: detail.description,
+          description: descriptionText || '-',
           contact: detail.contact || '',
           typeId: detail.typeId || 'other',
           typeName: type.name,
@@ -200,7 +215,8 @@ Page({
           statusHint,
           createTime: detail.createdAt || '',
           images: (detail.images || []).map((image: string) => resolveAssetUrl(image)),
-          latestUpdateTime: updates[0]?.time || detail.updatedAt || detail.createdAt || '',
+          latestUpdateTime:
+            updates[updates.length - 1]?.time || detail.updatedAt || detail.createdAt || '',
           latestOfficialReply,
           updates,
         };

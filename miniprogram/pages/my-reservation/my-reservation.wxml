@@ -3,20 +3,13 @@
 </page-meta>
 
 <view class="page-container {{languageClass}}">
-  <scroll-view class="status-scroll" scroll-x enable-flex show-scrollbar="{{false}}">
-    <view class="status-list">
-      <view
-        wx:for="{{statusList}}"
-        wx:key="id"
-        class="status-item {{currentStatus === item.id ? 'active' : ''}}"
-        data-id="{{item.id}}"
-        bind:tap="onStatusTap"
-      >
-        <text class="status-text">{{item.name}}</text>
-        <text class="status-badge">{{item.count}}</text>
-      </view>
-    </view>
-  </scroll-view>
+  <status-filter
+    status-list="{{statusList}}"
+    current-status="{{currentStatus}}"
+    show-count="{{true}}"
+    container-style="margin: 0 -20rpx;"
+    bind:status-change="onStatusChange"
+  />
 
   <view class="reservation-list">
     <block wx:for="{{filteredReservations}}" wx:key="id">
@@ -40,6 +33,14 @@
           <view class="reservation-actions">
             <view class="reservation-action-group">
               <block wx:if="{{item.status === 'ongoing'}}">
+                <van-button
+                  size="small"
+                  type="default"
+                  plain
+                  bind:tap="onChangeRequestTap"
+                  data-id="{{item.id}}"
+                  >{{actionChangeRequestText}}</van-button
+                >
                 <van-button
                   size="small"
                   type="primary"
@@ -70,6 +71,15 @@
                 </van-button>
                 <van-button
                   size="small"
+                  type="default"
+                  plain
+                  bind:tap="onChangeRequestTap"
+                  data-id="{{item.id}}"
+                >
+                  {{actionChangeRequestText}}
+                </van-button>
+                <van-button
+                  size="small"
                   type="info"
                   plain
                   bind:tap="onCancelTap"
@@ -85,12 +95,187 @@
         <view wx:if="{{item.warningText}}" class="reservation-warning">
           <text class="reservation-warning__text">{{item.warningText}}</text>
         </view>
+        <view wx:if="{{item.renewHintText}}" class="reservation-warning reservation-warning--info">
+          <text class="reservation-warning__text reservation-warning__text--info"
+            >{{item.renewHintText}}</text
+          >
+        </view>
+        <view wx:if="{{item.renewGuideText}}" class="reservation-warning reservation-warning--info">
+          <text class="reservation-warning__text reservation-warning__text--info"
+            >{{item.renewGuideText}}</text
+          >
+        </view>
       </common-card>
     </block>
+
+    <view wx:if="{{reservations.length > 0}}" class="list-footer">
+      <text wx:if="{{loadingMore}}" class="list-footer__text">{{loadingMoreHint}}</text>
+      <text wx:elif="{{!hasMore}}" class="list-footer__text">{{noMoreHint}}</text>
+    </view>
   </view>
 
   <view wx:if="{{filteredReservations.length === 0}}" class="empty-state">
-    <uni-icon name="orders-o" size="80" color="#dcdee0" type="vant" />
+    <uni-icon name="calendar-o" size="80" color="#dcdee0" type="vant" />
     <text class="empty-text">{{emptyHint}}</text>
   </view>
+
+  <van-popup
+    show="{{changeRequestPanelVisible}}"
+    position="center"
+    close-on-click-overlay="{{false}}"
+    lock-scroll="{{true}}"
+    root-portal="{{true}}"
+    bind:close="onChangeRequestPanelClose"
+    overlay-class="crp-overlay"
+    custom-class="crp-popup"
+  >
+    <view class="crp">
+      <view class="crp__title">{{changeRequestPanelTitle}}</view>
+      <view wx:if="{{changeRequestPanelSubtitle}}" class="crp__subtitle"
+        >{{changeRequestPanelSubtitle}}</view
+      >
+      <view wx:if="{{changeRequestPanelHintText}}" class="crp__hint"
+        >{{changeRequestPanelHintText}}</view
+      >
+
+      <!-- 选择变更类型 -->
+      <view wx:if="{{changeRequestPanelStep === 'type'}}" class="crp__body">
+        <view class="crp__option" data-type="reschedule" bind:tap="onSelectChangeRequestType">
+          <view class="crp__option-title">{{changeRequestRescheduleOptionText}}</view>
+          <view class="crp__option-desc">{{changeRequestRescheduleOptionDescText}}</view>
+        </view>
+        <view class="crp__option" data-type="seat_change" bind:tap="onSelectChangeRequestType">
+          <view class="crp__option-title">{{changeRequestSeatChangeOptionText}}</view>
+          <view class="crp__option-desc">{{changeRequestSeatChangeOptionDescText}}</view>
+        </view>
+        <view class="crp__actions">
+          <van-button
+            custom-class="crp__btn crp__btn--cancel"
+            type="default"
+            plain
+            bind:tap="onChangeRequestPanelClose"
+            >{{commonCancelText}}</van-button
+          >
+        </view>
+      </view>
+
+      <!-- 改期 -->
+      <view wx:elif="{{changeRequestPanelStep === 'reschedule'}}" class="crp__body">
+        <view class="crp__section-label">{{changeRequestDateLabelText}}</view>
+        <view class="crp__chip-list">
+          <view
+            wx:for="{{changeRequestDateCandidates}}"
+            wx:key="date"
+            class="crp__chip {{item.date === changeRequestSelectedDate ? 'crp__chip--active' : ''}}"
+            data-date="{{item.date}}"
+            bind:tap="onSelectRescheduleDate"
+            >{{item.label}}</view
+          >
+        </view>
+
+        <view class="crp__section-label">{{changeRequestSlotLabelText}}</view>
+        <view class="crp__chip-list">
+          <view
+            wx:for="{{changeRequestSlotCandidates}}"
+            wx:key="slot"
+            class="crp__chip {{item.slot === changeRequestSelectedSlot ? 'crp__chip--active' : ''}}"
+            data-slot="{{item.slot}}"
+            bind:tap="onSelectRescheduleSlot"
+            >{{item.label}}</view
+          >
+        </view>
+
+        <view class="crp__section-label">{{changeRequestReasonLabelText}}</view>
+        <van-field
+          value="{{changeRequestReasonInput}}"
+          type="textarea"
+          autosize
+          maxlength="200"
+          show-word-limit
+          placeholder="{{changeRequestReasonPlaceholder}}"
+          bind:change="onChangeRequestReasonInput"
+        />
+
+        <view class="crp__actions">
+          <van-button
+            custom-class="crp__btn"
+            type="primary"
+            loading="{{changeRequestSubmitting}}"
+            bind:tap="onConfirmRescheduleChange"
+            >{{commonConfirmText}}</van-button
+          >
+          <van-button
+            custom-class="crp__btn crp__btn--cancel"
+            type="default"
+            plain
+            bind:tap="onChangeRequestBack"
+            >{{changeRequestBackText}}</van-button
+          >
+        </view>
+      </view>
+
+      <!-- 换座位 -->
+      <view wx:elif="{{changeRequestPanelStep === 'seat_change'}}" class="crp__body">
+        <view class="crp__search-row">
+          <van-field
+            value="{{changeRequestSeatKeyword}}"
+            placeholder="{{changeRequestSeatKeywordPlaceholder}}"
+            bind:change="onChangeSeatKeywordInput"
+          />
+          <van-button
+            size="small"
+            type="primary"
+            plain
+            custom-class="crp__search-btn"
+            bind:tap="onSearchSeatCandidates"
+            >{{changeRequestSearchText}}</van-button
+          >
+        </view>
+
+        <scroll-view scroll-y class="crp__seat-list">
+          <view
+            wx:for="{{changeRequestSeatCandidates}}"
+            wx:key="id"
+            class="crp__seat-item {{item.id === changeRequestSelectedSeatId ? 'crp__seat-item--active' : ''}}"
+            data-id="{{item.id}}"
+            bind:tap="onPickSeatCandidate"
+            >{{item.label}}</view
+          >
+          <view
+            wx:if="{{!changeRequestSeatLoading && changeRequestSeatCandidates.length === 0}}"
+            class="crp__empty"
+            >{{changeRequestNoSeatCandidateText}}</view
+          >
+        </scroll-view>
+
+        <view class="crp__section-label">{{changeRequestReasonLabelText}}</view>
+        <van-field
+          value="{{changeRequestReasonInput}}"
+          type="textarea"
+          autosize
+          maxlength="200"
+          show-word-limit
+          placeholder="{{changeRequestReasonPlaceholder}}"
+          bind:change="onChangeRequestReasonInput"
+        />
+
+        <view class="crp__actions">
+          <van-button
+            custom-class="crp__btn"
+            type="primary"
+            loading="{{changeRequestSubmitting}}"
+            bind:tap="onConfirmSeatChange"
+            >{{commonConfirmText}}</van-button
+          >
+          <van-button
+            custom-class="crp__btn crp__btn--cancel"
+            type="default"
+            plain
+            bind:tap="onChangeRequestBack"
+            >{{changeRequestBackText}}</van-button
+          >
+        </view>
+      </view>
+    </view>
+  </van-popup>
 </view>

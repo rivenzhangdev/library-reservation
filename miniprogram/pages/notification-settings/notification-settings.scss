@@ -1,0 +1,84 @@
+.settings-page {
+  min-height: 100vh;
+  padding: 24rpx;
+  background: #f4f7fb;
+}
+
+.card {
+  margin-bottom: 18rpx;
+  padding: 24rpx;
+  background: #fff;
+  border-radius: 18rpx;
+  box-shadow: 0 6rpx 16rpx rgba(15, 23, 42, 0.06);
+}
+
+.intro-card {
+  display: flex;
+  flex-direction: column;
+  gap: 14rpx;
+}
+
+.intro-title {
+  color: #0f172a;
+  font-weight: 700;
+  font-size: 30rpx;
+}
+
+.intro-desc {
+  color: #475569;
+  font-size: 24rpx;
+  line-height: 1.7;
+}
+
+.section-title {
+  margin-bottom: 10rpx;
+  color: #0f172a;
+  font-weight: 700;
+  font-size: 28rpx;
+}
+
+.setting-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 88rpx;
+  color: #334155;
+  font-size: 26rpx;
+  border-bottom: 1rpx solid #e2e8f0;
+}
+
+.setting-switch {
+  transform: scale(0.9);
+  transform-origin: right center;
+}
+
+.no-border {
+  border-bottom: none;
+}
+
+.time-row {
+  padding-right: 4rpx;
+}
+
+.time-value {
+  min-width: 140rpx;
+  color: #0f172a;
+  font-weight: 600;
+  text-align: right;
+}
+
+.time-value--disabled {
+  color: #94a3b8;
+}
+
+.dnd-tips {
+  margin-top: 14rpx;
+  color: #64748b;
+  font-size: 22rpx;
+  line-height: 1.6;
+}
+
+.save-wrap {
+  margin-top: 10rpx;
+  padding-bottom: 28rpx;
+}

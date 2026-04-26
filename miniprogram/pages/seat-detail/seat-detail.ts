@@ -4,12 +4,13 @@ import { openReservationWithParams } from '../../utils/reservationNavigator';
 import { getToday } from '../../utils/time';
 import { isLogin, redirectToLogin } from '../../utils/auth';
 import { t, getLangClassName } from '../../utils/i18n';
+import { getFallbackTimeSlotConfigs } from '../../utils/time-slot';
 
-const TIME_SLOT_INFO = [
-  { value: '0', labelKey: 'reservation.time.period.morning', range: '08:00 - 12:00' },
-  { value: '1', labelKey: 'reservation.time.period.afternoon', range: '13:00 - 17:00' },
-  { value: '2', labelKey: 'reservation.time.period.evening', range: '18:00 - 22:00' },
-];
+const TIME_SLOT_INFO = getFallbackTimeSlotConfigs().map((item) => ({
+  value: String(item.slot),
+  label: item.label,
+  range: `${item.startTime} - ${item.endTime}`,
+}));
 
 function normalizeSlotStatus(source: any) {
   const rawValue = String(source ?? '0');
@@ -58,14 +59,13 @@ function getSeatName(detail: any) {
 
 function buildSlotStatusList(timeSlotStatus: any) {
   return TIME_SLOT_INFO.map((slot) => {
-    const slotName = t(slot.labelKey);
     const status = normalizeSlotStatus(timeSlotStatus?.[slot.value]);
     const statusText = t(`common.status.${status}`);
     const tagType =
       status === 'available' ? 'success' : status === 'booked' ? 'warning' : 'default';
     return {
       value: slot.value,
-      label: slotName,
+      label: slot.label,
       range: slot.range,
       status,
       statusText,

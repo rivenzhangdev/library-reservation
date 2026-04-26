@@ -68,6 +68,20 @@
   margin-bottom: var(--common-spacing-md);
 }
 
+.result-empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 120rpx 0;
+}
+
+.result-empty-text {
+  margin-top: 24rpx;
+  color: #94a3b8;
+  font-size: 26rpx;
+}
+
 // 导航栏右侧按钮
 .nav-right {
   display: flex;
@@ -326,6 +340,20 @@
   }
 }
 
+.idle-state {
+  display: flex;
+  flex-direction: column;
+  gap: var(--common-spacing-lg);
+  align-items: center;
+  justify-content: center;
+  padding: 140rpx 0 40rpx;
+}
+
+.idle-state__text {
+  color: #94a3b8;
+  font-size: var(--common-font-size-md);
+}
+
 .facility-checkbox .van-checkbox__label {
   display: none;
 }
@@ -365,4 +393,15 @@
 .result-item {
   display: block;
   margin-bottom: var(--common-spacing-md);
+}
+
+.list-footer {
+  display: flex;
+  justify-content: center;
+  padding: var(--common-spacing-lg) 0 var(--common-spacing-sm);
+}
+
+.list-footer__text {
+  color: #94a3b8;
+  font-size: var(--common-font-size-sm);
 }

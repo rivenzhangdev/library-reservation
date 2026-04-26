@@ -183,11 +183,11 @@ Page({
         if (!res.confirm) return;
         joinActivity(this.data.activityId)
           .then(() => {
-            wx.showToast({ title: t('activity.toast.registerSuccess'), icon: 'success' });
+            wx.showToast({ title: t('common.toast.registerSuccess'), icon: 'success' });
             this.loadDetail(this.data.activityId);
           })
           .catch(() => {
-            wx.showToast({ title: t('activity.toast.registerFailed'), icon: 'none' });
+            wx.showToast({ title: t('common.toast.registerFailed'), icon: 'none' });
           });
       },
     });
