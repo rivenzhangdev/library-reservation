@@ -1,5 +1,5 @@
 import config from '../../config/index';
-import { getToken } from '../../utils/auth';
+import { clearLoginRedirectSuppression, getToken, markLoginPageDismissed } from '../../utils/auth';
 import { getLangClassName, t } from '../../utils/i18n';
 
 interface LoginPageData {
@@ -30,9 +30,11 @@ Page({
   } as LoginPageData,
 
   redirectUrl: '',
+  loginCompleted: false,
 
   onLoad(options: Record<string, string>) {
     this.redirectUrl = String(options?.redirectUrl || '');
+    this.loginCompleted = false;
     this.updateLanguage();
     this.updateEnvEntry();
   },
@@ -42,8 +44,18 @@ Page({
     this.updateEnvEntry();
 
     if (getToken()) {
-      wx.switchTab({ url: '/pages/index/index' });
+      this.loginCompleted = true;
+      this.navigateAfterLogin();
     }
+  },
+
+  onUnload() {
+    if (this.loginCompleted || getToken()) {
+      return;
+    }
+
+    // 用户主动关闭登录页后，短时间内不重复拉起。
+    markLoginPageDismissed();
   },
 
   updateEnvEntry() {
@@ -73,12 +85,18 @@ Page({
   },
 
   navigateAfterLogin() {
-    const nextUrl = this.redirectUrl || '/pages/index/index';
     if (this.redirectUrl) {
-      wx.reLaunch({ url: nextUrl });
+      wx.reLaunch({ url: this.redirectUrl });
       return;
     }
-    wx.switchTab({ url: nextUrl });
+
+    const pages = getCurrentPages();
+    if (pages.length > 1) {
+      wx.navigateBack({ delta: 1 });
+      return;
+    }
+
+    wx.switchTab({ url: '/pages/index/index' });
   },
 
   async onLoginTap() {
@@ -90,6 +108,8 @@ Page({
 
     try {
       await app.doWxLogin();
+      this.loginCompleted = true;
+      clearLoginRedirectSuppression();
       wx.showToast({ title: t('common.auth.loginSuccess'), icon: 'success' });
       this.navigateAfterLogin();
     } catch (error) {

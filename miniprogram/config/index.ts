@@ -16,7 +16,7 @@ type BackendEnvItem = {
 };
 
 // 每次启动时使用的默认后端环境（修改这里即可切换）
-export const BOOT_BACKEND_ENV_KEY: BackendEnvItem['key'] = 'development';
+export const BOOT_BACKEND_ENV_KEY: BackendEnvItem['key'] = 'production';
 
 export const BACKEND_ENVS: BackendEnvItem[] = PROJECT_BACKEND_ENVS.map((env) => ({
   key: env.key,
@@ -48,10 +48,35 @@ const LAN_DEFAULTS: Record<string, string> = BACKEND_ENVS.reduce(
 const STORAGE_KEY = 'backend_base_url';
 const STORAGE_ENV_KEY = 'backend_env_key';
 
-export function isCurrentBackendEnvProd() {
+export function getCurrentBackendEnvKey(): BackendEnvItem['key'] | undefined {
+  try {
+    const storedKey = wx.getStorageSync(STORAGE_ENV_KEY) as string;
+    if (storedKey && BACKEND_ENVS.some((item) => item.key === storedKey)) {
+      return storedKey as BackendEnvItem['key'];
+    }
+  } catch (_e) {
+    // ignore
+  }
+
   const currentBase = getBaseUrl();
-  const matched = BACKEND_ENVS.find((item) => item.baseUrl === currentBase);
-  return !!matched?.isProd;
+  const matched = BACKEND_ENVS.find(
+    (item) => item.baseUrl === currentBase || item.lanBaseUrl === currentBase
+  );
+  return matched?.key;
+}
+
+export function isCurrentBackendEnvProd() {
+  const currentKey = getCurrentBackendEnvKey();
+  return !!currentKey && BACKEND_ENVS.some((item) => item.key === currentKey && item.isProd);
+}
+
+export function isReleasePackage() {
+  try {
+    const sys = wx.getSystemInfoSync && (wx.getSystemInfoSync() as any);
+    return !!sys && sys.envVersion === 'release';
+  } catch (_e) {
+    return false;
+  }
 }
 
 function resolveLanBaseUrl(baseUrl: string) {
@@ -95,6 +120,10 @@ export function getBaseUrl() {
   try {
     const sys = wx.getSystemInfoSync && wx.getSystemInfoSync();
     if (sys && sys.platform && sys.platform !== 'devtools') {
+      if (isReleasePackage()) {
+        return DEFAULTS.production;
+      }
+
       const devLan = LAN_DEFAULTS.development;
       if (devLan) return devLan;
       // 否则尝试取第一个有配置的 lanBaseUrl

@@ -5,6 +5,8 @@
 
 const TOKEN_KEY = 'library_reservation_token';
 const USER_INFO_KEY = 'library_reservation_user_info';
+const LOGIN_PAGE_DISMISSED_AT_KEY = 'library_reservation_login_page_dismissed_at';
+const LOGIN_REDIRECT_SUPPRESS_MS = 2500;
 
 function syncGlobalUserInfo(userInfo: any): void {
   try {
@@ -95,10 +97,49 @@ export function isLogin(): boolean {
   return !!token;
 }
 
-export function redirectToLogin(redirectUrl?: string): void {
+function getLoginDismissedAt(): number {
+  try {
+    return Number(wx.getStorageSync(LOGIN_PAGE_DISMISSED_AT_KEY) || 0);
+  } catch (_e) {
+    return 0;
+  }
+}
+
+export function markLoginPageDismissed(): void {
+  try {
+    wx.setStorageSync(LOGIN_PAGE_DISMISSED_AT_KEY, Date.now());
+  } catch (e) {
+    console.warn('记录登录页关闭时间失败:', e);
+  }
+}
+
+export function clearLoginRedirectSuppression(): void {
+  try {
+    wx.removeStorageSync(LOGIN_PAGE_DISMISSED_AT_KEY);
+  } catch (e) {
+    console.warn('清理登录页关闭标记失败:', e);
+  }
+}
+
+export function shouldSuppressLoginRedirect(): boolean {
+  const dismissedAt = getLoginDismissedAt();
+  if (!dismissedAt) return false;
+  return Date.now() - dismissedAt < LOGIN_REDIRECT_SUPPRESS_MS;
+}
+
+export function redirectToLogin(
+  redirectUrl?: string,
+  options?: {
+    force?: boolean;
+  }
+): void {
   const pages = getCurrentPages();
   const currentPage = pages[pages.length - 1] as any;
   if (currentPage?.route === 'pages/login/login') {
+    return;
+  }
+
+  if (!options?.force && shouldSuppressLoginRedirect()) {
     return;
   }
 
@@ -178,6 +219,9 @@ export default {
   clearUserInfo,
   isLogin,
   redirectToLogin,
+  markLoginPageDismissed,
+  clearLoginRedirectSuppression,
+  shouldSuppressLoginRedirect,
   requireLogin,
   logout,
   clearAuthState,

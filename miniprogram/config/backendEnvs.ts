@@ -37,8 +37,8 @@ export const PROJECT_BACKEND_ENVS: MiniProgramBackendEnv[] = [
   {
     key: 'production',
     label: '线上生产',
-    baseUrl: 'https://api.your-library.example.com',
-    lanBaseUrl: '',
+    baseUrl: 'http://localhost:3003',
+    lanBaseUrl: 'http://172.25.69.158:3003',
     isProd: true,
   },
 ];
